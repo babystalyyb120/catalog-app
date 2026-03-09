@@ -124,7 +124,31 @@ async function wsSet(v){
 }
 
 // ══════ 기본값 ══════
-const DEF_CC=[{name:"레드",hex:"#e05050"},{name:"오렌지",hex:"#e8873a"},{name:"옐로우",hex:"#d4b800"},{name:"그린",hex:"#4a9e6a"},{name:"블루",hex:"#4a7ec9"},{name:"퍼플",hex:"#8860c8"},{name:"블랙",hex:"#333333"},{name:"화이트",hex:"#bbbbbb"},{name:"그레이",hex:"#888888"},{name:"브라운",hex:"#8b5e3c"}];
+const DEF_CC=[
+  {name:"레드",hex:"#e05050"},
+  {name:"오렌지",hex:"#e8873a"},
+  {name:"옐로",hex:"#d4b800"},
+  {name:"그린",hex:"#4a9e6a"},
+  {name:"블루",hex:"#4a7ec9"},
+  {name:"퍼플",hex:"#8860c8"},
+  {name:"블랙",hex:"#333333"},
+  {name:"화이트",hex:"#bbbbbb"},
+  {name:"그레이",hex:"#888888"},
+  {name:"브라운",hex:"#8b5e3c"},
+  {name:"라이트브라운",hex:"#c49a6c"},
+  {name:"다크브라운",hex:"#5c3317"},
+  {name:"체리",hex:"#8b1a2a"},
+  {name:"내추럴우드",hex:"#b5895a"},
+  {name:"라이트우드",hex:"#d4b896"},
+  {name:"다크우드",hex:"#4a2e1a"},
+  {name:"골드",hex:"#c9a84c"},
+  {name:"실버",hex:"#a8a8a8"},
+  {name:"퓨어화이트",hex:"#f5f5f5"},
+  {name:"내추럴",hex:"#d6c9a8"},
+  {name:"아이보리",hex:"#f5f0e0"},
+  {name:"라이트블루",hex:"#89b4d9"},
+  {name:"월넛",hex:"#5c4033"},
+];
 const DEF_CATS=["수집품","도서","의류","전자기기","기타"];
 const DEF_ITEMS=[{id:1,name:"빈티지 카메라",category:"수집품",colorCat:"블랙",acquired:true,quantity:1,date:"2024-01-10",image:null,note:"Leica M3",price:0},{id:2,name:"디자인 패턴",category:"도서",colorCat:"",acquired:false,quantity:2,date:"2024-02-15",image:null,note:"Gang of Four",price:0},{id:3,name:"레더 재킷",category:"의류",colorCat:"브라운",acquired:true,quantity:1,date:"2024-03-01",image:null,note:"빈티지 스타일",price:0}];
 const DEF_STATE={items:DEF_ITEMS,categories:DEF_CATS,colorCats:DEF_CC,settings:{photoMode:false,viewMode:"이미지형",gridCols:3,sortBy:"date-desc"}};
@@ -394,12 +418,12 @@ function CtxMenu({x,y,onCopy,onEdit,onDelete,onClose}){
 const ImageCard=memo(function ImageCard({item,photoMode,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong,gridCols=3,nameEllipsis=true}){
   const ref=useRef(null);
   const hex=item.colorCat?getHex(colorCats,item.colorCat):null;
-  // getter 패턴: 렌더 시마다 최신 함수 반환
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
+  const pos=item.imagePosition||"50% 50%";
   return(
     <div ref={ref} style={{background:"#fff",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!photoMode?"#444444":"#e0e0e0")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
       <div style={{position:"relative",paddingTop:"100%",background:"#fff"}}>
-        {item.image?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",background:"#fff"}}/>
+        {item.image?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
           :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"#c0b8a8",background:"#f8f5f0"}}>🖼️</div>}
         {selectMode&&(
           <div style={{position:"absolute",top:5,left:5,width:26,height:26,borderRadius:6,border:`3px solid ${selected?"#4a7ec9":"rgba(80,80,80,.7)"}`,background:selected?"#4a7ec9":"rgba(255,255,255,.95)",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none",zIndex:10,boxShadow:"0 2px 6px rgba(0,0,0,.4)"}}>
@@ -446,7 +470,7 @@ const ListRow=memo(function ListRow({item,photoMode,colorCats,selected,selectMod
         </div>
       )}
       <div style={{width:44,height:44,borderRadius:7,overflow:"hidden",flexShrink:0,background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid #ede4d0"}}>
-        {item.image?<img src={item.image} alt="" draggable={false} style={{width:"100%",height:"100%",objectFit:"contain"}}/>:<span style={{fontSize:18,opacity:.5}}>🖼️</span>}
+        {item.image?<img src={item.image} alt="" draggable={false} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:item.imagePosition||"50% 50%"}}/>:<span style={{fontSize:18,opacity:.5}}>🖼️</span>}
       </div>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontWeight:700,fontSize:11,color:"#222222",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
@@ -483,16 +507,49 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
   const [quantity,setQuantity]=useState(editItem?.quantity??1);
   const [price,   setPrice]   =useState(editItem?.price??0);
   const [image,   setImage]   =useState(editItem?.image||null); // Cloudinary URL or null
+  const [imagePosition,setImagePosition]=useState(editItem?.imagePosition||"50% 50%");
   const [dragOver,setDragOver]=useState(false);
   const [uploading,setUploading]=useState(false);
   const [uploadErr,setUploadErr]=useState("");
+  const [adjusting,setAdjusting]=useState(false);
+  const adjRef=useRef(null);
+  const adjDrag=useRef(null);
+
+  // 이미지 위치 조정 드래그 핸들러
+  function onAdjPointerDown(e){
+    e.preventDefault();
+    const box=adjRef.current.getBoundingClientRect();
+    const startX=e.clientX, startY=e.clientY;
+    const [px,py]=imagePosition.split(" ").map(v=>parseFloat(v));
+    adjDrag.current={startX,startY,px,py,w:box.width,h:box.height};
+    window.addEventListener("pointermove",onAdjPointerMove);
+    window.addEventListener("pointerup",onAdjPointerUp);
+  }
+  function onAdjPointerMove(e){
+    if(!adjDrag.current)return;
+    const {startX,startY,px,py,w,h}=adjDrag.current;
+    const dx=(e.clientX-startX)/w*100;
+    const dy=(e.clientY-startY)/h*100;
+    const nx=Math.max(0,Math.min(100,px-dx));
+    const ny=Math.max(0,Math.min(100,py-dy));
+    setImagePosition(`${nx.toFixed(1)}% ${ny.toFixed(1)}%`);
+    adjDrag.current={...adjDrag.current,startX:e.clientX,startY:e.clientY,px:nx,py:ny};
+  }
+  function onAdjPointerUp(){
+    adjDrag.current=null;
+    window.removeEventListener("pointermove",onAdjPointerMove);
+    window.removeEventListener("pointerup",onAdjPointerUp);
+  }
 
   async function handleFile(file){
     if(!file||!file.type.startsWith("image/"))return;
     setUploading(true);
+    setUploadErr("");
     try{
       const url=await compressAndUpload(file, cdnConfig);
       setImage(url);
+      setImagePosition("50% 50%");
+      setAdjusting(true); // 업로드 되면 바로 위치 조정 모드
     }catch(err){
       setUploadErr("업로드 실패: "+err.message);
     }finally{setUploading(false);}
@@ -508,19 +565,37 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
 
         {/* ★ 사진 영역 */}
         <div style={{marginBottom:8}}>
-          {/* 미리보기 + 드래그앤드롭 */}
+          {/* 1:1 미리보기 */}
           <div
             onDragOver={e=>{e.preventDefault();setDragOver(true);}}
             onDragLeave={()=>setDragOver(false)}
             onDrop={e=>{e.preventDefault();setDragOver(false);handleFile(e.dataTransfer.files[0]);}}
-            style={{position:"relative",paddingTop:"55%",border:`2px dashed ${dragOver?"#444444":"#cccccc"}`,borderRadius:10,overflow:"hidden",background:dragOver?"#f0f0f0":"#f5f5f5",marginBottom:8}}>
+            style={{position:"relative",paddingTop:"100%",border:`2px dashed ${adjusting?"#4a7ec9":dragOver?"#444444":"#cccccc"}`,borderRadius:10,overflow:"hidden",background:dragOver?"#f0f0f0":"#f5f5f5",marginBottom:4}}>
             {image
-              ?<img src={image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",background:"#fff"}}/>
+              ?<>
+                <img ref={adjRef} src={image} alt="" draggable={false}
+                  onPointerDown={adjusting?onAdjPointerDown:undefined}
+                  style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:imagePosition,background:"#fff",cursor:adjusting?"grab":"default",userSelect:"none",touchAction:"none"}}/>
+                {adjusting&&(
+                  <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}>
+                    <div style={{background:"rgba(0,0,0,.55)",color:"#fff",fontSize:11,padding:"5px 10px",borderRadius:20,textAlign:"center"}}>↕↔ 드래그로 위치 조정</div>
+                  </div>
+                )}
+              </>
               :<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",color:"#888888",pointerEvents:"none"}}>
                 <div style={{fontSize:28}}>📷</div>
                 <div style={{fontSize:11,marginTop:4}}>아래 버튼으로 선택하거나 드래그</div>
               </div>}
           </div>
+
+          {image&&!uploading&&(
+            <div style={{display:"flex",justifyContent:"center",marginBottom:4}}>
+              <button type="button" onClick={()=>setAdjusting(a=>!a)}
+                style={{padding:"5px 14px",borderRadius:20,border:`2px solid ${adjusting?"#4a7ec9":"#cccccc"}`,background:adjusting?"#eef4ff":"transparent",color:adjusting?"#4a7ec9":"#888",fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>
+                {adjusting?"✓ 위치 조정 완료":"✏️ 이미지 위치 조정"}
+              </button>
+            </div>
+          )}
 
           {uploadErr&&<div style={{fontSize:12,color:"#e05050",marginTop:4,padding:"6px 10px",background:"#fff0f0",borderRadius:6}}>{uploadErr}</div>}
           {/* ★ 버튼 위에 input을 직접 absolute로 덮음 — iOS에서도 gesture chain 유지 */}
@@ -537,7 +612,7 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
               />
             </div>
             {image&&!uploading&&(
-              <button type="button" onClick={()=>setImage(null)}
+              <button type="button" onClick={()=>{setImage(null);setImagePosition("50% 50%");setAdjusting(false);}}
                 style={{padding:"9px 14px",borderRadius:7,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontSize:13,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
                 ✕ 제거
               </button>
@@ -583,7 +658,7 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
 
         <div style={{display:"flex",gap:10}}>
           <Btn onClick={onClose} style={{flex:1,padding:11,borderRadius:8,border:"2px solid #cccccc",background:"transparent",color:"#666666",fontSize:14,fontWeight:900}}>취소</Btn>
-          <Btn onClick={()=>{if(name.trim()&&!uploading)onSave({name:name.trim(),category,colorCat,note,image,quantity,price});}}
+          <Btn onClick={()=>{if(name.trim()&&!uploading)onSave({name:name.trim(),category,colorCat,note,image,imagePosition,quantity,price});}}
             disabled={uploading}
             style={{flex:2,padding:11,borderRadius:8,border:"none",background:(name.trim()&&!uploading)?"#444444":"#dddddd",color:"#222222",fontSize:14,fontWeight:700}}>
             {uploading?"업로드 중...":(editItem?"저장":"추가")}
@@ -611,13 +686,14 @@ function VirtualGrid({items,cols,photoMode,colorCats,sel,selectMode,nameEllipsis
   });
 
   const GAP=8;
+  const cardW=Math.floor((Math.min(window.innerWidth,480)-16-(GAP*(cols-1)))/cols);
   const rowH=cardH;
   const {containerRef,visibleItems,totalH,paddingTop,paddingBottom}=useVirtualGrid(items,cols,rowH);
 
   return(
     <div ref={containerRef} style={{position:"relative",minHeight:totalH}}>
       <div style={{height:paddingTop}}/>
-      <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},1fr)`,gap:GAP}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW}px)`,gap:GAP,justifyContent:"start"}}>
         {visibleItems.map(({item,idx})=>(
           <div key={item.id} ref={idx===0?measureRef:null}>
             <ImageCard item={item} photoMode={photoMode} colorCats={colorCats}
@@ -806,11 +882,11 @@ export default function CatalogApp(){
         {/* Row 1: 타이틀 + 추가 + 통계 + 저장 */}
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:7,flexWrap:"nowrap"}}>
           <span style={{fontSize:22,fontWeight:900,color:"#ffffff",flexShrink:0}}>🍃 모동숲</span>
-          <Btn onClick={openAdd} style={{...HB,background:"#444444",color:"#222222",padding:"5px 13px",fontSize:15,flexShrink:0}}>+ 추가</Btn>
+          <Btn onClick={openAdd} style={{...HB,background:"#ffffff",color:"#222222",padding:"5px 13px",fontSize:15,flexShrink:0,border:"none"}}>+ 추가</Btn>
           <span style={{fontSize:14,color:"#aaaaaa",whiteSpace:"nowrap",flexShrink:0}}>전체 {items.length} · 습득 <b style={{color:"#ffffff"}}>{acq}</b></span>
           <div style={{flex:1}}/>
-          <Btn onClick={()=>doSave(false)} style={{...HB,background:unsaved?"#444444":"#333333",color:unsaved?"#222222":"#6a5040",border:`1.5px solid ${unsaved?"#444444":"#555555"}`,padding:"5px 11px",fontSize:14,flexShrink:0,boxShadow:unsaved?"0 0 6px rgba(201,168,76,.6)":"none"}}>
-            {unsaved?"💾 저장":"✓저장됨"}
+          <Btn onClick={()=>doSave(false)} style={{...HB,background:unsaved?"#f5c842":"#444444",color:"#222222",border:`1.5px solid ${unsaved?"#f5c842":"#666666"}`,padding:"5px 11px",fontSize:14,flexShrink:0,boxShadow:unsaved?"0 0 6px rgba(245,200,66,.5)":"none"}}>
+            {unsaved?"💾 저장":"✓ 저장됨"}
           </Btn>
         </div>
 
@@ -828,7 +904,7 @@ export default function CatalogApp(){
             const active=search===tag;
             return(
               <button key={k} onClick={()=>setSearch(active?"":tag)}
-                style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?"#444444":"#555555"}`,background:active?"#444444":"#333333",color:active?"#222222":"#7a6050",fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0}}>
+                style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?"#ffffff":"#666666"}`,background:active?"#ffffff":"#333333",color:active?"#222222":"#cccccc",fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0}}>
                 {{"숫자":"숫자","영어":"영어","ㄱ":"ㄱ·ㄲ","ㄴ":"ㄴ","ㄷ":"ㄷ·ㄸ","ㄹ":"ㄹ","ㅁ":"ㅁ","ㅂ":"ㅂ·ㅃ","ㅅ":"ㅅ·ㅆ","ㅇ":"ㅇ","ㅈ":"ㅈ·ㅉ","ㅊ":"ㅊ","ㅋ":"ㅋ","ㅌ":"ㅌ","ㅍ":"ㅍ","ㅎ":"ㅎ"}[k]}
               </button>
             );
@@ -837,21 +913,21 @@ export default function CatalogApp(){
 
         {/* Row 3: 뷰 + 열 + 선택 + 설정 */}
         <div style={{display:"flex",gap:5,alignItems:"center",overflowX:"auto",paddingBottom:2,scrollbarWidth:"none",msOverflowStyle:"none"}}>
-          <div style={{display:"flex",borderRadius:6,overflow:"hidden",border:"1.5px solid #555555",flexShrink:0}}>
+          <div style={{display:"flex",borderRadius:6,overflow:"hidden",border:"1.5px solid #666666",flexShrink:0}}>
             {["이미지형","목록형"].map(m=>(
-              <Btn key={m} onClick={()=>setViewMode(m)} style={{...HB,borderRadius:0,padding:"5px 9px",fontSize:14,background:viewMode===m?"#444444":"#333333",color:viewMode===m?"#222222":"#888888"}}>{m}</Btn>
+              <Btn key={m} onClick={()=>setViewMode(m)} style={{...HB,borderRadius:0,padding:"5px 9px",fontSize:14,background:viewMode===m?"#ffffff":"#333333",color:viewMode===m?"#222222":"#cccccc"}}>{m}</Btn>
             ))}
           </div>
           {viewMode==="이미지형"&&<>
-            <span style={{color:"#888888",fontSize:14,flexShrink:0}}>열:</span>
+            <span style={{color:"#cccccc",fontSize:14,flexShrink:0}}>열:</span>
             {GRID_COLS.map(n=>(
-              <Btn key={n} onClick={()=>setGridCols(n)} style={{...HB,padding:"4px 8px",background:gridCols===n?"#444444":"#333333",color:gridCols===n?"#222222":"#888888",border:"1.5px solid #555555",borderRadius:6,fontSize:14,flexShrink:0,minWidth:28,textAlign:"center"}}>{n}</Btn>
+              <Btn key={n} onClick={()=>setGridCols(n)} style={{...HB,padding:"4px 8px",background:gridCols===n?"#ffffff":"#333333",color:gridCols===n?"#222222":"#cccccc",border:"1.5px solid #666666",borderRadius:6,fontSize:14,flexShrink:0,minWidth:28,textAlign:"center"}}>{n}</Btn>
             ))}
           </>}
-          <Btn onClick={()=>{setSelectMode(s=>!s);setSel(new Set());}} style={{...HB,background:selectMode?"#4a7ec9":"#333333",color:selectMode?"#fff":"#444444",border:"1.5px solid #555555",padding:"5px 10px",fontSize:14,flexShrink:0}}>
+          <Btn onClick={()=>{setSelectMode(s=>!s);setSel(new Set());}} style={{...HB,background:selectMode?"#4a7ec9":"#333333",color:selectMode?"#fff":"#cccccc",border:"1.5px solid #666666",padding:"5px 10px",fontSize:14,flexShrink:0}}>
             {selectMode?"✓선택중":"☐선택"}
           </Btn>
-          <Btn onClick={()=>setSettings(true)} style={{...HB,background:"#333333",color:"#888888",border:"1.5px solid #555555",padding:"5px 10px",fontSize:14,flexShrink:0}}>⚙️</Btn>
+          <Btn onClick={()=>setSettings(true)} style={{...HB,background:"#333333",color:"#cccccc",border:"1.5px solid #666666",padding:"5px 10px",fontSize:14,flexShrink:0}}>⚙️</Btn>
         </div>
       </header>
 
