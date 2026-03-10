@@ -44,16 +44,27 @@ function matchSearch(t,q){if(!q)return true;if(t.toLowerCase().includes(q.toLowe
 // 항목 전체 필터 (일반 검색 + 특수 검색어)
 function itemMatchesQuery(item, query){
   if(!query)return true;
-  // 복합 쿼리 지원: "[숫자만] [영어만]" 등 여러 태그 동시 적용
   const parts=query.trim().split(/\s+/);
-  return parts.every(part=>{
-    if(part==="[습득]") return item.acquired===true;
-    if(part==="[미습득]") return item.acquired===false;
-    const spec=parseSpecialQuery(part);
-    if(spec)return itemMatchesSpecial(item, spec);
+  // 특수태그([숫자만],[영어만],[자음ㄱ만],[습득] 등)는 OR 조건
+  // 일반 텍스트 검색은 AND 조건
+  const specialParts=parts.filter(p=>p.startsWith("[")&&p.endsWith("]"));
+  const textParts=parts.filter(p=>!(p.startsWith("[")&&p.endsWith("]")));
+  // 특수태그: 하나라도 해당되면 통과
+  if(specialParts.length>0){
+    const matchesSpecial=specialParts.some(part=>{
+      if(part==="[습득]") return item.acquired===true;
+      if(part==="[미습득]") return item.acquired===false;
+      const spec=parseSpecialQuery(part);
+      return spec?itemMatchesSpecial(item,spec):false;
+    });
+    if(!matchesSpecial)return false;
+  }
+  // 일반 텍스트: 전부 해당되어야 통과
+  if(textParts.length>0){
     const fields=[dispName(item), item.note||"", item.category||""];
-    return fields.some(f=>matchSearch(f, part));
-  });
+    if(!textParts.every(p=>fields.some(f=>matchSearch(f,p))))return false;
+  }
+  return true;
 }
 
 // ══════ 스토리지 ══════
