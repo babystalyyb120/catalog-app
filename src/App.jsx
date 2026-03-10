@@ -240,7 +240,7 @@ function CloudinarySetup({onSave}){
           placeholder="예: catalog_unsigned" style={IS2}/>
 
         <button onClick={handleSave}
-          style={{width:"100%",padding:"12px",borderRadius:8,border:"none",background:(cloudName.trim()&&uploadPreset.trim())?"#444444":"#cccccc",color:"#222222",fontSize:15,fontWeight:700,cursor:(cloudName.trim()&&uploadPreset.trim())?"pointer":"not-allowed",fontFamily:"inherit"}}>
+          style={{width:"100%",padding:"12px",borderRadius:8,border:"none",background:(cloudName.trim()&&uploadPreset.trim())?"#444444":"#cccccc",color:"#ffffff",fontSize:15,fontWeight:700,cursor:(cloudName.trim()&&uploadPreset.trim())?"pointer":"not-allowed",fontFamily:"inherit"}}>
           ✓ 연결하고 시작하기
         </button>
         {err&&<div style={{marginTop:8,fontSize:12,color:"#e05050",textAlign:"center"}}>{err}</div>}
@@ -365,7 +365,7 @@ function useVirtualGrid(items, cols, rowHeight, overscan=3){
 
 // ══════ 공통 UI ══════
 const Btn=({children,onClick,style,disabled,...r})=>(
-  <button onClick={onClick} disabled={disabled} style={{fontFamily:"inherit",cursor:disabled?"not-allowed":"pointer",...style}}{...r}>{children}</button>
+  <button type="button" onClick={onClick} disabled={disabled} style={{fontFamily:"inherit",cursor:disabled?"not-allowed":"pointer",...style}}{...r}>{children}</button>
 );
 const Toggle=({value,onChange})=>(
   <div onClick={()=>onChange(!value)} style={{width:46,height:26,borderRadius:99,background:value?"#444444":"#dddddd",position:"relative",cursor:"pointer",flexShrink:0}}>
@@ -499,6 +499,37 @@ const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,colorCats,se
 });
 
 // ══════════════════════════════════════════════════════════════
+//  CatInput — 카테고리/색상 추가 입력창 (완전 독립 컴포넌트)
+// ══════════════════════════════════════════════════════════════
+function CatInput({onAdd,IS,colorPicker=false,newCH,setNewCH}){
+  const [key,setKey]=useState(0);
+  const valRef=useRef("");
+  const submit=()=>{
+    const v=valRef.current.trim();
+    if(!v)return;
+    onAdd(v);
+    valRef.current="";
+    setKey(k=>k+1); // input을 완전히 새로 마운트 → 값/이벤트 초기화
+  };
+  return(
+    <div style={{display:"flex",gap:7,marginBottom:9,alignItems:"center"}}>
+      <input key={key}
+        defaultValue=""
+        onChange={e=>{valRef.current=e.target.value;}}
+        onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();submit();}}}
+        placeholder={colorPicker?"색상 이름":"새 카테고리 이름"}
+        style={colorPicker?{...IS,flex:1}:IS}/>
+      {colorPicker&&<input type="color" value={newCH} onChange={e=>setNewCH(e.target.value)} style={{width:38,height:36,borderRadius:7,border:"2px solid #dddddd",cursor:"pointer",padding:2}}/>}
+      <button type="button"
+        onMouseDown={e=>e.preventDefault()}
+        onTouchStart={e=>e.preventDefault()}
+        onClick={submit}
+        style={{padding:"8px 12px",borderRadius:8,background:"#444444",border:"none",fontWeight:700,color:"#ffffff",whiteSpace:"nowrap",fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
 //  AddModal
 //  ★ 사진 버그 근본 해결:
 //    <input type="file">을 "사진 선택" 버튼 위에 직접 absolute로 덮음
@@ -571,7 +602,7 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
           <h2 style={{margin:0,fontSize:17,fontWeight:700}}>{editItem?"항목 수정":"새 항목 추가"}</h2>
           <Btn onClick={()=>{if(name.trim()&&!uploading)onSave({name:name.trim(),category,colorCat,note,image,imagePosition,quantity,price});}}
             disabled={uploading}
-            style={{padding:"7px 16px",borderRadius:8,border:"none",background:(name.trim()&&!uploading)?"#444444":"#dddddd",color:"#222222",fontSize:14,fontWeight:700,cursor:(name.trim()&&!uploading)?"pointer":"not-allowed"}}>
+            style={{padding:"7px 16px",borderRadius:8,border:"none",background:(name.trim()&&!uploading)?"#444444":"#bbbbbb",color:"#ffffff",fontSize:14,fontWeight:700,cursor:(name.trim()&&!uploading)?"pointer":"not-allowed"}}>
             {editItem?"저장":"추가"}
           </Btn>
         </div>
@@ -670,10 +701,10 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
         <input value={note} onChange={e=>setNote(e.target.value)} placeholder="간단한 메모" style={{...IS,marginBottom:16}}/>
 
         <div style={{display:"flex",gap:10}}>
-          <Btn onClick={onClose} style={{flex:1,padding:11,borderRadius:8,border:"2px solid #cccccc",background:"transparent",color:"#666666",fontSize:14,fontWeight:900}}>취소</Btn>
+          <Btn onClick={onClose} style={{flex:1,padding:11,borderRadius:8,border:"2px solid #aaaaaa",background:"transparent",color:"#444444",fontSize:14,fontWeight:900}}>취소</Btn>
           <Btn onClick={()=>{if(name.trim()&&!uploading)onSave({name:name.trim(),category,colorCat,note,image,imagePosition,quantity,price});}}
             disabled={uploading}
-            style={{flex:2,padding:11,borderRadius:8,border:"none",background:(name.trim()&&!uploading)?"#444444":"#dddddd",color:"#222222",fontSize:14,fontWeight:700}}>
+            style={{flex:2,padding:11,borderRadius:8,border:"none",background:(name.trim()&&!uploading)?"#444444":"#bbbbbb",color:"#ffffff",fontSize:14,fontWeight:700}}>
             {uploading?"업로드 중...":(editItem?"저장":"추가")}
           </Btn>
         </div>
@@ -761,7 +792,7 @@ export default function CatalogApp(){
   const [headerVis,setHeaderVis]=useState(true);
   const [hdrH,setHdrH]=useState(130);
 
-  const nextId=useRef(100),toastT=useRef(null),stRef=useRef(null),hashRef=useRef(""),readyRef=useRef(false),saveT=useRef(null),saving=useRef(false),lastSY=useRef(0),hdrRef=useRef(null);
+  const nextId=useRef(100),toastT=useRef(null),stRef=useRef(null),hashRef=useRef(""),readyRef=useRef(false),saveT=useRef(null),saving=useRef(false),lastSY=useRef(0),hdrRef=useRef(null),newCatRef=useRef(null),newCNRef=useRef(null);
 
   useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,viewMode,gridCols,sortBy,nameEllipsis}};},[items,categories,colorCats,hideAcquired,hideQuantity,viewMode,gridCols,sortBy]);
   useEffect(()=>{
@@ -866,9 +897,21 @@ export default function CatalogApp(){
   const clearSel=useCallback(()=>{setSel(new Set());setSelectMode(false);},[]);
   const doBulkDel=useCallback(()=>{if(!sel.size)return;const ids=new Set(sel);setConfirm({msg:`${ids.size}개 항목을 삭제할까요?`,ok:()=>{setItems(p=>p.filter(it=>!ids.has(it.id)));clearSel();setConfirm(null);}});},[sel,clearSel]);
   const doBulkMove=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>p.map(it=>ids.has(it.id)?{...it,category:bulkCat}:it));setBulkMove(false);clearSel();},[bulkCat,sel,clearSel]);
-  const addCat=()=>{const v=newCat.trim();if(v&&!categories.includes(v)){setCategories(p=>[...p,v]);setNewCat("");}else{setNewCat("");}};
+  const addCat=()=>{
+    const v=(newCatRef.current?.value||"").trim();
+    if(!v)return;
+    if(!categories.includes(v))setCategories(p=>[...p,v]);
+    setNewCat("");
+    if(newCatRef.current)newCatRef.current.value="";
+  };
+  const addCC=()=>{
+    const v=(newCNRef.current?.value||"").trim();
+    if(!v)return;
+    if(!colorCats.find(c=>c.name===v))setColorCats(p=>[...p,{name:v,hex:newCH}]);
+    setNewCN("");setNewCH("#888888");
+    if(newCNRef.current)newCNRef.current.value="";
+  };
   const remCat=c=>{setCategories(p=>p.filter(x=>x!==c));setActiveCats(p=>p.filter(x=>x!==c));};
-  const addCC=()=>{const v=newCN.trim();if(v&&!colorCats.find(c=>c.name===v))setColorCats(p=>[...p,{name:v,hex:newCH}]);setNewCN("");setNewCH("#888888");};
   const remCC=n=>{setColorCats(p=>p.filter(c=>c.name!==n));setItems(p=>p.map(it=>it.colorCat===n?{...it,colorCat:""}:it));};
   const startEC=i=>{setEditCI(i);setEditCN(colorCats[i].name);setEditCH(colorCats[i].hex);};
   const saveEC=()=>{if(!editCN.trim())return;const old=colorCats[editCI].name;setColorCats(p=>p.map((c,i)=>i===editCI?{name:editCN.trim(),hex:editCH}:c));setItems(p=>p.map(it=>it.colorCat===old?{...it,colorCat:editCN.trim()}:it));setEditCI(null);};
@@ -924,9 +967,9 @@ export default function CatalogApp(){
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:7,flexWrap:"nowrap"}}>
           <span style={{fontSize:22,fontWeight:900,color:"#ffffff",flexShrink:0}}>🍃 모동숲</span>
           <Btn onClick={openAdd} style={{...HB,background:"#ffffff",color:"#222222",padding:"5px 13px",fontSize:15,flexShrink:0,border:"none"}}>+ 추가</Btn>
-          <span style={{fontSize:14,color:"#aaaaaa",whiteSpace:"nowrap",flexShrink:0}}>전체 {items.length} · 습득 <b onClick={()=>{setActiveCats([]);setSearch("[습득]");}} style={{color:"#ffffff",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{acq}</b></span>
+          <span style={{fontSize:14,color:"#aaaaaa",whiteSpace:"nowrap",flexShrink:0}}>전체 <b onClick={()=>{setActiveCats([]);setSearch("");}} style={{color:"#ffffff",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{items.length}</b> · 습득 <b onClick={()=>{setActiveCats([]);setSearch("[습득]");}} style={{color:"#ffffff",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{acq}</b></span>
           <div style={{flex:1}}/>
-          <Btn onClick={()=>doSave(false)} style={{...HB,background:unsaved?"#f5c842":"#444444",color:"#222222",border:`1.5px solid ${unsaved?"#f5c842":"#666666"}`,padding:"5px 11px",fontSize:14,flexShrink:0,boxShadow:unsaved?"0 0 6px rgba(245,200,66,.5)":"none"}}>
+          <Btn onClick={()=>doSave(false)} style={{...HB,background:unsaved?"#f5c842":"#444444",color:unsaved?"#222222":"#ffffff",border:`1.5px solid ${unsaved?"#f5c842":"#666666"}`,padding:"5px 11px",fontSize:14,flexShrink:0,boxShadow:unsaved?"0 0 6px rgba(245,200,66,.5)":"none"}}>
             {unsaved?"💾 저장":"✓ 저장됨"}
           </Btn>
         </div>
@@ -1190,10 +1233,7 @@ export default function CatalogApp(){
             </div>
 
             <div style={{fontWeight:700,fontSize:14,marginBottom:8}}>카테고리 관리</div>
-            <div style={{display:"flex",gap:7,marginBottom:9}}>
-              <input value={newCat} onChange={e=>setNewCat(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addCat()} placeholder="새 카테고리 이름" style={IS}/>
-              <Btn onClick={addCat} style={{padding:"8px 12px",borderRadius:8,background:"#444444",border:"none",fontWeight:700,color:"#222222",whiteSpace:"nowrap",fontSize:13}}>추가</Btn>
-            </div>
+            <CatInput onAdd={v=>{if(v&&!categories.includes(v))setCategories(p=>[...p,v]);}} IS={IS}/>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:18}}>
               {categories.map(c=>(
                 <div key={c} style={{display:"flex",alignItems:"center",gap:4,background:"#f8f8f8",border:"1.5px solid #dddddd",borderRadius:99,padding:"4px 10px 4px 12px"}}>
@@ -1204,11 +1244,7 @@ export default function CatalogApp(){
             </div>
             <div style={{borderTop:"1px solid #e8dcc8",paddingTop:14}}>
               <div style={{fontWeight:700,fontSize:14,marginBottom:9}}>색상 카테고리 관리</div>
-              <div style={{display:"flex",gap:7,marginBottom:9,alignItems:"center"}}>
-                <input value={newCN} onChange={e=>setNewCN(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addCC()} placeholder="색상 이름" style={{...IS,flex:1}}/>
-                <input type="color" value={newCH} onChange={e=>setNewCH(e.target.value)} style={{width:38,height:36,borderRadius:7,border:"2px solid #dddddd",cursor:"pointer",padding:2}}/>
-                <Btn onClick={addCC} style={{padding:"7px 12px",borderRadius:8,background:"#444444",border:"none",fontWeight:700,color:"#222222",whiteSpace:"nowrap",fontSize:13}}>추가</Btn>
-              </div>
+              <CatInput onAdd={v=>{if(v&&!colorCats.find(c=>c.name===v))setColorCats(p=>[...p,{name:v,hex:newCH}]);}} IS={IS} colorPicker newCH={newCH} setNewCH={setNewCH}/>
               <div style={{display:"flex",flexDirection:"column",gap:5}}>
                 {colorCats.map((col,idx)=>(
                   <div key={col.name+idx}>
@@ -1216,7 +1252,7 @@ export default function CatalogApp(){
                       <div style={{display:"flex",gap:6,alignItems:"center",background:"#f8f8f8",borderRadius:8,padding:"7px 10px",border:"1.5px solid #444444"}}>
                         <input value={editCN} onChange={e=>setEditCN(e.target.value)} style={{...IS,flex:1,padding:"5px 9px",fontSize:13}}/>
                         <input type="color" value={editCH} onChange={e=>setEditCH(e.target.value)} style={{width:34,height:32,borderRadius:6,border:"2px solid #dddddd",cursor:"pointer",padding:2}}/>
-                        <Btn onClick={saveEC} style={{padding:"5px 10px",borderRadius:7,background:"#444444",border:"none",fontWeight:700,color:"#222222",fontSize:12}}>저장</Btn>
+                        <Btn onClick={saveEC} style={{padding:"5px 10px",borderRadius:7,background:"#444444",border:"none",fontWeight:700,color:"#ffffff",fontSize:12}}>저장</Btn>
                         <Btn onClick={()=>setEditCI(null)} style={{padding:"5px 8px",borderRadius:7,background:"transparent",border:"1.5px solid #cccccc",color:"#666666",fontSize:12}}>취소</Btn>
                       </div>
                     ):(
