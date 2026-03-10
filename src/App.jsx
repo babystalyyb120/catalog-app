@@ -866,7 +866,7 @@ export default function CatalogApp(){
   const clearSel=useCallback(()=>{setSel(new Set());setSelectMode(false);},[]);
   const doBulkDel=useCallback(()=>{if(!sel.size)return;const ids=new Set(sel);setConfirm({msg:`${ids.size}개 항목을 삭제할까요?`,ok:()=>{setItems(p=>p.filter(it=>!ids.has(it.id)));clearSel();setConfirm(null);}});},[sel,clearSel]);
   const doBulkMove=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>p.map(it=>ids.has(it.id)?{...it,category:bulkCat}:it));setBulkMove(false);clearSel();},[bulkCat,sel,clearSel]);
-  const addCat=()=>{const v=newCat.trim();if(v&&!categories.includes(v))setCategories(p=>[...p,v]);setNewCat("");};
+  const addCat=()=>{const v=newCat.trim();if(v&&!categories.includes(v)){setCategories(p=>[...p,v]);setNewCat("");}else{setNewCat("");}};
   const remCat=c=>{setCategories(p=>p.filter(x=>x!==c));setActiveCats(p=>p.filter(x=>x!==c));};
   const addCC=()=>{const v=newCN.trim();if(v&&!colorCats.find(c=>c.name===v))setColorCats(p=>[...p,{name:v,hex:newCH}]);setNewCN("");setNewCH("#888888");};
   const remCC=n=>{setColorCats(p=>p.filter(c=>c.name!==n));setItems(p=>p.map(it=>it.colorCat===n?{...it,colorCat:""}:it));};
@@ -1006,7 +1006,7 @@ export default function CatalogApp(){
             const active=isAll?(activeCats.length===0):activeCats.includes(c);
             return(
               <Btn key={c} onClick={()=>{
-                if(isAll){setActiveCats([]);return;}
+                if(isAll){setActiveCats([]);setSearch("");return;}
                 setActiveCats(p=>p.includes(c)?p.filter(x=>x!==c):[...p,c]);
               }} style={{padding:"4px 12px",borderRadius:99,border:"2px solid",borderColor:active?"#444444":"#dddddd",background:active?"#444444":"transparent",color:active?"#222222":"#666666",fontWeight:active?700:400,fontSize:16,whiteSpace:"nowrap",flexShrink:0}}>{c}</Btn>
             );
