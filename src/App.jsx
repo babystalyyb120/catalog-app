@@ -461,24 +461,25 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
   const pos=item.imagePosition||"50% 50%";
   return(
-    <div ref={ref} data-card="1" style={{background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
-      {/* aspectRatio로 정사각형 — paddingTop:100% 트릭은 html2canvas에서 absolute 자식 위치 오계산 발생 */}
-      <div style={{position:"relative",width:"100%",aspectRatio:"1/1",overflow:"hidden",background:"var(--t-card-bg,#fff)"}}>
+    <div ref={ref} data-card="1" style={{position:"relative",background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
+      {/* 이미지 영역: paddingTop:100% 유지 (html2canvas aspectRatio 미지원) */}
+      <div style={{position:"relative",paddingTop:"100%",overflow:"hidden",background:"var(--t-card-bg,#fff)"}}>
         {item.image
-          ?<img src={item.image} alt="" draggable={false} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,display:"block",background:"#fff"}}/>
-          :<div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div>}
+          ?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
+          :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div>}
         {selectMode&&(
           <div style={{position:"absolute",top:5,left:5,width:26,height:26,borderRadius:6,border:`3px solid ${selected?"#4a7ec9":"rgba(80,80,80,.7)"}`,background:selected?"#4a7ec9":"rgba(255,255,255,.95)",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none",zIndex:10,boxShadow:"0 2px 6px rgba(0,0,0,.4)"}}>
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
-        {!hideQuantity&&(item.quantity??1)>0&&(
-          <div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5}}>×{item.quantity??1}</div>
-        )}
-        {!hidePrice&&(item.price||0)>0&&(
-          <div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5}}>₩{(item.price||0).toLocaleString()}</div>
-        )}
       </div>
+      {/* 뱃지: 카드 전체(position:relative) 기준 absolute — html2canvas 정확히 렌더링 */}
+      {!hideQuantity&&(item.quantity??1)>0&&(
+        <div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>×{item.quantity??1}</div>
+      )}
+      {!hidePrice&&(item.price||0)>0&&(
+        <div style={{position:"absolute",top:24,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>₩{(item.price||0).toLocaleString()}</div>
+      )}
       <div style={{padding:"4px 5px",textAlign:"center"}}>
         <div style={{fontWeight:700,fontSize:nameFontSize||( gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10),color:"var(--t-item-name,#222222)",textAlign:"center",
           whiteSpace:nameEllipsis?"nowrap":"normal",
@@ -885,24 +886,50 @@ export default function CatalogApp(){
 
   const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
 
-  const doCapture=useCallback(()=>{
+  const doCapture=useCallback(()=>{\
     const grid=captureRef.current; if(!grid){showToast("캡쳐 영역 없음");return;}
     const run=()=>{
+      // 화면에 보이는 카드만 추출
       const cards=[...grid.querySelectorAll("[data-card]")];
       if(!cards.length){showToast("캡쳐할 항목이 없습니다");return;}
+
+      const viewTop=0;
       const viewBottom=window.innerHeight;
-      let lastFullRowBottom=0;
+
+      // 화면에 걸친 카드 중 완전히 보이는 마지막 행 bottom
+      let lastVisibleBottom=0;
       for(const card of cards){
         const r=card.getBoundingClientRect();
-        if(r.bottom<=viewBottom+4) lastFullRowBottom=Math.max(lastFullRowBottom,r.bottom);
+        if(r.top>=viewTop-4 && r.bottom<=viewBottom+4){
+          lastVisibleBottom=Math.max(lastVisibleBottom,r.bottom);
+        }
       }
-      if(!lastFullRowBottom) lastFullRowBottom=cards[0].getBoundingClientRect().bottom;
+      // 완전히 보이는 카드가 없으면 첫 카드까지만
+      if(!lastVisibleBottom){
+        const r=cards[0].getBoundingClientRect();
+        lastVisibleBottom=r.bottom;
+      }
 
-      const gridRect=grid.getBoundingClientRect();
-      const captureH=Math.ceil(lastFullRowBottom-gridRect.top);
-      const captureW=grid.offsetWidth;
+      // 화면에 보이는 첫 카드의 top
+      let firstVisibleTop=viewBottom;
+      for(const card of cards){
+        const r=card.getBoundingClientRect();
+        if(r.top>=viewTop-4 && r.bottom<=viewBottom+4){
+          firstVisibleTop=Math.min(firstVisibleTop,r.top);
+        }
+      }
+
       const SCALE=window.devicePixelRatio||2;
-      const PAD=10; // 여백 축소
+      const PAD=10;
+
+      // grid의 클립 영역: 화면에 보이는 카드 범위만
+      const captureTop=firstVisibleTop; // viewport 기준
+      const captureH=Math.ceil(lastVisibleBottom-firstVisibleTop);
+      const captureW=grid.offsetWidth;
+
+      // grid를 기준으로 y오프셋 계산
+      const gridRect=grid.getBoundingClientRect();
+      const yOffset=captureTop-gridRect.top; // grid 내 상대 위치
 
       window.html2canvas(grid,{
         useCORS:true,
@@ -912,24 +939,23 @@ export default function CatalogApp(){
         width:captureW,
         height:captureH,
         x:0,
-        y:0,
+        y:yOffset,
         scrollX:0,
-        scrollY:-window.scrollY,
-        windowWidth:document.documentElement.clientWidth,
-        windowHeight:document.documentElement.scrollHeight,
+        scrollY:0,
+        windowWidth:captureW,
+        windowHeight:captureH,
         logging:false,
       }).then(canvas=>{
-        const bg=getComputedStyle(grid).backgroundColor||"#fffce8";
+        const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
         const padPx=PAD*SCALE;
         const out=document.createElement("canvas");
         out.width=canvas.width+padPx*2;
-        out.height=captureH*SCALE+padPx*2;
+        out.height=canvas.height+padPx*2;
         const ctx2=out.getContext("2d");
         ctx2.fillStyle=bg;
         ctx2.fillRect(0,0,out.width,out.height);
-        ctx2.drawImage(canvas,padPx,padPx,canvas.width,captureH*SCALE);
+        ctx2.drawImage(canvas,padPx,padPx);
 
-        // 날짜별 자동 증가 파일명
         const today=new Date().toISOString().slice(0,10);
         if(captureCountRef.current.date!==today){
           captureCountRef.current={date:today,count:1};
