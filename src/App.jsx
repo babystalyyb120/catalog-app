@@ -174,14 +174,16 @@ const GRID_COLS=[2,3,4,5,6];
 
 // ══════ 테마 정의 ══════
 const THEMES={
-  "블랙":    {name:"🖤 블랙",    header:"#222222", headerText:"#ffffff", headerSubText:"#aaaaaa", accent:"#4a7a4a", accentText:"#ffffff", bg:"#f8f5f0", card:"#ffffff", cardBorder:"#e0d8c8", cardEmpty:"#f5f5f5", cardIcon:"#c0b8a8", acquiredBorder:"#444444", catActive:"#444444", catActiveText:"#ffffff", catInactiveText:"#666666", selectBar:"#1e3a5f", btnBg:"#333333", btnText:"#cccccc", btnBorder:"#666666", qtyBg:"rgba(0,0,0,.55)", qtyText:"#ffffff", priceBg:"rgba(30,60,30,.75)", priceText:"#a8e8a8"},
-  "벚꽃":    {name:"🌸 벚꽃",    header:"#5a2a3a", headerText:"#ffe0ea", headerSubText:"#f0a0b8", accent:"#c0607a", accentText:"#ffffff", bg:"#fff5f8", card:"#ffffff", cardBorder:"#f0d0da", cardEmpty:"#fff8fa", cardIcon:"#e0a0b8", acquiredBorder:"#c0607a", catActive:"#c0607a", catActiveText:"#ffffff", catInactiveText:"#a06070", selectBar:"#5a2a3a", btnBg:"#6a3045", btnText:"#ffd0e0", btnBorder:"#8a5060", qtyBg:"rgba(90,42,58,.7)", qtyText:"#ffe0ea", priceBg:"rgba(80,20,40,.7)", priceText:"#ffb8cc"},
-  "바다":    {name:"🌊 바다",    header:"#1a3a5a", headerText:"#c0e8ff", headerSubText:"#80b8e0", accent:"#2a7ab0", accentText:"#ffffff", bg:"#f0f8ff", card:"#ffffff", cardBorder:"#b8d8f0", cardEmpty:"#f0f8ff", cardIcon:"#80b8d8", acquiredBorder:"#2a7ab0", catActive:"#2a7ab0", catActiveText:"#ffffff", catInactiveText:"#5080a0", selectBar:"#1a3a5a", btnBg:"#1e3a5a", btnText:"#a0d0f0", btnBorder:"#3a6080", qtyBg:"rgba(26,58,90,.7)", qtyText:"#c0e8ff", priceBg:"rgba(10,50,80,.7)", priceText:"#90d8f8"},
-  "가을":    {name:"🍂 가을",    header:"#3a2010", headerText:"#ffe0b0", headerSubText:"#c09060", accent:"#c06820", accentText:"#ffffff", bg:"#fff8f0", card:"#ffffff", cardBorder:"#e8d0b0", cardEmpty:"#fff5ec", cardIcon:"#c09060", acquiredBorder:"#c06820", catActive:"#c06820", catActiveText:"#ffffff", catInactiveText:"#906040", selectBar:"#3a2010", btnBg:"#3a2010", btnText:"#f0c080", btnBorder:"#7a5030", qtyBg:"rgba(58,32,16,.7)", qtyText:"#ffe0b0", priceBg:"rgba(80,40,10,.7)", priceText:"#ffc060"},
-  "화이트":  {name:"🤍 화이트",  header:"#f0f0f0", headerText:"#222222", headerSubText:"#888888", accent:"#555555", accentText:"#ffffff", bg:"#ffffff", card:"#f8f8f8", cardBorder:"#e0e0e0", cardEmpty:"#f5f5f5", cardIcon:"#aaaaaa", acquiredBorder:"#555555", catActive:"#444444", catActiveText:"#ffffff", catInactiveText:"#666666", selectBar:"#444444", btnBg:"#e8e8e8", btnText:"#333333", btnBorder:"#cccccc", qtyBg:"rgba(60,60,60,.7)", qtyText:"#ffffff", priceBg:"rgba(40,80,40,.7)", priceText:"#80d080"},
-  "숲속노트": {name:"🌿 숲속노트", header:"#1e3d2a", headerText:"#e8f5e2", headerSubText:"#90c898", accent:"#2d7a4a", accentText:"#ffffff", bg:"#f5f0e8", card:"#fffdf7", cardBorder:"#d8e8d0", cardEmpty:"#f5f8f0", cardIcon:"#90b890", acquiredBorder:"#2d7a4a", catActive:"#2d7a4a", catActiveText:"#ffffff", catInactiveText:"#6a9070", selectBar:"#1e3d2a", btnBg:"#243d2e", btnText:"#b8d8b8", btnBorder:"#3a6048", qtyBg:"rgba(20,50,30,.65)", qtyText:"#d0f0d0", priceBg:"rgba(15,60,30,.7)", priceText:"#90e8a8"},
-  "딥다크":  {name:"🌙 딥다크",  header:"#0a0a0a", headerText:"#d0aaff", headerSubText:"#8855cc", accent:"#9933ff", accentText:"#ffffff", bg:"#0d0d0d", card:"#1a1a1a", cardBorder:"#4a2a8a", cardEmpty:"#222235", cardIcon:"#7755aa", acquiredBorder:"#9933ff", catActive:"#7722dd", catActiveText:"#ffffff", catInactiveText:"#7755aa", selectBar:"#0a0a0a", btnBg:"#1a1a2e", btnText:"#cc88ff", btnBorder:"#5522aa", qtyBg:"rgba(80,0,160,.6)", qtyText:"#e0c0ff", priceBg:"rgba(60,0,120,.7)", priceText:"#cc88ff"},
-  "파스텔":  {name:"🍬 파스텔",  header:"#f8f0ff", headerText:"#8855aa", headerSubText:"#cc99dd", accent:"#dd88cc", accentText:"#ffffff", bg:"#fdf8ff", card:"#ffffff", cardBorder:"#eebbee", cardEmpty:"#faf0ff", cardIcon:"#cc99dd", acquiredBorder:"#dd88cc", catActive:"#dd88cc", catActiveText:"#ffffff", catInactiveText:"#bb88cc", selectBar:"#e8d0f8", btnBg:"#f0e0f8", btnText:"#9966bb", btnBorder:"#ddbbed", qtyBg:"rgba(180,100,200,.5)", qtyText:"#ffffff", priceBg:"rgba(160,80,180,.5)", priceText:"#ffffff"},
+  "블랙":    {name:"🖤 블랙",    header:"#222222", headerText:"#ffffff", headerSubText:"#aaaaaa", accent:"#4a7a4a", accentText:"#ffffff", bg:"#f8f5f0", card:"#ffffff", cardBorder:"#e0d8c8", cardEmpty:"#f5f5f5", cardIcon:"#c0b8a8", acquiredBorder:"#444444", itemName:"#222222", itemSub:"#888888", catActive:"#444444", catActiveText:"#ffffff", catInactiveText:"#666666", selectBar:"#1e3a5f", btnBg:"#333333", btnText:"#cccccc", btnBorder:"#666666", qtyBg:"rgba(0,0,0,.55)", qtyText:"#ffffff", priceBg:"rgba(30,60,30,.75)", priceText:"#a8e8a8"},
+  "벚꽃":    {name:"🌸 벚꽃",    header:"#5a2a3a", headerText:"#ffe0ea", headerSubText:"#f0a0b8", accent:"#c0607a", accentText:"#ffffff", bg:"#fff5f8", card:"#ffffff", cardBorder:"#f0d0da", cardEmpty:"#fff8fa", cardIcon:"#e0a0b8", acquiredBorder:"#c0607a", itemName:"#3a1020", itemSub:"#a06070", catActive:"#c0607a", catActiveText:"#ffffff", catInactiveText:"#a06070", selectBar:"#5a2a3a", btnBg:"#6a3045", btnText:"#ffd0e0", btnBorder:"#8a5060", qtyBg:"rgba(90,42,58,.7)", qtyText:"#ffe0ea", priceBg:"rgba(80,20,40,.7)", priceText:"#ffb8cc"},
+  "바다":    {name:"🌊 바다",    header:"#1a3a5a", headerText:"#c0e8ff", headerSubText:"#80b8e0", accent:"#2a7ab0", accentText:"#ffffff", bg:"#f0f8ff", card:"#ffffff", cardBorder:"#b8d8f0", cardEmpty:"#f0f8ff", cardIcon:"#80b8d8", acquiredBorder:"#2a7ab0", itemName:"#1a2a3a", itemSub:"#5080a0", catActive:"#2a7ab0", catActiveText:"#ffffff", catInactiveText:"#5080a0", selectBar:"#1a3a5a", btnBg:"#1e3a5a", btnText:"#a0d0f0", btnBorder:"#3a6080", qtyBg:"rgba(26,58,90,.7)", qtyText:"#c0e8ff", priceBg:"rgba(10,50,80,.7)", priceText:"#90d8f8"},
+  "가을":    {name:"🍂 가을",    header:"#3a2010", headerText:"#ffe0b0", headerSubText:"#c09060", accent:"#c06820", accentText:"#ffffff", bg:"#fff8f0", card:"#ffffff", cardBorder:"#e8d0b0", cardEmpty:"#fff5ec", cardIcon:"#c09060", acquiredBorder:"#c06820", itemName:"#2a1800", itemSub:"#906040", catActive:"#c06820", catActiveText:"#ffffff", catInactiveText:"#906040", selectBar:"#3a2010", btnBg:"#3a2010", btnText:"#f0c080", btnBorder:"#7a5030", qtyBg:"rgba(58,32,16,.7)", qtyText:"#ffe0b0", priceBg:"rgba(80,40,10,.7)", priceText:"#ffc060"},
+  "화이트":  {name:"🤍 화이트",  header:"#f0f0f0", headerText:"#222222", headerSubText:"#888888", accent:"#555555", accentText:"#ffffff", bg:"#ffffff", card:"#f8f8f8", cardBorder:"#e0e0e0", cardEmpty:"#f5f5f5", cardIcon:"#aaaaaa", acquiredBorder:"#555555", itemName:"#222222", itemSub:"#888888", catActive:"#444444", catActiveText:"#ffffff", catInactiveText:"#666666", selectBar:"#444444", btnBg:"#e8e8e8", btnText:"#333333", btnBorder:"#cccccc", qtyBg:"rgba(60,60,60,.7)", qtyText:"#ffffff", priceBg:"rgba(40,80,40,.7)", priceText:"#80d080"},
+  "숲속노트": {name:"🌿 숲속노트", header:"#1e3d2a", headerText:"#e8f5e2", headerSubText:"#90c898", accent:"#2d7a4a", accentText:"#ffffff", bg:"#f5f0e8", card:"#fffdf7", cardBorder:"#d8e8d0", cardEmpty:"#f5f8f0", cardIcon:"#90b890", acquiredBorder:"#2d7a4a", itemName:"#1a2e1e", itemSub:"#6a9070", catActive:"#2d7a4a", catActiveText:"#ffffff", catInactiveText:"#6a9070", selectBar:"#1e3d2a", btnBg:"#243d2e", btnText:"#b8d8b8", btnBorder:"#3a6048", qtyBg:"rgba(20,50,30,.65)", qtyText:"#d0f0d0", priceBg:"rgba(15,60,30,.7)", priceText:"#90e8a8"},
+  "딥다크":  {name:"🌙 딥다크",  header:"#0a0a0a", headerText:"#d0aaff", headerSubText:"#8855cc", accent:"#9933ff", accentText:"#ffffff", bg:"#0d0d0d", card:"#1a1a1a", cardBorder:"#4a2a8a", cardEmpty:"#222235", cardIcon:"#7755aa", acquiredBorder:"#9933ff", itemName:"#e8d8ff", itemSub:"#9977cc", catActive:"#7722dd", catActiveText:"#ffffff", catInactiveText:"#7755aa", selectBar:"#0a0a0a", btnBg:"#1a1a2e", btnText:"#cc88ff", btnBorder:"#5522aa", qtyBg:"rgba(80,0,160,.6)", qtyText:"#e0c0ff", priceBg:"rgba(60,0,120,.7)", priceText:"#cc88ff"},
+  "파스텔":  {name:"🍬 파스텔",  header:"#f8f0ff", headerText:"#8855aa", headerSubText:"#cc99dd", accent:"#dd88cc", accentText:"#ffffff", bg:"#fdf8ff", card:"#ffffff", cardBorder:"#eebbee", cardEmpty:"#faf0ff", cardIcon:"#cc99dd", acquiredBorder:"#dd88cc", itemName:"#5a2a7a", itemSub:"#aa88bb", catActive:"#dd88cc", catActiveText:"#ffffff", catInactiveText:"#bb88cc", selectBar:"#e8d0f8", btnBg:"#f0e0f8", btnText:"#9966bb", btnBorder:"#ddbbed", qtyBg:"rgba(180,100,200,.5)", qtyText:"#ffffff", priceBg:"rgba(160,80,180,.5)", priceText:"#ffffff"},
+  "레몬":   {name:"🍋 레몬",   header:"#3d3400", headerText:"#fff8cc", headerSubText:"#c8a820", accent:"#c8960a", accentText:"#ffffff", bg:"#fffde8", card:"#ffffff", cardBorder:"#f0e8b0", cardEmpty:"#fffae0", cardIcon:"#d4b840", acquiredBorder:"#c8960a", itemName:"#2a2000", itemSub:"#8a7020", catActive:"#c8960a", catActiveText:"#ffffff", catInactiveText:"#907828", selectBar:"#3a3000", btnBg:"#3a3000", btnText:"#ffe066", btnBorder:"#7a6010", qtyBg:"rgba(80,60,0,.55)", qtyText:"#fff8cc", priceBg:"rgba(100,70,0,.6)", priceText:"#ffe08a"},
+  "산뜻":   {name:"🌼 산뜻",   header:"#ecdc75", headerText:"#ffffff", headerSubText:"#555533", accent:"#c9b032", accentText:"#dcbc18", bg:"#fff7cd", card:"#ffffff", cardBorder:"#e8e070", cardEmpty:"#faf8d8", cardIcon:"#c8b830", acquiredBorder:"#c9b032", itemName:"#444444", itemSub:"#777777", catActive:"#c9b032", catActiveText:"#ffffff", catInactiveText:"#666644", selectBar:"#c9b032", selectBarText:"#444422", btnBg:"#ecdc75", btnText:"#555533", btnBorder:"#c9b032", titleText:"#555544", activeText:"#dcbc18", qtyBg:"rgba(120,100,0,.55)", qtyText:"#fffacc", priceBg:"rgba(140,110,0,.6)", priceText:"#fff0a0"},
 };
 const DEF_THEME="블랙";
 const getHex=(cc,n)=>cc.find(c=>c.name===n)?.hex||"#aaa";
@@ -453,13 +455,13 @@ function CtxMenu({x,y,onCopy,onEdit,onDelete,onClose}){
 // ══════════════════════════════════════════════════════════════
 //  ImageCard
 // ══════════════════════════════════════════════════════════════
-const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePrice,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong,gridCols=3,nameEllipsis=true}){
+const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePrice,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong,gridCols=3,nameEllipsis=true,nameFontSize=0}){
   const ref=useRef(null);
   const hex=item.colorCat?getHex(colorCats,item.colorCat):null;
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
   const pos=item.imagePosition||"50% 50%";
   return(
-    <div ref={ref} style={{background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
+    <div ref={ref} data-card="1" style={{background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
       <div style={{position:"relative",paddingTop:"100%",background:"var(--t-card-bg,#fff)"}}>
         {item.image?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
           :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div>}
@@ -472,7 +474,7 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
         {!hidePrice&&(item.price||0)>0&&<div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99}}>₩{(item.price||0).toLocaleString()}</div>}
       </div>
       <div style={{padding:"4px 5px",textAlign:"center"}}>
-        <div style={{fontWeight:700,fontSize:gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10,color:"#222222",textAlign:"center",
+        <div style={{fontWeight:700,fontSize:nameFontSize||( gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10),color:"var(--t-item-name,#222222)",textAlign:"center",
           whiteSpace:nameEllipsis?"nowrap":"normal",
           overflow:nameEllipsis?"hidden":"visible",
           textOverflow:nameEllipsis?"ellipsis":"clip",
@@ -497,7 +499,7 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
 // ══════════════════════════════════════════════════════════════
 //  ListRow
 // ══════════════════════════════════════════════════════════════
-const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,hidePrice,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong}){
+const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,hidePrice,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong,nameFontSize=0}){
   const ref=useRef(null);
   const hex=item.colorCat?getHex(colorCats,item.colorCat):null;
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
@@ -512,10 +514,10 @@ const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,hidePrice,co
         {item.image?<img src={item.image} alt="" draggable={false} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:item.imagePosition||"50% 50%"}}/>:<span style={{fontSize:18,opacity:.5}}>🖼️</span>}
       </div>
       <div style={{flex:1,minWidth:0}}>
-        <div style={{fontWeight:700,fontSize:11,color:"#222222",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+        <div style={{fontWeight:700,fontSize:nameFontSize||11,color:"var(--t-item-name,#222222)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           {item.name}{item.colorCat&&<span style={{color:hex}}> - {item.colorCat}</span>}
         </div>
-        <div style={{fontSize:11,color:"#888888",marginTop:1}}>{item.category}{item.note?` · ${item.note}`:""}</div>
+        <div style={{fontSize:11,color:"var(--t-item-sub,#888888)",marginTop:1}}>{item.category}{item.note?` · ${item.note}`:""}</div>
       </div>
       {!hideQuantity&&(item.quantity??1)>0&&<div style={{background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0}}>×{item.quantity??1}</div>}
       {!hidePrice&&item.price>0&&<div style={{background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0,whiteSpace:"nowrap"}}>₩{((item.price||0)*(item.quantity??1)).toLocaleString()}</div>}
@@ -750,7 +752,7 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
 //  VirtualGrid — 화면에 보이는 행만 DOM에 렌더링
 //  카드 높이를 동적으로 측정해 정확한 패딩 계산
 // ══════════════════════════════════════════════════════════════
-function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,sel,selectMode,nameEllipsis,onOpen,onToggle,onSelect,onLong}){
+function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,sel,selectMode,nameEllipsis,nameFontSize=0,onOpen,onToggle,onSelect,onLong}){
   // 카드 높이: 화면 너비에서 cols와 gap을 고려해 추정
   // 정사각형 이미지(100%) + 이름 + 버튼 영역 ≒ 카드너비 * 1.38
   const [cardH,setCardH]=useState(160);
@@ -774,7 +776,7 @@ function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,s
         {visibleItems.map(({item,idx})=>(
           <div key={item.id} ref={idx===0?measureRef:null}>
             <ImageCard item={item} hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
-              selected={sel.has(item.id)} selectMode={selectMode} gridCols={cols} nameEllipsis={nameEllipsis}
+              selected={sel.has(item.id)} selectMode={selectMode} gridCols={cols} nameEllipsis={nameEllipsis} nameFontSize={nameFontSize}
               onOpen={()=>onOpen(item)} onToggle={()=>onToggle(item.id)}
               onSelect={()=>onSelect(item.id)} onLong={pos=>onLong(pos,item)}/>
           </div>
@@ -808,6 +810,8 @@ export default function CatalogApp(){
   const [editItem,setEditItem]=useState(null);
   const [viewItem,setViewItem]=useState(null);
   const [settings,setSettings]=useState(false);
+  const [settingsTab,setSettingsTab]=useState("표시");
+  const [settingsExpanded,setSettingsExpanded]=useState(false);
   const [selectMode,setSelectMode]=useState(false);
   const [sel,setSel]=useState(new Set());
   const [bulkMove,setBulkMove]=useState(false);
@@ -820,6 +824,8 @@ export default function CatalogApp(){
   const [showSyncLbl,setShowSyncLbl]=useState(true);
   const [unsaved,setUnsaved]=useState(false);
   const [nameEllipsis,setNameEllipsis]=useState(true); // 이름생략모드
+  const [nameFontSize,setNameFontSize]=useState(0); // 0=기본(자동)
+  const [hideCapture,setHideCapture]=useState(false);
   const [newCat,setNewCat]=useState("");
   const [newCN,setNewCN]=useState("");
   const [newCH,setNewCH]=useState("#888888");
@@ -830,9 +836,9 @@ export default function CatalogApp(){
   const [headerVis,setHeaderVis]=useState(true);
   const [hdrH,setHdrH]=useState(130);
 
-  const nextId=useRef(100),toastT=useRef(null),stRef=useRef(null),hashRef=useRef(""),readyRef=useRef(false),saveT=useRef(null),saving=useRef(false),lastSY=useRef(0),hdrRef=useRef(null),newCatRef=useRef(null),newCNRef=useRef(null);
+  const nextId=useRef(100),toastT=useRef(null),stRef=useRef(null),hashRef=useRef(""),readyRef=useRef(false),saveT=useRef(null),saving=useRef(false),lastSY=useRef(0),hdrRef=useRef(null),newCatRef=useRef(null),newCNRef=useRef(null),captureRef=useRef(null);
 
-  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,nameEllipsis,themeName,customTheme}};},[items,categories,colorCats,hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,themeName,customTheme]);
+  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,nameEllipsis,nameFontSize,themeName,customTheme}};},[items,categories,colorCats,hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,themeName,customTheme,nameFontSize]);
   useEffect(()=>{
     const fn=()=>{const c=window.scrollY;setHeaderVis(c<10||c<lastSY.current);lastSY.current=c;};
     window.addEventListener("scroll",fn,{passive:true});return()=>window.removeEventListener("scroll",fn);
@@ -846,6 +852,52 @@ export default function CatalogApp(){
   },[selectMode,hideAcquired,hideQuantity,viewMode]);
 
   const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
+
+  const doCapture=useCallback(()=>{
+    const grid=captureRef.current; if(!grid){showToast("캡쳐 영역 없음");return;}
+    const run=()=>{
+      // 카드 요소들 수집
+      const cards=[...grid.querySelectorAll("[data-card]")];
+      if(!cards.length){showToast("캡쳐할 항목이 없습니다");return;}
+      const gridRect=grid.getBoundingClientRect();
+      const viewBottom=window.innerHeight;
+      // 완전히 보이는 카드들만 필터링해서 그 중 가장 큰 bottom 찾기
+      let lastFullRowBottom=0;
+      for(const card of cards){
+        const r=card.getBoundingClientRect();
+        if(r.bottom<=viewBottom+4){
+          lastFullRowBottom=Math.max(lastFullRowBottom,r.bottom);
+        }
+      }
+      // 완전히 보이는 카드가 하나도 없으면 첫 번째 카드까지만
+      if(!lastFullRowBottom) lastFullRowBottom=cards[0].getBoundingClientRect().bottom;
+      const captureH=Math.ceil(lastFullRowBottom-gridRect.top);
+      const captureW=grid.scrollWidth;
+      window.html2canvas(grid,{
+        useCORS:true,allowTaint:true,scale:2,
+        width:captureW,height:captureH,
+        scrollX:0,scrollY:-window.scrollY,
+        windowWidth:window.innerWidth,windowHeight:window.innerHeight,
+      }).then(canvas=>{
+        // 높이 자르기
+        const out=document.createElement("canvas");
+        out.width=canvas.width;out.height=captureH*2;
+        out.getContext("2d").drawImage(canvas,0,0);
+        const a=document.createElement("a");
+        a.href=out.toDataURL("image/png");
+        a.download=`링동숲_${new Date().toISOString().slice(0,10)}.png`;
+        a.click();
+        showToast("✓ 캡쳐 저장됨");
+      }).catch(e=>{console.error(e);showToast("캡쳐 실패");});
+    };
+    if(!window.html2canvas){
+      const s=document.createElement("script");
+      s.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      s.onload=run;s.onerror=()=>showToast("라이브러리 로드 실패");
+      document.head.appendChild(s);
+    } else run();
+  // eslint-disable-next-line
+  },[]);
   const doSave=async(silent=false)=>{
     if(!readyRef.current||saving.current)return;
     const st=stRef.current;if(!st)return;
@@ -865,7 +917,7 @@ export default function CatalogApp(){
       if(shared){d=shared;lbl="☁️ 공유 동기화";lsSet(d);}
       const{items:i,categories:c,colorCats:cc,settings:s}=d;
       setItems(i??DEF_ITEMS);setCategories(c??DEF_CATS);setColorCats(cc??DEF_CC);
-      setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
+      setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);if(s?.nameFontSize!==undefined)setNameFontSize(s.nameFontSize);
       if(s?.themeName)setThemeName(s.themeName);if(s?.customTheme)setCustomTheme(s.customTheme);
       nextId.current=Math.max(100,...(i??DEF_ITEMS).map(x=>x.id))+1;
       hashRef.current=JSON.stringify(d);setSyncLbl(lbl);readyRef.current=true;setLoading(false);
@@ -883,7 +935,7 @@ export default function CatalogApp(){
         hashRef.current=h;lsSet(sh);
         const{items:i,categories:c,colorCats:cc,settings:s}=sh;
         setItems(i??DEF_ITEMS);setCategories(c??DEF_CATS);setColorCats(cc??DEF_CC);
-        setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
+        setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);if(s?.nameFontSize!==undefined)setNameFontSize(s.nameFontSize);
         if(s?.themeName)setThemeName(s.themeName);if(s?.customTheme)setCustomTheme(s.customTheme);
         nextId.current=Math.max(nextId.current,...(i??[]).map(x=>x.id))+1;
         showToast("🔄 동기화됨");
@@ -1012,7 +1064,7 @@ export default function CatalogApp(){
 
   return(
     <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif",minHeight:"100vh",letterSpacing:"0.05em",background:theme.bg,color:"#222222",
-      "--t-qty-bg":theme.qtyBg,"--t-qty-text":theme.qtyText,"--t-price-bg":theme.priceBg,"--t-price-text":theme.priceText,"--t-card-border":theme.cardBorder,"--t-cat-inactive":theme.catInactiveText,"--t-card-bg":theme.card,"--t-card-empty":theme.cardEmpty,"--t-card-icon":theme.cardIcon,"--t-acquired-border":theme.acquiredBorder}}>
+      "--t-qty-bg":theme.qtyBg,"--t-qty-text":theme.qtyText,"--t-price-bg":theme.priceBg,"--t-price-text":theme.priceText,"--t-card-border":theme.cardBorder,"--t-cat-inactive":theme.catInactiveText,"--t-card-bg":theme.card,"--t-card-empty":theme.cardEmpty,"--t-card-icon":theme.cardIcon,"--t-acquired-border":theme.acquiredBorder,"--t-item-name":theme.itemName,"--t-item-sub":theme.itemSub}}>
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet"/>
 
       {/* 토스트 */}
@@ -1027,9 +1079,9 @@ export default function CatalogApp(){
 
         {/* Row 1: 타이틀 + 추가 + 통계 + 저장 */}
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:7,flexWrap:"nowrap"}}>
-          <span style={{fontSize:22,fontWeight:900,color:theme.headerText,flexShrink:0}}>🍃 모동숲</span>
+          <span style={{fontSize:22,fontWeight:900,color:theme.titleText||theme.headerText,flexShrink:0}}>🍃 링동숲</span>
           <Btn onClick={openAdd} style={{...HB,background:theme.headerText,color:theme.header,padding:"5px 13px",fontSize:15,flexShrink:0,border:"none"}}>+ 추가</Btn>
-          <span style={{fontSize:14,color:theme.headerSubText,whiteSpace:"nowrap",flexShrink:0}}>전체 <b onClick={()=>{setActiveCats([]);setSearch("");}} style={{color:theme.headerText,cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{items.length}</b> · 습득 <b onClick={()=>{setActiveCats([]);setSearch("[습득]");}} style={{color:theme.headerText,cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{acq}</b></span>
+          <span style={{fontSize:14,color:theme.headerSubText,whiteSpace:"nowrap",flexShrink:0}}>전체 <b onClick={()=>{setActiveCats([]);setSearch("");}} style={{color:theme.titleText||theme.headerText,cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{items.length}</b> · 습득 <b onClick={()=>{setActiveCats([]);setSearch("[습득]");}} style={{color:theme.titleText||theme.headerText,cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{acq}</b></span>
           <div style={{flex:1}}/>
           <Btn onClick={()=>doSave(false)} style={{...HB,background:unsaved?"#f5c842":theme.btnBg,color:unsaved?"#222222":theme.btnText,border:`1.5px solid ${unsaved?"#f5c842":theme.btnBorder}`,padding:"5px 11px",fontSize:14,flexShrink:0,boxShadow:unsaved?"0 0 6px rgba(245,200,66,.5)":"none"}}>
             {unsaved?"💾 저장":"✓ 저장됨"}
@@ -1039,7 +1091,6 @@ export default function CatalogApp(){
         {/* Row 2: 검색 + 정렬 */}
         <div style={{display:"flex",gap:6,marginBottom:4}}>
           <input value={search} onChange={e=>setSearch(e.target.value)}
-            onFocus={()=>setActiveCats([])}
             placeholder="🔍 검색 · [숫자만] [영어만] [자음ㄱ만]…" style={{flex:1,padding:"6px 10px",borderRadius:7,border:`1.5px solid ${theme.btnBorder}`,background:theme.btnBg,color:theme.btnText,fontFamily:"inherit",fontSize:14,outline:"none",minWidth:0}}/>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"5px 4px",borderRadius:7,border:`1.5px solid ${theme.btnBorder}`,background:theme.btnBg,color:theme.btnText,fontFamily:"inherit",fontSize:14,cursor:"pointer",flexShrink:0,maxWidth:110}}>
             {SORT_OPTS.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
@@ -1052,10 +1103,9 @@ export default function CatalogApp(){
             const active=search.includes(tag);
             return(
               <button key={k} onClick={()=>{
-                setActiveCats([]);
                 setSearch(p=>p.includes(tag)?p.replace(tag,"").trim():((p?p+" ":"")+tag).trim());
               }}
-                style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?theme.headerText:theme.btnBorder}`,background:active?theme.headerText:theme.btnBg,color:active?theme.header:theme.btnText,fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0}}>
+                style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?theme.headerText:theme.btnBorder}`,background:active?theme.headerText:theme.btnBg,color:active?(theme.activeText||theme.header):theme.btnText,fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0}}>
                 {{"숫자":"숫자","영어":"영어","ㄱ":"ㄱ·ㄲ","ㄴ":"ㄴ","ㄷ":"ㄷ·ㄸ","ㄹ":"ㄹ","ㅁ":"ㅁ","ㅂ":"ㅂ·ㅃ","ㅅ":"ㅅ·ㅆ","ㅇ":"ㅇ","ㅈ":"ㅈ·ㅉ","ㅊ":"ㅊ","ㅋ":"ㅋ","ㅌ":"ㅌ","ㅍ":"ㅍ","ㅎ":"ㅎ"}[k]}
               </button>
             );
@@ -1066,50 +1116,47 @@ export default function CatalogApp(){
         <div style={{display:"flex",gap:5,alignItems:"center",overflowX:"auto",paddingBottom:2,scrollbarWidth:"none",msOverflowStyle:"none"}}>
           <div style={{display:"flex",borderRadius:6,overflow:"hidden",border:`1.5px solid ${theme.btnBorder}`,flexShrink:0}}>
             {["이미지형","목록형"].map(m=>(
-              <Btn key={m} onClick={()=>{setViewMode(m);setGridCols(m==="목록형"?1:3);}} style={{...HB,borderRadius:0,padding:"5px 9px",fontSize:14,background:viewMode===m?theme.headerText:theme.btnBg,color:viewMode===m?theme.header:theme.btnText}}>{m}</Btn>
+              <Btn key={m} onClick={()=>{setViewMode(m);setGridCols(m==="목록형"?1:3);}} style={{...HB,borderRadius:0,padding:"5px 9px",fontSize:14,background:viewMode===m?theme.headerText:theme.btnBg,color:viewMode===m?(theme.activeText||theme.header):theme.btnText}}>{m}</Btn>
             ))}
           </div>
           <>
             <span style={{color:theme.btnText,fontSize:14,flexShrink:0}}>열:</span>
             {(viewMode==="목록형"?[1,2]:GRID_COLS).map(n=>(
-              <Btn key={n} onClick={()=>setGridCols(n)} style={{...HB,padding:"4px 8px",background:gridCols===n?theme.headerText:theme.btnBg,color:gridCols===n?theme.header:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,borderRadius:6,fontSize:14,flexShrink:0,minWidth:28,textAlign:"center"}}>{n}</Btn>
+              <Btn key={n} onClick={()=>setGridCols(n)} style={{...HB,padding:"4px 8px",background:gridCols===n?theme.headerText:theme.btnBg,color:gridCols===n?(theme.activeText||theme.header):theme.btnText,border:`1.5px solid ${theme.btnBorder}`,borderRadius:6,fontSize:14,flexShrink:0,minWidth:28,textAlign:"center"}}>{n}</Btn>
             ))}
           </>
-          <Btn onClick={()=>{setSelectMode(s=>!s);setSel(new Set());}} style={{...HB,background:selectMode?theme.accent:theme.btnBg,color:selectMode?theme.accentText:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"5px 10px",fontSize:14,flexShrink:0}}>
-            {selectMode?"✓선택중":"☐선택"}
+          <Btn onClick={()=>{setSelectMode(s=>!s);setSel(new Set());}} style={{...HB,background:selectMode?theme.accent:theme.btnBg,color:selectMode?theme.accentText:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"5px 10px",fontSize:14,flexShrink:0,height:"34px",boxSizing:"border-box",display:"flex",alignItems:"center"}}>
+            {selectMode?"☑️ 선택중":"☑️ 선택"}
           </Btn>
-          <Btn onClick={()=>setSettings(true)} style={{...HB,background:theme.btnBg,color:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"5px 10px",fontSize:14,flexShrink:0}}>⚙️</Btn>
+          <Btn onClick={()=>setSettings(true)} style={{...HB,background:theme.btnBg,color:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"1px 10px",fontSize:18,flexShrink:0,lineHeight:"24px",height:"34px",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center"}}>⚙️</Btn>
         </div>
       </header>
 
       {selectMode&&(
         <div style={{background:theme.selectBar,padding:"8px 14px",position:"fixed",top:headerVis?hdrH:0,left:0,right:0,zIndex:99,transition:"top .3s",boxShadow:"0 2px 10px rgba(0,0,0,.3)"}}>
           <div style={{display:"flex",alignItems:"center",gap:7,overflowX:"auto",scrollbarWidth:"none"}}>
-            <span style={{color:"#a8c8f0",fontSize:13,fontWeight:700,flexShrink:0}}>
+            <span style={{color:theme.selectBarText||"#a8c8f0",fontSize:13,fontWeight:700,flexShrink:0}}>
               {sel.size}개
               {[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+(it?.quantity??1);},0) !== sel.size &&
-                <span style={{color:"#c8d8f0",fontWeight:400}}> ({[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+(it?.quantity??1);},0)}개)</span>
+                <span style={{color:theme.selectBarText||"#c8d8f0",fontWeight:400}}> ({[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+(it?.quantity??1);},0)}개)</span>
               }
             </span>
             {[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+((it?.price||0)*(it?.quantity??1));},0)>0&&(
-              <span style={{color:"#a8e0a8",fontSize:12,fontWeight:700,flexShrink:0}}>
+              <span style={{color:theme.selectBarText||"#a8e0a8",fontSize:12,fontWeight:700,flexShrink:0}}>
                 합계 ₩{[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+((it?.price||0)*(it?.quantity??1));},0).toLocaleString()}
               </span>
             )}
-            <Btn onClick={()=>setSel(new Set(disp.map(it=>it.id)))} style={{...HB,background:"transparent",color:"#a8c8f0",border:"1px solid #4a7ec9",padding:"3px 9px",fontSize:12,flexShrink:0}}>전체</Btn>
-            <Btn onClick={()=>setSel(new Set())} style={{...HB,background:"transparent",color:"#a8c8f0",border:"1px solid #4a7ec9",padding:"3px 9px",fontSize:12,flexShrink:0}}>해제</Btn>
+            <Btn onClick={()=>setSel(new Set(disp.map(it=>it.id)))} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>전체</Btn>
+            <Btn onClick={()=>setSel(new Set())} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>해제</Btn>
             <div style={{flex:1}}/>
             <Btn onClick={()=>{setBulkCat(categories[0]||"");setBulkMove(true);}} disabled={!sel.size} style={{...HB,background:sel.size?"#4a7ec9":"#334",color:"#fff",padding:"5px 10px",fontSize:12,flexShrink:0,opacity:sel.size?1:.5}}>📁이동</Btn>
             <Btn onClick={doBulkDel} disabled={!sel.size} style={{...HB,background:sel.size?"#e05050":"#334",color:"#fff",padding:"5px 10px",fontSize:12,flexShrink:0,opacity:sel.size?1:.5}}>🗑삭제</Btn>
-            <Btn onClick={clearSel} style={{...HB,background:"transparent",color:"#a8c8f0",border:"1px solid #4a7ec9",padding:"3px 9px",fontSize:12,flexShrink:0}}>취소</Btn>
+            <Btn onClick={clearSel} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>취소</Btn>
           </div>
         </div>
       )}
 
       <main style={{maxWidth:1100,margin:"0 auto",padding:`${FULL+12}px 12px 28px`}}>
-        <div style={{background:"#e8dcc8",borderRadius:99,height:5,marginBottom:10,overflow:"hidden"}}>
-          <div style={{height:"100%",borderRadius:99,background:"linear-gradient(90deg,#44a84c,#e8c96a)",width:items.length?`${(acq/items.length)*100}%`:"0%",transition:"width .5s"}}/>
-        </div>
         <div style={{display:"flex",gap:6,marginBottom:10,overflowX:"auto",paddingBottom:3,scrollbarWidth:"none"}}>
           {["전체",...categories].map(c=>{
             const isAll=c==="전체";
@@ -1122,11 +1169,12 @@ export default function CatalogApp(){
             );
           })}
         </div>
+        <div ref={captureRef} style={{background:theme.bg,padding:"4px 0 4px"}}>
         {viewMode==="이미지형"&&(disp.length===0?<Empty/>:
           <VirtualGrid
             items={disp} cols={gridCols}
             hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
-            sel={sel} selectMode={selectMode} nameEllipsis={nameEllipsis}
+            sel={sel} selectMode={selectMode} nameEllipsis={nameEllipsis} nameFontSize={nameFontSize}
             onOpen={setViewItem} onToggle={togAcq} onSelect={togSel}
             onLong={(pos,it)=>setCtx({...pos,item:it})}
           />
@@ -1135,13 +1183,22 @@ export default function CatalogApp(){
           <div style={{display:"grid",gridTemplateColumns:viewMode==="목록형"?(gridCols>=2?"repeat(2,minmax(0,1fr))":"1fr"):`repeat(${gridCols},minmax(0,1fr))`,gap:7}}>
             {disp.map(it=>(
               <ListRow key={it.id} item={it} hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
-                selected={sel.has(it.id)} selectMode={selectMode}
+                selected={sel.has(it.id)} selectMode={selectMode} nameFontSize={nameFontSize}
                 onOpen={()=>setViewItem(it)} onToggle={()=>togAcq(it.id)}
                 onSelect={()=>togSel(it.id)} onLong={pos=>setCtx({...pos,item:it})}/>
             ))}
           </div>
         )}
+        </div>
       </main>
+
+      {/* 📸 플로팅 캡쳐 버튼 */}
+      {!hideCapture&&(
+        <button type="button" onClick={doCapture}
+          style={{position:"fixed",bottom:100,right:60,zIndex:200,width:56,height:56,borderRadius:"50%",border:"none",background:"rgba(0,0,0,0.18)",backdropFilter:"blur(3px)",WebkitBackdropFilter:"blur(3px)",color:"#fff",fontSize:26,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 18px rgba(0,0,0,.15)",transition:"transform .15s"}}>
+          📸
+        </button>
+      )}
 
       {confirm&&<Confirm message={confirm.msg} onOk={confirm.ok} onCancel={()=>setConfirm(null)} choices={confirm.choices}/>}
 
@@ -1192,8 +1249,33 @@ export default function CatalogApp(){
 
       {settings&&(
         <Overlay onClick={()=>setSettings(false)}>
-          <Modal onClick={e=>e.stopPropagation()} style={{maxWidth:460,maxHeight:"86vh",overflowY:"auto"}}>
-            <h2 style={{margin:"0 0 16px",fontSize:17,fontWeight:700}}>⚙️ 설정</h2>
+          <Modal onClick={e=>e.stopPropagation()} style={{maxWidth:460,maxHeight:settingsExpanded?"96vh":"60vh",overflowY:"auto",transition:"max-height .3s"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+              <h2 style={{margin:0,fontSize:17,fontWeight:700,color:theme.accent}}>⚙️ 설정</h2>
+              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                <Btn onClick={()=>setSettingsExpanded(p=>!p)} style={{padding:"4px 10px",borderRadius:7,border:`1.5px solid ${theme.btnBorder}`,background:theme.btnBg,color:theme.btnText,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  {settingsExpanded?"🔼 줄이기":"🔽 늘리기"}
+                </Btn>
+                <Btn onClick={()=>setSettings(false)} style={{padding:"4px 10px",borderRadius:7,border:"1.5px solid #ccc",background:"#444",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>✕ 닫기</Btn>
+              </div>
+            </div>
+            {/* 탭 */}
+            {(()=>{
+              const tabs=[["표시","👀"],["카테고리","📁"],["테마","🎨"],["데이터","💾"]];
+              return(
+                <div style={{display:"flex",gap:4,marginBottom:14,borderBottom:`2px solid ${theme.accent}22`,paddingBottom:6}}>
+                  {tabs.map(([t,ic])=>(
+                    <Btn key={t} onClick={()=>setSettingsTab(t)}
+                      style={{flex:1,padding:"6px 4px",borderRadius:"8px 8px 0 0",border:`1.5px solid ${settingsTab===t?theme.accent:"#ddd"}`,background:settingsTab===t?theme.accent:"#f8f8f8",color:settingsTab===t?"#fff":"#666",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+                      {ic} {t}
+                    </Btn>
+                  ))}
+                </div>
+              );
+            })()}
+
+            {/* 탭: 표시 */}
+            {settingsTab==="표시"&&(<>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #e8dcc8"}}>
               <div><div style={{fontWeight:700,fontSize:14}}>습득 체크 숨기기</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>습득 체크 버튼을 숨깁니다</div></div>
               <Toggle value={hideAcquired} onChange={setHideAcquired}/>
@@ -1210,160 +1292,41 @@ export default function CatalogApp(){
               <div><div style={{fontWeight:700,fontSize:14}}>이름 생략 모드</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>켜면 긴 이름을 …으로 생략, 끄면 줄바꿈으로 전체 표시</div></div>
               <Toggle value={nameEllipsis} onChange={setNameEllipsis}/>
             </div>
-
-            {/* 테마 */}
-            <div style={{marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                <div style={{fontWeight:700,fontSize:14}}>🎨 테마</div>
-                <button type="button" onClick={()=>setThemeOpen(p=>!p)}
-                  style={{padding:"4px 10px",borderRadius:8,border:"1.5px solid #ccc",background:themeOpen?"#444":"#f0f0f0",color:themeOpen?"#fff":"#444",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                  {themeOpen?"▲ 닫기":"🎨 테마 선택"}
-                </button>
-              </div>
-              {/* 현재 테마 미리보기 */}
-              <div style={{borderRadius:10,overflow:"hidden",border:"1.5px solid #ddd",marginBottom:themeOpen?10:0}}>
-                <div style={{background:theme.header,padding:"7px 12px",display:"flex",alignItems:"center",gap:8}}>
-                  <span style={{color:theme.headerText,fontWeight:700,fontSize:13}}>🍃 모동숲</span>
-                  <span style={{background:theme.headerText,color:theme.header,borderRadius:6,padding:"1px 8px",fontSize:11,fontWeight:700}}>+ 추가</span>
-                  <span style={{color:theme.headerSubText,fontSize:11}}>전체 <b style={{color:theme.headerText}}>264</b> · 습득 <b style={{color:theme.headerText}}>1</b></span>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #e8dcc8",marginBottom:16}}>
+              <div><div style={{fontWeight:700,fontSize:14}}>📸 캡쳐 버튼 숨기기</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>우측 하단 캡쳐 버튼을 숨깁니다</div></div>
+              <Toggle value={hideCapture} onChange={setHideCapture}/>
+            </div>
+            <div style={{padding:"10px 0",marginBottom:8}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                <div>
+                  <div style={{fontWeight:700,fontSize:14}}>항목 이름 크기</div>
+                  <div style={{fontSize:12,color:"#888888",marginTop:2}}>현재: {nameFontSize ? `${nameFontSize}px` : `자동(${gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10}px)`}</div>
                 </div>
-                <div style={{background:theme.bg,padding:"6px 10px",display:"flex",gap:6,alignItems:"center"}}>
-                  <span style={{background:theme.catActive,color:theme.catActiveText,borderRadius:99,padding:"2px 10px",fontSize:12,fontWeight:700}}>전체</span>
-                  <span style={{border:`1.5px solid ${theme.cardBorder}`,color:theme.catInactiveText,borderRadius:99,padding:"2px 10px",fontSize:12}}>가구</span>
-                  <div style={{display:"flex",gap:5,marginLeft:4}}>
-                    {[theme.card,theme.card].map((c,i)=>(
-                      <div key={i} style={{width:34,height:34,borderRadius:6,border:`1.5px solid ${theme.cardBorder}`,background:i===0?"#fff":theme.cardEmpty,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>{i===0?"🖼️":"🖼️"}</div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <Btn onClick={()=>setNameFontSize(0)} style={{padding:"3px 10px",borderRadius:6,border:`1.5px solid ${nameFontSize===0?theme.accent:"#ccc"}`,background:nameFontSize===0?theme.accent:"transparent",color:nameFontSize===0?"#fff":"#666",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>자동</Btn>
+                  <span style={{fontWeight:700,fontSize:16,minWidth:28,textAlign:"right",color:nameFontSize?theme.accent:"#aaa"}}>{nameFontSize||"-"}</span>
+                </div>
+              </div>
+              {(()=>{
+                const autoSize=gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10;
+                const displayVal=nameFontSize||autoSize;
+                return(<>
+                  <input type="range" min={8} max={20} step={1} value={displayVal}
+                    onChange={e=>setNameFontSize(Number(e.target.value))}
+                    style={{width:"100%",accentColor:theme.accent}}/>
+                  <div style={{position:"relative",height:16,marginTop:2}}>
+                    {[8,10,12,14,16,18,20].map(n=>(
+                      <span key={n} style={{position:"absolute",left:`${((n-8)/12)*100}%`,transform:"translateX(-50%)",fontSize:11,color:displayVal===n?theme.accent:"#aaa",fontWeight:displayVal===n?700:400}}>{n}</span>
                     ))}
                   </div>
-                </div>
-              </div>
-              {/* 테마 선택 패널 */}
-              {themeOpen&&(
-                <div style={{background:"#f8f8f8",borderRadius:10,padding:"10px",border:"1.5px solid #ddd"}}>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
-                    {Object.entries(THEMES).map(([key,t])=>(
-                      <button key={key} type="button" onClick={()=>setThemeName(key)}
-                        style={{padding:"5px 10px",borderRadius:8,border:`2px solid ${themeName===key?t.accent:"#dddddd"}`,background:themeName===key?t.header:"#ffffff",color:themeName===key?t.headerText:"#444444",fontSize:12,fontWeight:themeName===key?700:400,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-                        {t.name}
-                      </button>
-                    ))}
-                    <button type="button" onClick={()=>setThemeName("커스텀")}
-                      style={{padding:"5px 10px",borderRadius:8,border:`2px solid ${themeName==="커스텀"?"#888":"#dddddd"}`,background:themeName==="커스텀"?"#444":"#fff",color:themeName==="커스텀"?"#fff":"#444",fontSize:12,fontWeight:themeName==="커스텀"?700:400,cursor:"pointer",fontFamily:"inherit"}}>
-                      🖌️ 커스텀
-                    </button>
-                  </div>
-                  {themeName==="커스텀"&&(
-                    <div style={{background:"#ffffff",borderRadius:8,padding:"10px",border:"1.5px solid #ddd",display:"flex",flexDirection:"column",gap:8}}>
-                      {[["header","헤더 배경색"],["bg","앱 배경색"],["accent","강조색 (버튼/탭)"]].map(([key,label])=>(
-                        <div key={key} style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                          <span style={{fontSize:12,color:"#444"}}>{label}</span>
-                          <div style={{display:"flex",alignItems:"center",gap:8}}>
-                            <div style={{width:24,height:24,borderRadius:5,background:customTheme[key],border:"1.5px solid #ccc"}}/>
-                            <input type="color" value={customTheme[key]} onChange={e=>setCustomTheme(p=>({...p,[key]:e.target.value}))}
-                              style={{width:32,height:28,borderRadius:5,border:"1.5px solid #ccc",cursor:"pointer",padding:1}}/>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                </>);
+              })()}
             </div>
-            {/* 엑셀 가져오기 */}
-            <div style={{marginBottom:16,padding:"12px 14px",background:"#f0f8f0",borderRadius:10,border:"1.5px solid #b0d8b0"}}>
-              <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#2a5a2a"}}>📊 엑셀로 항목 가져오기</div>
-              <div style={{fontSize:11,color:"#5a8060",marginBottom:8,lineHeight:1.5}}>
-                엑셀 파일 형식: <b>A이름 · B색상 · C수량 · D금액 · E카테고리 · F메모</b><br/>
-                1행은 헤더(제목)로 인식됩니다.
-              </div>
-              <div style={{position:"relative",borderRadius:7,overflow:"hidden"}}>
-                <button type="button" style={{width:"100%",padding:"9px",borderRadius:7,border:"2px solid #b0d8b0",background:"#e0f0e0",color:"#2a5a2a",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                  📂 엑셀 파일 선택 (.xlsx / .csv)
-                </button>
-                <input type="file" accept=".xlsx,.xls,.csv"
-                  style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer"}}
-                  onChange={e=>{
-                    const f=e.target.files?.[0]; if(!f)return;
-                    const name=f.name.toLowerCase();
-                    // CSV는 직접 처리, XLSX는 cdnjs SheetJS로 처리
-                    if(name.endsWith(".csv")){
-                      const reader=new FileReader();
-                      reader.onload=ev=>{
-                        try{
-                          const lines=ev.target.result.replace(/\r/g,"").split("\n").filter(l=>l.trim());
-                          if(lines.length<2){showToast("데이터가 없습니다");return;}
-                          const newItems=lines.slice(1).map(line=>{
-                            const cols=line.split(',').map(s=>{const t=s.trim();return t.startsWith('"')&&t.endsWith('"')?t.slice(1,-1):t;});
-                            if(!cols[0])return null;
-                            // A이름 B색상 C수량 D금액 E카테고리 F메모
-                            return{id:nextId.current++,name:cols[0]||"",colorCat:cols[1]||"",quantity:parseInt(cols[2])||1,price:parseInt(cols[3])||0,category:cols[4]||categories[0]||"기타",note:cols[5]||"",acquired:false,date:new Date().toISOString().split("T")[0],image:null};
-                          }).filter(Boolean);
-                          if(!newItems.length){showToast("유효한 항목이 없습니다");return;}
-                          // 중복 체크 (새 항목끼리 + 기존 항목과)
-                          setItems(prev=>{
-                            const all=[...prev];
-                            const checked=newItems.map(ni=>{
-                              const isDup=all.some(it=>it.name.trim()===ni.name.trim()&&it.colorCat===ni.colorCat);
-                              return isDup?{...ni,category:"중복"}:ni;
-                            });
-                            // 기존 항목도 새 항목과 중복이면 중복 카테고리로
-                            const updatedPrev=all.map(it=>{
-                              const isDup=newItems.some(ni=>ni.name.trim()===it.name.trim()&&ni.colorCat===it.colorCat);
-                              return isDup?{...it,category:"중복"}:it;
-                            });
-                            return [...updatedPrev,...checked];
-                          });
-                          showToast(`✓ ${newItems.length}개 항목을 가져왔습니다`);
-                        }catch{showToast("파일을 읽을 수 없습니다");}
-                      };
-                      reader.readAsText(f,"utf-8");
-                    } else {
-                      // XLSX: cdnjs에서 SheetJS 동적 로드
-                      const reader=new FileReader();
-                      reader.onload=ev=>{
-                        const script=document.createElement("script");
-                        script.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
-                        script.onload=()=>{
-                          try{
-                            const XLSX=window.XLSX;
-                            const wb=XLSX.read(ev.target.result,{type:"array"});
-                            const ws=wb.Sheets[wb.SheetNames[0]];
-                            const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
-                            if(rows.length<2){showToast("데이터가 없습니다");return;}
-                            const newItems=rows.slice(1).filter(r=>r[0]?.toString().trim()).map(r=>({
-                              id:nextId.current++,name:r[0]?.toString().trim()||"",colorCat:r[1]?.toString().trim()||"",
-                              quantity:parseInt(r[2])||1,price:parseInt(r[3])||0,
-                              category:r[4]?.toString().trim()||categories[0]||"기타",note:r[5]?.toString().trim()||"",
-                              acquired:false,date:new Date().toISOString().split("T")[0],image:null,
-                            }));
-                            if(!newItems.length){showToast("유효한 항목이 없습니다");return;}
-                            setItems(prev=>{
-                              const all=[...prev];
-                              const checked=newItems.map(ni=>{
-                                const isDup=all.some(it=>it.name.trim()===ni.name.trim()&&it.colorCat===ni.colorCat);
-                                return isDup?{...ni,category:"중복"}:ni;
-                              });
-                              const updatedPrev=all.map(it=>{
-                                const isDup=newItems.some(ni=>ni.name.trim()===it.name.trim()&&ni.colorCat===it.colorCat);
-                                return isDup?{...it,category:"중복"}:it;
-                              });
-                              return [...updatedPrev,...checked];
-                            });
-                            showToast(`✓ ${newItems.length}개 항목을 가져왔습니다`);
-                          }catch{showToast("파일을 읽을 수 없습니다");}
-                        };
-                        script.onerror=()=>showToast("라이브러리 로드 실패");
-                        if(!window.XLSX) document.head.appendChild(script);
-                        else script.onload();
-                      };
-                      reader.readAsArrayBuffer(f);
-                    }
-                    e.target.value="";
-                  }}/>
-              </div>
-            </div>
+            </>)}
 
-            <div style={{fontWeight:700,fontSize:14,marginBottom:8}}>카테고리 관리</div>
+            {/* 탭: 카테고리 */}
+            {settingsTab==="카테고리"&&(<>
+            <div style={{fontWeight:700,fontSize:14,marginBottom:8,color:theme.accent}}>📁 카테고리 관리</div>
             <CatInput onAdd={v=>{if(v&&!categories.includes(v))setCategories(p=>[...p,v]);}} IS={IS}/>
             <div style={{display:"flex",flexDirection:"column",gap:4,marginBottom:18}}>
               {categories.map((c,i)=>(
@@ -1387,7 +1350,7 @@ export default function CatalogApp(){
               ))}
             </div>
             <div style={{borderTop:"1px solid #e8dcc8",paddingTop:14}}>
-              <div style={{fontWeight:700,fontSize:14,marginBottom:9}}>색상 카테고리 관리</div>
+              <div style={{fontWeight:700,fontSize:14,marginBottom:9,color:theme.accent}}>🎨 색상 카테고리 관리</div>
               <CatInput onAdd={v=>{if(v&&!colorCats.find(c=>c.name===v))setColorCats(p=>[...p,{name:v,hex:newCH}]);}} IS={IS} colorPicker newCH={newCH} setNewCH={setNewCH}/>
               <div style={{display:"flex",flexDirection:"column",gap:5}}>
                 {colorCats.map((col,idx)=>(
@@ -1412,80 +1375,208 @@ export default function CatalogApp(){
                 ))}
               </div>
             </div>
-            {/* ══ Cloudinary 설정 ══ */}
-            <div style={{borderTop:"1px solid #e8dcc8",paddingTop:14,marginTop:4}}>
-              <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#2a1008"}}>☁️ Cloudinary 연결 정보</div>
-              <div style={{fontSize:12,color:"#666",marginBottom:8,background:"#f0f4ff",borderRadius:8,padding:"8px 12px",lineHeight:1.7}}>
-                Cloud Name: <b>{cdnConfig?.cloudName}</b><br/>
-                Upload Preset: <b>{cdnConfig?.uploadPreset}</b>
-              </div>
-              <Btn onClick={()=>setConfirm({msg:"Cloudinary 설정을 초기화할까요?\n(저장된 이미지 URL은 유지됩니다)",ok:()=>{try{localStorage.removeItem(CK);}catch{}setCdnConfig_(null);setConfirm(null);}})}
-                style={{width:"100%",padding:"9px",borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                🔄 Cloudinary 재설정
-              </Btn>
-            </div>
-            {/* ══ JSON 백업 / 복원 ══ */}
-            <div style={{borderTop:"1px solid #e8dcc8",paddingTop:14,marginTop:4}}>
-              <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#2a1008"}}>💾 데이터 백업 · 복원</div>
-              <div style={{fontSize:11,color:"#888888",marginBottom:10,lineHeight:1.5}}>
-                이미지는 Cloudinary에 안전하게 저장됩니다.<br/>
-                JSON 백업에는 이미지 URL이 포함됩니다.<br/>
-                복원 시 현재 데이터를 덮어씁니다.
-              </div>
-              <div style={{display:"flex",gap:8}}>
-                {/* 내보내기 버튼 */}
-                <Btn onClick={()=>{
-                  const data={items,categories,colorCats,settings:{hideAcquired,hideQuantity,viewMode,gridCols,sortBy,nameEllipsis},exportedAt:new Date().toISOString()};
-                  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-                  const url=URL.createObjectURL(blob);
-                  const a=document.createElement("a");
-                  a.href=url;
-                  a.download=`모동숲_백업_${new Date().toISOString().slice(0,10)}.json`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                  showToast("✓ 백업 파일 저장됨");
-                }} style={{flex:1,padding:"10px",borderRadius:8,border:"2px solid #444444",background:"#44444422",color:"#7a5a00",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                  📥 JSON 내보내기
-                </Btn>
-                {/* 복원 버튼 */}
-                <div style={{position:"relative",flex:1,borderRadius:8,overflow:"hidden"}}>
-                  <button type="button" style={{width:"100%",padding:"10px",borderRadius:8,border:"2px solid #4a7ec9",background:"#4a7ec922",color:"#1a3a6a",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-                    📤 JSON 복원
-                  </button>
-                  <input type="file" accept=".json"
-                    style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer"}}
-                    onChange={e=>{
-                      const f=e.target.files?.[0]; if(!f)return;
-                      const reader=new FileReader();
-                      reader.onload=ev=>{
-                        try{
-                          const data=JSON.parse(ev.target.result);
-                          if(!data.items||!Array.isArray(data.items)){showToast("올바른 백업 파일이 아닙니다");return;}
-                          setItems(data.items);
-                          if(data.categories)setCategories(data.categories);
-                          if(data.colorCats)setColorCats(data.colorCats);
-                          if(data.settings){
-                            const s=data.settings;
-                            if(s.hideAcquired!==undefined)setHideAcquired(s.hideAcquired);
-                            else if(s.photoMode!==undefined){setHideAcquired(s.photoMode);setHideQuantity(s.photoMode);}
-                            if(s.hideQuantity!==undefined)setHideQuantity(s.hideQuantity);
-                            if(s.viewMode)setViewMode(s.viewMode);
-                            if(s.gridCols)setGridCols(s.gridCols);
-                            if(s.sortBy)setSortBy(s.sortBy);
-                            if(s.nameEllipsis!==undefined)setNameEllipsis(s.nameEllipsis);
-                          }
-                          nextId.current=Math.max(100,...data.items.map(x=>x.id||0))+1;
-                          showToast(`✓ ${data.items.length}개 항목 복원 완료`);
-                        }catch{showToast("파일을 읽을 수 없습니다");}
-                      };
-                      reader.readAsText(f,"utf-8");
-                      e.target.value="";
-                    }}/>
+            </>)}
+            {/* 탭: 테마 */}
+            {settingsTab==="테마"&&(<>
+              <div style={{borderRadius:10,overflow:"hidden",border:"1.5px solid #ddd",marginBottom:10}}>
+                <div style={{background:theme.header,padding:"7px 12px",display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{color:theme.titleText||theme.headerText,fontWeight:700,fontSize:13}}>🍃 링동숲</span>
+                  <span style={{background:theme.headerText,color:theme.activeText||theme.header,borderRadius:6,padding:"1px 8px",fontSize:11,fontWeight:700}}>+ 추가</span>
+                  <span style={{color:theme.headerSubText,fontSize:11}}>전체 <b style={{color:theme.titleText||theme.headerText}}>264</b> · 습득 <b style={{color:theme.titleText||theme.headerText}}>1</b></span>
+                </div>
+                <div style={{background:theme.bg,padding:"6px 10px",display:"flex",gap:6,alignItems:"center"}}>
+                  <span style={{background:theme.catActive,color:theme.catActiveText,borderRadius:99,padding:"2px 10px",fontSize:12,fontWeight:700}}>전체</span>
+                  <span style={{border:`1.5px solid ${theme.cardBorder}`,color:theme.catInactiveText,borderRadius:99,padding:"2px 10px",fontSize:12}}>가구</span>
+                  <div style={{display:"flex",gap:5,marginLeft:4}}>
+                    {[0,1].map(i=>(
+                      <div key={i} style={{width:34,height:34,borderRadius:6,border:`1.5px solid ${theme.cardBorder}`,background:i===0?theme.card:theme.cardEmpty,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>🖼️</div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+              <div style={{background:"#f8f8f8",borderRadius:10,padding:"10px",border:"1.5px solid #ddd"}}>
+                <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
+                  {Object.entries(THEMES).map(([key,t])=>(
+                    <button key={key} type="button" onClick={()=>setThemeName(key)}
+                      style={{padding:"5px 10px",borderRadius:8,border:`2px solid ${themeName===key?t.accent:"#dddddd"}`,background:themeName===key?t.header:"#ffffff",color:themeName===key?(t.titleText||t.headerText):"#444444",fontSize:12,fontWeight:themeName===key?700:400,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+                      {t.name}
+                    </button>
+                  ))}
+                  <button type="button" onClick={()=>setThemeName("커스텀")}
+                    style={{padding:"5px 10px",borderRadius:8,border:`2px solid ${themeName==="커스텀"?"#888":"#dddddd"}`,background:themeName==="커스텀"?"#444":"#fff",color:themeName==="커스텀"?"#fff":"#444",fontSize:12,fontWeight:themeName==="커스텀"?700:400,cursor:"pointer",fontFamily:"inherit"}}>
+                    🖌️ 커스텀
+                  </button>
+                </div>
+                {themeName==="커스텀"&&(
+                  <div style={{background:"#ffffff",borderRadius:8,padding:"10px",border:"1.5px solid #ddd",display:"flex",flexDirection:"column",gap:8}}>
+                    {[["header","헤더 배경색"],["bg","앱 배경색"],["accent","강조색 (버튼/탭)"]].map(([key,label])=>(
+                      <div key={key} style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                        <span style={{fontSize:12,color:"#444"}}>{label}</span>
+                        <div style={{display:"flex",alignItems:"center",gap:8}}>
+                          <div style={{width:24,height:24,borderRadius:5,background:customTheme[key],border:"1.5px solid #ccc"}}/>
+                          <input type="color" value={customTheme[key]} onChange={e=>setCustomTheme(p=>({...p,[key]:e.target.value}))}
+                            style={{width:32,height:28,borderRadius:5,border:"1.5px solid #ccc",cursor:"pointer",padding:1}}/>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>)}
 
-            <Btn onClick={()=>setSettings(false)} style={{marginTop:16,width:"100%",padding:11,borderRadius:8,background:"#222222",color:"#ffffff",border:"none",fontWeight:700,fontSize:14}}>닫기</Btn>
+            {/* 탭: 데이터 */}
+            {settingsTab==="데이터"&&(<>
+              <div style={{marginBottom:12,padding:"12px 14px",background:"#f0f8f0",borderRadius:10,border:"1.5px solid #b0d8b0"}}>
+                <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#2a5a2a"}}>📊 엑셀 가져오기 · 내보내기</div>
+                <div style={{fontSize:11,color:"#5a8060",marginBottom:8,lineHeight:1.5}}>
+                  형식: <b>A이름 · B색상 · C수량 · D금액 · E카테고리 · F메모</b>
+                </div>
+                <div style={{display:"flex",gap:8}}>
+                  <div style={{position:"relative",flex:1,borderRadius:7,overflow:"hidden"}}>
+                    <button type="button" style={{width:"100%",padding:"9px",borderRadius:7,border:"2px solid #b0d8b0",background:"#e0f0e0",color:"#2a5a2a",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>📂 가져오기</button>
+                    <input type="file" accept=".xlsx,.xls,.csv" style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer"}}
+                      onChange={e=>{
+                        const f=e.target.files?.[0]; if(!f)return;
+                        const name=f.name.toLowerCase();
+                        if(name.endsWith(".csv")){
+                          const reader=new FileReader();
+                          reader.onload=ev=>{
+                            try{
+                              const lines=ev.target.result.replace(/\r/g,"").split("\n").filter(l=>l.trim());
+                              if(lines.length<2){showToast("데이터가 없습니다");return;}
+                              const newItems=lines.slice(1).map(line=>{
+                                const cols=line.split(',').map(s=>{const t=s.trim();return t.startsWith('"')&&t.endsWith('"')?t.slice(1,-1):t;});
+                                if(!cols[0])return null;
+                                return{id:nextId.current++,name:cols[0]||"",colorCat:cols[1]||"",quantity:parseInt(cols[2])||1,price:parseInt(cols[3])||0,category:cols[4]||categories[0]||"기타",note:cols[5]||"",acquired:false,date:new Date().toISOString().split("T")[0],image:null};
+                              }).filter(Boolean);
+                              if(!newItems.length){showToast("유효한 항목이 없습니다");return;}
+                              setItems(prev=>{
+                                const all=[...prev];
+                                const checked=newItems.map(ni=>{const isDup=all.some(it=>it.name.trim()===ni.name.trim()&&it.colorCat===ni.colorCat);return isDup?{...ni,category:"중복"}:ni;});
+                                const updatedPrev=all.map(it=>{const isDup=newItems.some(ni=>ni.name.trim()===it.name.trim()&&ni.colorCat===it.colorCat);return isDup?{...it,category:"중복"}:it;});
+                                return [...updatedPrev,...checked];
+                              });
+                              showToast(`✓ ${newItems.length}개 가져왔습니다`);
+                            }catch{showToast("파일을 읽을 수 없습니다");}
+                          };
+                          reader.readAsText(f,"utf-8");
+                        } else {
+                          const reader=new FileReader();
+                          reader.onload=ev=>{
+                            const script=document.createElement("script");
+                            script.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+                            script.onload=()=>{
+                              try{
+                                const XLSX=window.XLSX;
+                                const wb=XLSX.read(ev.target.result,{type:"array"});
+                                const ws=wb.Sheets[wb.SheetNames[0]];
+                                const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+                                if(rows.length<2){showToast("데이터가 없습니다");return;}
+                                const newItems=rows.slice(1).filter(r=>r[0]?.toString().trim()).map(r=>({
+                                  id:nextId.current++,name:r[0]?.toString().trim()||"",colorCat:r[1]?.toString().trim()||"",
+                                  quantity:parseInt(r[2])||1,price:parseInt(r[3])||0,
+                                  category:r[4]?.toString().trim()||categories[0]||"기타",note:r[5]?.toString().trim()||"",
+                                  acquired:false,date:new Date().toISOString().split("T")[0],image:null,
+                                }));
+                                if(!newItems.length){showToast("유효한 항목이 없습니다");return;}
+                                setItems(prev=>{
+                                  const all=[...prev];
+                                  const checked=newItems.map(ni=>{const isDup=all.some(it=>it.name.trim()===ni.name.trim()&&it.colorCat===ni.colorCat);return isDup?{...ni,category:"중복"}:ni;});
+                                  const updatedPrev=all.map(it=>{const isDup=newItems.some(ni=>ni.name.trim()===it.name.trim()&&ni.colorCat===it.colorCat);return isDup?{...it,category:"중복"}:it;});
+                                  return [...updatedPrev,...checked];
+                                });
+                                showToast(`✓ ${newItems.length}개 가져왔습니다`);
+                              }catch{showToast("파일을 읽을 수 없습니다");}
+                            };
+                            script.onerror=()=>showToast("라이브러리 로드 실패");
+                            if(!window.XLSX) document.head.appendChild(script);
+                            else script.onload();
+                          };
+                          reader.readAsArrayBuffer(f);
+                        }
+                        e.target.value="";
+                      }}/>
+                  </div>
+                  <Btn onClick={()=>{
+                    const script=document.createElement("script");
+                    script.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+                    script.onload=()=>{
+                      try{
+                        const XLSX=window.XLSX;
+                        const rows=[["이름","색상","수량","금액","카테고리","메모","습득여부"],...items.map(it=>[it.name,it.colorCat||"",it.quantity??1,it.price||0,it.category||"",it.note||"",it.acquired?"습득":"미습득"])];
+                        const ws=XLSX.utils.aoa_to_sheet(rows);
+                        const wb=XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb,ws,"카탈로그");
+                        XLSX.writeFile(wb,`링동숲_카탈로그_${new Date().toISOString().slice(0,10)}.xlsx`);
+                        showToast(`✓ 엑셀 내보내기 완료 (${items.length}개)`);
+                      }catch{showToast("내보내기 실패");}
+                    };
+                    script.onerror=()=>showToast("라이브러리 로드 실패");
+                    if(!window.XLSX) document.head.appendChild(script);
+                    else script.onload();
+                  }} style={{flex:1,padding:"9px",borderRadius:7,border:"2px solid #2a7a2a",background:"#2a7a2a",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    📤 내보내기
+                  </Btn>
+                </div>
+              </div>
+              <div style={{marginBottom:12,padding:"12px 14px",background:"#f0f4ff",borderRadius:10,border:"1.5px solid #c0cce8"}}>
+                <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#1a3a6a"}}>💾 데이터 백업 · 복원</div>
+                <div style={{fontSize:11,color:"#5a7098",marginBottom:8,lineHeight:1.5}}>JSON 백업에는 이미지 URL이 포함됩니다. 복원 시 현재 데이터를 덮어씁니다.</div>
+                <div style={{display:"flex",gap:8}}>
+                  <Btn onClick={()=>{
+                    const data={items,categories,colorCats,settings:{hideAcquired,hideQuantity,viewMode,gridCols,sortBy,nameEllipsis,nameFontSize},exportedAt:new Date().toISOString()};
+                    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+                    const url=URL.createObjectURL(blob);
+                    const a=document.createElement("a");
+                    a.href=url;a.download=`링동숲_백업_${new Date().toISOString().slice(0,10)}.json`;a.click();
+                    URL.revokeObjectURL(url);showToast("✓ 백업 파일 저장됨");
+                  }} style={{flex:1,padding:"10px",borderRadius:8,border:"2px solid #4a7ec9",background:"#4a7ec922",color:"#1a3a6a",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                    📥 JSON 내보내기
+                  </Btn>
+                  <div style={{position:"relative",flex:1,borderRadius:8,overflow:"hidden"}}>
+                    <button type="button" style={{width:"100%",padding:"10px",borderRadius:8,border:"2px solid #888",background:"#88888822",color:"#333",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>📤 JSON 복원</button>
+                    <input type="file" accept=".json" style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer"}}
+                      onChange={e=>{
+                        const f=e.target.files?.[0]; if(!f)return;
+                        const reader=new FileReader();
+                        reader.onload=ev=>{
+                          try{
+                            const data=JSON.parse(ev.target.result);
+                            if(!data.items||!Array.isArray(data.items)){showToast("올바른 백업 파일이 아닙니다");return;}
+                            setItems(data.items);
+                            if(data.categories)setCategories(data.categories);
+                            if(data.colorCats)setColorCats(data.colorCats);
+                            if(data.settings){
+                              const s=data.settings;
+                              if(s.hideAcquired!==undefined)setHideAcquired(s.hideAcquired);
+                              else if(s.photoMode!==undefined){setHideAcquired(s.photoMode);setHideQuantity(s.photoMode);}
+                              if(s.hideQuantity!==undefined)setHideQuantity(s.hideQuantity);
+                              if(s.viewMode)setViewMode(s.viewMode);
+                              if(s.gridCols)setGridCols(s.gridCols);
+                              if(s.sortBy)setSortBy(s.sortBy);
+                              if(s.nameEllipsis!==undefined)setNameEllipsis(s.nameEllipsis);
+                              if(s.nameFontSize!==undefined)setNameFontSize(s.nameFontSize);
+                            }
+                            nextId.current=Math.max(100,...data.items.map(x=>x.id||0))+1;
+                            showToast(`✓ ${data.items.length}개 항목 복원 완료`);
+                          }catch{showToast("파일을 읽을 수 없습니다");}
+                        };
+                        reader.readAsText(f,"utf-8");e.target.value="";
+                      }}/>
+                  </div>
+                </div>
+              </div>
+              <div style={{padding:"12px 14px",background:"#fff8f0",borderRadius:10,border:"1.5px solid #f0d8b0"}}>
+                <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#7a3a00"}}>☁️ Cloudinary 연결 정보</div>
+                <div style={{fontSize:12,color:"#666",marginBottom:8,lineHeight:1.7}}>
+                  Cloud Name: <b>{cdnConfig?.cloudName}</b><br/>Upload Preset: <b>{cdnConfig?.uploadPreset}</b>
+                </div>
+                <Btn onClick={()=>setConfirm({msg:"Cloudinary 설정을 초기화할까요?\n(저장된 이미지 URL은 유지됩니다)",ok:()=>{try{localStorage.removeItem(CK);}catch{}setCdnConfig_(null);setConfirm(null);}})}
+                  style={{width:"100%",padding:"9px",borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  🔄 Cloudinary 재설정
+                </Btn>
+              </div>
+            </>)}
           </Modal>
         </Overlay>
       )}
