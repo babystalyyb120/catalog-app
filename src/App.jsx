@@ -470,8 +470,8 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
-        {!hideQuantity&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99}}>×{item.quantity??1}</div>}
-        {!hidePrice&&(item.price||0)>0&&<div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99}}>₩{(item.price||0).toLocaleString()}</div>}
+        {!hideQuantity&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:2}}>×{item.quantity??1}</div>}
+        {!hidePrice&&(item.price||0)>0&&<div style={{position:"absolute",bottom:5,left:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:2}}>₩{(item.price||0).toLocaleString()}</div>}
       </div>
       <div style={{padding:"4px 5px",textAlign:"center"}}>
         <div style={{fontWeight:700,fontSize:nameFontSize||( gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10),color:"var(--t-item-name,#222222)",textAlign:"center",
@@ -765,28 +765,14 @@ function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,s
   });
 
   const GAP=8;
-  const [containerW,setContainerW]=useState(0);
-  const wrapRef=useRef(null);
-  useEffect(()=>{
-    const el=wrapRef.current; if(!el)return;
-    const ro=new ResizeObserver(entries=>{
-      const w=entries[0]?.contentRect?.width||el.offsetWidth;
-      if(w>0)setContainerW(w);
-    });
-    ro.observe(el);
-    setContainerW(el.offsetWidth);
-    return()=>ro.disconnect();
-  },[]);
-  const effectiveW=containerW||Math.min(window.innerWidth,600);
-  const cardW=Math.floor((effectiveW-(GAP*(cols-1)))/cols);
+  const cardW=Math.floor((Math.min(window.innerWidth,480)-16-(GAP*(cols-1)))/cols);
   const rowH=cardH;
   const {containerRef,visibleItems,totalH,paddingTop,paddingBottom}=useVirtualGrid(items,cols,rowH);
 
   return(
-    <div ref={wrapRef} style={{width:"100%"}}>
     <div ref={containerRef} style={{position:"relative",minHeight:totalH}}>
       <div style={{height:paddingTop}}/>
-      <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW>0?cardW+"px":"1fr"})`,gap:GAP,justifyContent:"start"}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW}px)`,gap:GAP,justifyContent:"start"}}>
         {visibleItems.map(({item,idx})=>(
           <div key={item.id} ref={idx===0?measureRef:null}>
             <ImageCard item={item} hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
@@ -797,7 +783,6 @@ function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,s
         ))}
       </div>
       <div style={{height:paddingBottom}}/>
-    </div>
     </div>
   );
 }
@@ -868,6 +853,8 @@ export default function CatalogApp(){
 
   const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
 
+  const captureCountRef=useRef({date:"",count:0});
+
   const doCapture=useCallback(()=>{
     const grid=captureRef.current; if(!grid){showToast("캡쳐 영역 없음");return;}
     const run=()=>{
@@ -882,11 +869,10 @@ export default function CatalogApp(){
       if(!lastFullRowBottom) lastFullRowBottom=cards[0].getBoundingClientRect().bottom;
 
       const gridRect=grid.getBoundingClientRect();
-      // grid 요소 기준 상대 높이 (스크롤 무관)
       const captureH=Math.ceil(lastFullRowBottom-gridRect.top);
       const captureW=grid.offsetWidth;
       const SCALE=window.devicePixelRatio||2;
-      const PAD=24; // 여백 px
+      const PAD=10; // 여백 축소
 
       window.html2canvas(grid,{
         useCORS:true,
@@ -911,11 +897,24 @@ export default function CatalogApp(){
         ctx2.fillStyle=bg;
         ctx2.fillRect(0,0,out.width,out.height);
         ctx2.drawImage(canvas,padPx,padPx,canvas.width,captureH*SCALE);
+
+        // 날짜별 자동 증가 파일명
+        const today=new Date().toISOString().slice(0,10);
+        if(captureCountRef.current.date!==today){
+          captureCountRef.current={date:today,count:1};
+        } else {
+          captureCountRef.current.count+=1;
+        }
+        const num=captureCountRef.current.count;
+        const fname=`링동숲_${today}-${num}.png`;
+
         const a=document.createElement("a");
         a.href=out.toDataURL("image/png");
-        a.download=`링동숲_${new Date().toISOString().slice(0,10)}.png`;
+        a.download=fname;
+        document.body.appendChild(a);
         a.click();
-        showToast("✓ 캡쳐 저장됨");
+        document.body.removeChild(a);
+        showToast(`✓ 저장됨 (${fname})`);
       }).catch(e=>{console.error(e);showToast("캡쳐 실패");});
     };
     if(!window.html2canvas){
@@ -1197,7 +1196,7 @@ export default function CatalogApp(){
             );
           })}
         </div>
-        <div ref={captureRef} style={{background:theme.bg,padding:"8px 0"}}>
+        <div ref={captureRef} style={{background:theme.bg,padding:"8px 12px"}}>
         {viewMode==="이미지형"&&(disp.length===0?<Empty/>:
           <VirtualGrid
             items={disp} cols={gridCols}
