@@ -936,13 +936,14 @@ export default function CatalogApp(){
     const run=()=>{
       // captureH: 카드 마지막 행 bottom까지만
       const gridRect=grid.getBoundingClientRect();
-      const captureH=Math.ceil(maxBottom-gridRect.top);
+      const yStart=minTop-gridRect.top;   // grid 내부에서 첫 카드 시작 y
+      const captureH=Math.ceil(maxBottom-minTop);
       const captureW=grid.offsetWidth;
 
       window.html2canvas(grid,{
         useCORS:true,allowTaint:true,foreignObjectRendering:false,
         scale:SCALE,width:captureW,height:captureH,
-        x:0,y:0,
+        x:0,y:yStart,
         scrollX:-window.scrollX,scrollY:-window.scrollY,
         windowWidth:document.documentElement.clientWidth,
         windowHeight:document.documentElement.clientHeight,
@@ -950,7 +951,6 @@ export default function CatalogApp(){
       }).then(canvas=>{
         badgeInfos.forEach(b=>{b.el.style.visibility="";});
 
-        // 실제 카드 좌우 범위로 크롭
         const padPx=PAD*SCALE;
         const cropX=Math.round((minLeft-gridRect.left)*SCALE);
         const cropW=Math.round((maxRight-minLeft)*SCALE);
@@ -969,7 +969,7 @@ export default function CatalogApp(){
         ctx.scale(SCALE,SCALE);
         for(const b of badgeInfos){
           const bx=b.rect.left-minLeft+PAD;
-          const by=b.rect.top-gridRect.top+PAD;
+          const by=b.rect.top-minTop+PAD;  // minTop 기준으로 통일
           const bw=b.rect.width; const bh=b.rect.height;
           if(bw<2||bh<2) continue;
           const br=bh/2;
