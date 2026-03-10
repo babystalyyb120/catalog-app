@@ -44,10 +44,16 @@ function matchSearch(t,q){if(!q)return true;if(t.toLowerCase().includes(q.toLowe
 // 항목 전체 필터 (일반 검색 + 특수 검색어)
 function itemMatchesQuery(item, query){
   if(!query)return true;
-  const spec=parseSpecialQuery(query);
-  if(spec)return itemMatchesSpecial(item, spec);
-  const fields=[dispName(item), item.note||"", item.category||""];
-  return fields.some(f=>matchSearch(f, query));
+  // 복합 쿼리 지원: "[숫자만] [영어만]" 등 여러 태그 동시 적용
+  const parts=query.trim().split(/\s+/);
+  return parts.every(part=>{
+    if(part==="[습득]") return item.acquired===true;
+    if(part==="[미습득]") return item.acquired===false;
+    const spec=parseSpecialQuery(part);
+    if(spec)return itemMatchesSpecial(item, spec);
+    const fields=[dispName(item), item.note||"", item.category||""];
+    return fields.some(f=>matchSearch(f, part));
+  });
 }
 
 // ══════ 스토리지 ══════
@@ -149,7 +155,7 @@ const DEF_CC=[
   {name:"라이트블루",hex:"#89b4d9"},
   {name:"월넛",hex:"#5c4033"},
 ];
-const DEF_CATS=["수집품","도서","의류","전자기기","기타"];
+const DEF_CATS=["수집품","도서","의류","전자기기","기타","중복"];
 const DEF_ITEMS=[{id:1,name:"빈티지 카메라",category:"수집품",colorCat:"블랙",acquired:true,quantity:1,date:"2024-01-10",image:null,note:"Leica M3",price:0},{id:2,name:"디자인 패턴",category:"도서",colorCat:"",acquired:false,quantity:2,date:"2024-02-15",image:null,note:"Gang of Four",price:0},{id:3,name:"레더 재킷",category:"의류",colorCat:"브라운",acquired:true,quantity:1,date:"2024-03-01",image:null,note:"빈티지 스타일",price:0}];
 const DEF_STATE={items:DEF_ITEMS,categories:DEF_CATS,colorCats:DEF_CC,settings:{photoMode:false,viewMode:"이미지형",gridCols:3,sortBy:"date-desc"}};
 const SORT_OPTS=[{v:"date-desc",l:"최근 추가순"},{v:"date-asc",l:"오래된순"},{v:"name-asc",l:"이름 ↑"},{v:"name-desc",l:"이름 ↓"},{v:"category-name-asc",l:"카테고리→이름 ↑"},{v:"category-name-desc",l:"카테고리→이름 ↓"},{v:"acquired-first",l:"습득 먼저"},{v:"not-acquired-first",l:"미습득 먼저"}];
@@ -415,13 +421,13 @@ function CtxMenu({x,y,onCopy,onEdit,onDelete,onClose}){
 // ══════════════════════════════════════════════════════════════
 //  ImageCard
 // ══════════════════════════════════════════════════════════════
-const ImageCard=memo(function ImageCard({item,photoMode,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong,gridCols=3,nameEllipsis=true}){
+const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong,gridCols=3,nameEllipsis=true}){
   const ref=useRef(null);
   const hex=item.colorCat?getHex(colorCats,item.colorCat):null;
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
   const pos=item.imagePosition||"50% 50%";
   return(
-    <div ref={ref} style={{background:"#fff",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!photoMode?"#444444":"#e0e0e0")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
+    <div ref={ref} style={{background:"#fff",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"#444444":"#e0e0e0")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
       <div style={{position:"relative",paddingTop:"100%",background:"#fff"}}>
         {item.image?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
           :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"#c0b8a8",background:"#f8f5f0"}}>🖼️</div>}
@@ -430,7 +436,7 @@ const ImageCard=memo(function ImageCard({item,photoMode,colorCats,selected,selec
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
-        {!photoMode&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"rgba(0,0,0,.55)",color:"#ffffff",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99}}>×{item.quantity??1}</div>}
+        {!hideQuantity&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"rgba(0,0,0,.55)",color:"#ffffff",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99}}>×{item.quantity??1}</div>}
       </div>
       <div style={{padding:"4px 5px",textAlign:"center"}}>
         <div style={{fontWeight:700,fontSize:gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10,color:"#222222",textAlign:"center",
@@ -441,7 +447,7 @@ const ImageCard=memo(function ImageCard({item,photoMode,colorCats,selected,selec
           {item.name}{item.colorCat&&<span style={{color:hex}}> - {item.colorCat}</span>}
         </div>
       </div>
-      {!photoMode&&!selectMode&&(
+      {!hideAcquired&&!selectMode&&(
         <div style={{padding:"0 5px 5px"}}>
           <button
             onTouchEnd={e=>{e.stopPropagation();e.preventDefault();onToggle();}}
@@ -458,12 +464,12 @@ const ImageCard=memo(function ImageCard({item,photoMode,colorCats,selected,selec
 // ══════════════════════════════════════════════════════════════
 //  ListRow
 // ══════════════════════════════════════════════════════════════
-const ListRow=memo(function ListRow({item,photoMode,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong}){
+const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong}){
   const ref=useRef(null);
   const hex=item.colorCat?getHex(colorCats,item.colorCat):null;
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
   return(
-    <div ref={ref} style={{display:"flex",alignItems:"center",gap:10,background:selected?"#eef3fb":"#fff",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!photoMode?"#444444":"#e0e0e0")}`,borderRadius:10,padding:"8px 12px",cursor:"pointer",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
+    <div ref={ref} style={{display:"flex",alignItems:"center",gap:10,background:selected?"#eef3fb":"#fff",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"#444444":"#e0e0e0")}`,borderRadius:10,padding:"8px 12px",cursor:"pointer",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
       {selectMode&&(
         <div style={{width:26,height:26,borderRadius:6,flexShrink:0,pointerEvents:"none",border:`3px solid ${selected?"#4a7ec9":"rgba(80,80,80,.7)"}`,background:selected?"#4a7ec9":"#fff",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 1px 4px rgba(0,0,0,.2)"}}>
           {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
@@ -478,9 +484,9 @@ const ListRow=memo(function ListRow({item,photoMode,colorCats,selected,selectMod
         </div>
         <div style={{fontSize:11,color:"#888888",marginTop:1}}>{item.category}{item.note?` · ${item.note}`:""}</div>
       </div>
-      {!photoMode&&(item.quantity??1)>0&&<div style={{background:"#222222",color:"#ffffff",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0}}>×{item.quantity??1}</div>}
-      {!photoMode&&item.price>0&&<div style={{background:"#2a4a2a",color:"#a8e0a8",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0}}>₩{((item.price||0)*(item.quantity??1)).toLocaleString()}{(item.quantity??1)>1&&<span style={{fontSize:9,opacity:.8}}> (×{item.quantity??1})</span>}</div>}
-      {!photoMode&&!selectMode&&(
+      {!hideQuantity&&(item.quantity??1)>0&&<div style={{background:"#222222",color:"#ffffff",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0}}>×{item.quantity??1}</div>}
+      {!hideQuantity&&item.price>0&&<div style={{background:"#2a4a2a",color:"#a8e0a8",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0}}>₩{((item.price||0)*(item.quantity??1)).toLocaleString()}{(item.quantity??1)>1&&<span style={{fontSize:9,opacity:.8}}> (×{item.quantity??1})</span>}</div>}
+      {!hideAcquired&&!selectMode&&(
         <button
           onTouchEnd={e=>{e.stopPropagation();e.preventDefault();onToggle();}}
           onClick={e=>{e.stopPropagation();onToggle();}}
@@ -561,7 +567,14 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
   return(
     <Overlay onClick={onClose}>
       <Modal onClick={e=>e.stopPropagation()} style={{maxWidth:440,maxHeight:"85vh",overflowY:"auto"}}>
-        <h2 style={{margin:"0 0 12px",fontSize:17,fontWeight:700}}>{editItem?"항목 수정":"새 항목 추가"}</h2>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+          <h2 style={{margin:0,fontSize:17,fontWeight:700}}>{editItem?"항목 수정":"새 항목 추가"}</h2>
+          <Btn onClick={()=>{if(name.trim()&&!uploading)onSave({name:name.trim(),category,colorCat,note,image,imagePosition,quantity,price});}}
+            disabled={uploading}
+            style={{padding:"7px 16px",borderRadius:8,border:"none",background:(name.trim()&&!uploading)?"#444444":"#dddddd",color:"#222222",fontSize:14,fontWeight:700,cursor:(name.trim()&&!uploading)?"pointer":"not-allowed"}}>
+            {editItem?"저장":"추가"}
+          </Btn>
+        </div>
 
         {/* ★ 사진 영역 */}
         <div style={{marginBottom:8}}>
@@ -673,7 +686,7 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
 //  VirtualGrid — 화면에 보이는 행만 DOM에 렌더링
 //  카드 높이를 동적으로 측정해 정확한 패딩 계산
 // ══════════════════════════════════════════════════════════════
-function VirtualGrid({items,cols,photoMode,colorCats,sel,selectMode,nameEllipsis,onOpen,onToggle,onSelect,onLong}){
+function VirtualGrid({items,cols,hideAcquired,hideQuantity,colorCats,sel,selectMode,nameEllipsis,onOpen,onToggle,onSelect,onLong}){
   // 카드 높이: 화면 너비에서 cols와 gap을 고려해 추정
   // 정사각형 이미지(100%) + 이름 + 버튼 영역 ≒ 카드너비 * 1.38
   const [cardH,setCardH]=useState(160);
@@ -696,7 +709,7 @@ function VirtualGrid({items,cols,photoMode,colorCats,sel,selectMode,nameEllipsis
       <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW}px)`,gap:GAP,justifyContent:"start"}}>
         {visibleItems.map(({item,idx})=>(
           <div key={item.id} ref={idx===0?measureRef:null}>
-            <ImageCard item={item} photoMode={photoMode} colorCats={colorCats}
+            <ImageCard item={item} hideAcquired={hideAcquired} hideQuantity={hideQuantity} colorCats={colorCats}
               selected={sel.has(item.id)} selectMode={selectMode} gridCols={cols} nameEllipsis={nameEllipsis}
               onOpen={()=>onOpen(item)} onToggle={()=>onToggle(item.id)}
               onSelect={()=>onSelect(item.id)} onLong={pos=>onLong(pos,item)}/>
@@ -716,12 +729,13 @@ export default function CatalogApp(){
   const [items,setItems]=useState(DEF_ITEMS);
   const [categories,setCategories]=useState(DEF_CATS);
   const [colorCats,setColorCats]=useState(DEF_CC);
-  const [photoMode,setPhotoMode]=useState(false);
+  const [hideAcquired,setHideAcquired]=useState(false);
+  const [hideQuantity,setHideQuantity]=useState(false);
   const [viewMode,setViewMode]=useState("이미지형");
   const [gridCols,setGridCols]=useState(3);
   const [sortBy,setSortBy]=useState("date-desc");
   const [search,setSearch]=useState("");
-  const [activeCat,setActiveCat]=useState("전체");
+  const [activeCats,setActiveCats]=useState([]);
   const [modal,setModal]=useState(false);
   const [editItem,setEditItem]=useState(null);
   const [viewItem,setViewItem]=useState(null);
@@ -749,7 +763,7 @@ export default function CatalogApp(){
 
   const nextId=useRef(100),toastT=useRef(null),stRef=useRef(null),hashRef=useRef(""),readyRef=useRef(false),saveT=useRef(null),saving=useRef(false),lastSY=useRef(0),hdrRef=useRef(null);
 
-  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{photoMode,viewMode,gridCols,sortBy,nameEllipsis}};},[items,categories,colorCats,photoMode,viewMode,gridCols,sortBy]);
+  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,viewMode,gridCols,sortBy,nameEllipsis}};},[items,categories,colorCats,hideAcquired,hideQuantity,viewMode,gridCols,sortBy]);
   useEffect(()=>{
     const fn=()=>{const c=window.scrollY;setHeaderVis(c<10||c<lastSY.current);lastSY.current=c;};
     window.addEventListener("scroll",fn,{passive:true});return()=>window.removeEventListener("scroll",fn);
@@ -760,7 +774,7 @@ export default function CatalogApp(){
     const ro=new ResizeObserver(measure);
     if(hdrRef.current)ro.observe(hdrRef.current);
     return()=>ro.disconnect();
-  },[selectMode,photoMode,viewMode]);
+  },[selectMode,hideAcquired,hideQuantity,viewMode]);
 
   const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
   const doSave=async(silent=false)=>{
@@ -782,13 +796,13 @@ export default function CatalogApp(){
       if(shared){d=shared;lbl="☁️ 공유 동기화";lsSet(d);}
       const{items:i,categories:c,colorCats:cc,settings:s}=d;
       setItems(i??DEF_ITEMS);setCategories(c??DEF_CATS);setColorCats(cc??DEF_CC);
-      setPhotoMode(s?.photoMode??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
+      setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
       nextId.current=Math.max(100,...(i??DEF_ITEMS).map(x=>x.id))+1;
       hashRef.current=JSON.stringify(d);setSyncLbl(lbl);readyRef.current=true;setLoading(false);
     })();
     return()=>{gone=true;};
   },[]);
-  useEffect(()=>{if(readyRef.current)sched();},[items,categories,colorCats,photoMode,viewMode,gridCols,sortBy]);
+  useEffect(()=>{if(readyRef.current)sched();},[items,categories,colorCats,hideAcquired,hideQuantity,viewMode,gridCols,sortBy]);
   useEffect(()=>{
     if(loading||typeof window.storage?.get!=="function")return;
     const id=setInterval(async()=>{
@@ -799,7 +813,7 @@ export default function CatalogApp(){
         hashRef.current=h;lsSet(sh);
         const{items:i,categories:c,colorCats:cc,settings:s}=sh;
         setItems(i??DEF_ITEMS);setCategories(c??DEF_CATS);setColorCats(cc??DEF_CC);
-        setPhotoMode(s?.photoMode??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
+        setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
         nextId.current=Math.max(nextId.current,...(i??[]).map(x=>x.id))+1;
         showToast("🔄 동기화됨");
       }
@@ -813,11 +827,38 @@ export default function CatalogApp(){
 
   const openAdd=()=>{setEditItem(null);setModal(true);};
   const openEdit=useCallback(it=>{setEditItem(it);setViewItem(null);setCtx(null);setModal(true);},[]);
+  // 이름+색상 중복 감지 → 중복 카테고리로 자동 이동
+  const applyDupCheck=useCallback((newItem, allItems)=>{
+    const isDup=allItems.some(it=>
+      it.id!==newItem.id &&
+      it.name.trim()===newItem.name.trim() &&
+      it.colorCat===newItem.colorCat
+    );
+    return isDup?{...newItem,category:"중복"}:newItem;
+  },[]);
+
   const handleSave=useCallback(form=>{
-    if(editItem)setItems(p=>p.map(it=>it.id===editItem.id?{...it,...form}:it));
-    else setItems(p=>[...p,{id:nextId.current++,acquired:false,date:new Date().toISOString().split("T")[0],...form}]);
+    if(editItem){
+      setItems(p=>{
+        const updated=p.map(it=>it.id===editItem.id?{...it,...form}:it);
+        // 수정된 항목 중복 체크
+        const others=updated.filter(it=>it.id!==editItem.id);
+        return updated.map(it=>it.id===editItem.id?applyDupCheck(it,others):it);
+      });
+    } else {
+      setItems(p=>{
+        const newItem={id:nextId.current++,acquired:false,date:new Date().toISOString().split("T")[0],...form};
+        const checked=applyDupCheck(newItem,p);
+        // 기존 항목 중에 이 항목과 이름+색상이 같은 것도 중복으로 표시
+        const updatedP=p.map(it=>
+          it.name.trim()===newItem.name.trim()&&it.colorCat===newItem.colorCat
+            ?{...it,category:"중복"}:it
+        );
+        return [...updatedP,checked];
+      });
+    }
     setModal(false);
-  },[editItem]);
+  },[editItem,applyDupCheck]);
   const copyItem=useCallback(it=>{setItems(p=>[...p,{...it,id:nextId.current++,name:`${it.name} (복사)`,date:new Date().toISOString().split("T")[0]}]);setCtx(null);showToast("📋 복사됨");},[]);
   const togAcq=useCallback((id)=>{setItems(p=>p.map(it=>it.id===id?{...it,acquired:!it.acquired}:it));setViewItem(v=>v?.id===id?{...v,acquired:!v.acquired}:v);},[]);
   const delItem=useCallback(id=>{setCtx(null);setConfirm({msg:"이 항목을 삭제할까요?",ok:()=>{setItems(p=>p.filter(it=>it.id!==id));setViewItem(null);setConfirm(null);}});},[]);
@@ -826,7 +867,7 @@ export default function CatalogApp(){
   const doBulkDel=useCallback(()=>{if(!sel.size)return;const ids=new Set(sel);setConfirm({msg:`${ids.size}개 항목을 삭제할까요?`,ok:()=>{setItems(p=>p.filter(it=>!ids.has(it.id)));clearSel();setConfirm(null);}});},[sel,clearSel]);
   const doBulkMove=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>p.map(it=>ids.has(it.id)?{...it,category:bulkCat}:it));setBulkMove(false);clearSel();},[bulkCat,sel,clearSel]);
   const addCat=()=>{const v=newCat.trim();if(v&&!categories.includes(v))setCategories(p=>[...p,v]);setNewCat("");};
-  const remCat=c=>{setCategories(p=>p.filter(x=>x!==c));if(activeCat===c)setActiveCat("전체");};
+  const remCat=c=>{setCategories(p=>p.filter(x=>x!==c));setActiveCats(p=>p.filter(x=>x!==c));};
   const addCC=()=>{const v=newCN.trim();if(v&&!colorCats.find(c=>c.name===v))setColorCats(p=>[...p,{name:v,hex:newCH}]);setNewCN("");setNewCH("#888888");};
   const remCC=n=>{setColorCats(p=>p.filter(c=>c.name!==n));setItems(p=>p.map(it=>it.colorCat===n?{...it,colorCat:""}:it));};
   const startEC=i=>{setEditCI(i);setEditCN(colorCats[i].name);setEditCH(colorCats[i].hex);};
@@ -834,7 +875,7 @@ export default function CatalogApp(){
 
   // ★ useMemo: 검색/필터/정렬을 의존성이 바뀔 때만 재계산
   const disp=useMemo(()=>[...items]
-    .filter(it=>activeCat==="전체"||it.category===activeCat)
+    .filter(it=>activeCats.length===0||activeCats.includes(it.category))
     .filter(it=>itemMatchesQuery(it, search))
     .sort((a,b)=>{
       if(sortBy==="name-asc")return dispName(a).localeCompare(dispName(b),"ko");
@@ -846,7 +887,7 @@ export default function CatalogApp(){
       if(sortBy==="category-name-asc"){const cc=a.category.localeCompare(b.category,"ko");return cc||dispName(a).localeCompare(dispName(b),"ko");}
       if(sortBy==="category-name-desc"){const cc=a.category.localeCompare(b.category,"ko");return cc||dispName(b).localeCompare(dispName(a),"ko");}
       return 0;
-    }),[items,activeCat,search,sortBy]);
+    }),[items,activeCats,search,sortBy]);
 
   const acq=items.filter(it=>it.acquired).length;
   const FULL=selectMode?hdrH+44:hdrH;
@@ -883,7 +924,7 @@ export default function CatalogApp(){
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:7,flexWrap:"nowrap"}}>
           <span style={{fontSize:22,fontWeight:900,color:"#ffffff",flexShrink:0}}>🍃 모동숲</span>
           <Btn onClick={openAdd} style={{...HB,background:"#ffffff",color:"#222222",padding:"5px 13px",fontSize:15,flexShrink:0,border:"none"}}>+ 추가</Btn>
-          <span style={{fontSize:14,color:"#aaaaaa",whiteSpace:"nowrap",flexShrink:0}}>전체 {items.length} · 습득 <b style={{color:"#ffffff"}}>{acq}</b></span>
+          <span style={{fontSize:14,color:"#aaaaaa",whiteSpace:"nowrap",flexShrink:0}}>전체 {items.length} · 습득 <b onClick={()=>{setActiveCats([]);setSearch("[습득]");}} style={{color:"#ffffff",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{acq}</b></span>
           <div style={{flex:1}}/>
           <Btn onClick={()=>doSave(false)} style={{...HB,background:unsaved?"#f5c842":"#444444",color:"#222222",border:`1.5px solid ${unsaved?"#f5c842":"#666666"}`,padding:"5px 11px",fontSize:14,flexShrink:0,boxShadow:unsaved?"0 0 6px rgba(245,200,66,.5)":"none"}}>
             {unsaved?"💾 저장":"✓ 저장됨"}
@@ -892,7 +933,9 @@ export default function CatalogApp(){
 
         {/* Row 2: 검색 + 정렬 */}
         <div style={{display:"flex",gap:6,marginBottom:4}}>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 검색 · [숫자만] [영어만] [자음ㄱ만]…" style={{flex:1,padding:"6px 10px",borderRadius:7,border:"1.5px solid #555555",background:"#333333",color:"#ffffff",fontFamily:"inherit",fontSize:14,outline:"none",minWidth:0}}/>
+          <input value={search} onChange={e=>setSearch(e.target.value)}
+            onFocus={()=>setActiveCats([])}
+            placeholder="🔍 검색 · [숫자만] [영어만] [자음ㄱ만]…" style={{flex:1,padding:"6px 10px",borderRadius:7,border:"1.5px solid #555555",background:"#333333",color:"#ffffff",fontFamily:"inherit",fontSize:14,outline:"none",minWidth:0}}/>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"5px 4px",borderRadius:7,border:"1.5px solid #555555",background:"#333333",color:"#ffffff",fontFamily:"inherit",fontSize:14,cursor:"pointer",flexShrink:0,maxWidth:110}}>
             {SORT_OPTS.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
           </select>
@@ -901,9 +944,12 @@ export default function CatalogApp(){
         <div style={{display:"flex",gap:4,marginBottom:6,overflowX:"auto",scrollbarWidth:"none",msOverflowStyle:"none"}}>
           {["숫자","영어","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"].map(k=>{
             const tag=k.length===1&&!"숫자영어".includes(k)?`[자음${k}만]`:`[${k}만]`;
-            const active=search===tag;
+            const active=search.includes(tag);
             return(
-              <button key={k} onClick={()=>setSearch(active?"":tag)}
+              <button key={k} onClick={()=>{
+                setActiveCats([]);
+                setSearch(p=>p.includes(tag)?p.replace(tag,"").trim():((p?p+" ":"")+tag).trim());
+              }}
                 style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?"#ffffff":"#666666"}`,background:active?"#ffffff":"#333333",color:active?"#222222":"#cccccc",fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0}}>
                 {{"숫자":"숫자","영어":"영어","ㄱ":"ㄱ·ㄲ","ㄴ":"ㄴ","ㄷ":"ㄷ·ㄸ","ㄹ":"ㄹ","ㅁ":"ㅁ","ㅂ":"ㅂ·ㅃ","ㅅ":"ㅅ·ㅆ","ㅇ":"ㅇ","ㅈ":"ㅈ·ㅉ","ㅊ":"ㅊ","ㅋ":"ㅋ","ㅌ":"ㅌ","ㅍ":"ㅍ","ㅎ":"ㅎ"}[k]}
               </button>
@@ -955,14 +1001,21 @@ export default function CatalogApp(){
           <div style={{height:"100%",borderRadius:99,background:"linear-gradient(90deg,#44a84c,#e8c96a)",width:items.length?`${(acq/items.length)*100}%`:"0%",transition:"width .5s"}}/>
         </div>
         <div style={{display:"flex",gap:6,marginBottom:10,overflowX:"auto",paddingBottom:3,scrollbarWidth:"none"}}>
-          {["전체",...categories].map(c=>(
-            <Btn key={c} onClick={()=>setActiveCat(c)} style={{padding:"4px 12px",borderRadius:99,border:"2px solid",borderColor:activeCat===c?"#444444":"#dddddd",background:activeCat===c?"#444444":"transparent",color:activeCat===c?"#222222":"#666666",fontWeight:activeCat===c?700:400,fontSize:16,whiteSpace:"nowrap",flexShrink:0}}>{c}</Btn>
-          ))}
+          {["전체",...categories].map(c=>{
+            const isAll=c==="전체";
+            const active=isAll?(activeCats.length===0):activeCats.includes(c);
+            return(
+              <Btn key={c} onClick={()=>{
+                if(isAll){setActiveCats([]);return;}
+                setActiveCats(p=>p.includes(c)?p.filter(x=>x!==c):[...p,c]);
+              }} style={{padding:"4px 12px",borderRadius:99,border:"2px solid",borderColor:active?"#444444":"#dddddd",background:active?"#444444":"transparent",color:active?"#222222":"#666666",fontWeight:active?700:400,fontSize:16,whiteSpace:"nowrap",flexShrink:0}}>{c}</Btn>
+            );
+          })}
         </div>
         {viewMode==="이미지형"&&(disp.length===0?<Empty/>:
           <VirtualGrid
             items={disp} cols={gridCols}
-            photoMode={photoMode} colorCats={colorCats}
+            hideAcquired={hideAcquired} hideQuantity={hideQuantity} colorCats={colorCats}
             sel={sel} selectMode={selectMode} nameEllipsis={nameEllipsis}
             onOpen={setViewItem} onToggle={togAcq} onSelect={togSel}
             onLong={(pos,it)=>setCtx({...pos,item:it})}
@@ -971,7 +1024,7 @@ export default function CatalogApp(){
         {viewMode==="목록형"&&(disp.length===0?<Empty/>:
           <div style={{display:"flex",flexDirection:"column",gap:7}}>
             {disp.map(it=>(
-              <ListRow key={it.id} item={it} photoMode={photoMode} colorCats={colorCats}
+              <ListRow key={it.id} item={it} hideAcquired={hideAcquired} hideQuantity={hideQuantity} colorCats={colorCats}
                 selected={sel.has(it.id)} selectMode={selectMode}
                 onOpen={()=>setViewItem(it)} onToggle={()=>togAcq(it.id)}
                 onSelect={()=>togSel(it.id)} onLong={pos=>setCtx({...pos,item:it})}/>
@@ -1015,7 +1068,7 @@ export default function CatalogApp(){
               {(viewItem.quantity??1)>1&&<p style={{margin:"0 0 5px",fontSize:12,color:"#a09070"}}>수량: {viewItem.quantity}</p>}
               <p style={{margin:"0 0 12px",fontSize:11,color:"#a09070"}}>추가일: {viewItem.date}</p>
               <div style={{display:"flex",gap:8}}>
-                {!photoMode&&<Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#222222":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득완료":"○ 습득체크"}</Btn>}
+                {!hideAcquired&&<Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#222222":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득완료":"○ 습득체크"}</Btn>}
                 <Btn onClick={()=>openEdit(viewItem)} style={{padding:"9px 12px",borderRadius:8,border:"2px solid #8a7060",background:"transparent",color:"#8a7060",fontSize:13}}>수정</Btn>
                 <Btn onClick={()=>delItem(viewItem.id)} style={{padding:"9px 12px",borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontSize:13}}>삭제</Btn>
               </div>
@@ -1031,8 +1084,12 @@ export default function CatalogApp(){
           <Modal onClick={e=>e.stopPropagation()} style={{maxWidth:460,maxHeight:"86vh",overflowY:"auto"}}>
             <h2 style={{margin:"0 0 16px",fontSize:17,fontWeight:700}}>⚙️ 설정</h2>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #e8dcc8"}}>
-              <div><div style={{fontWeight:700,fontSize:14}}>사진 모드</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>습득 체크·수량 숨기기</div></div>
-              <Toggle value={photoMode} onChange={setPhotoMode}/>
+              <div><div style={{fontWeight:700,fontSize:14}}>습득 체크 숨기기</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>습득 체크 버튼을 숨깁니다</div></div>
+              <Toggle value={hideAcquired} onChange={setHideAcquired}/>
+            </div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #e8dcc8"}}>
+              <div><div style={{fontWeight:700,fontSize:14}}>수량 숨기기</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>수량 표시를 숨깁니다</div></div>
+              <Toggle value={hideQuantity} onChange={setHideQuantity}/>
             </div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #e8dcc8",marginBottom:16}}>
               <div><div style={{fontWeight:700,fontSize:14}}>이름 생략 모드</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>켜면 긴 이름을 …으로 생략, 끄면 줄바꿈으로 전체 표시</div></div>
@@ -1042,7 +1099,7 @@ export default function CatalogApp(){
             <div style={{marginBottom:16,padding:"12px 14px",background:"#f0f8f0",borderRadius:10,border:"1.5px solid #b0d8b0"}}>
               <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#2a5a2a"}}>📊 엑셀로 항목 가져오기</div>
               <div style={{fontSize:11,color:"#5a8060",marginBottom:8,lineHeight:1.5}}>
-                엑셀 파일 형식: <b>A이름 · B색상 · C카테고리 · D메모 · E수량 · F금액</b><br/>
+                엑셀 파일 형식: <b>A이름 · B색상 · C수량 · D금액 · E카테고리 · F메모</b><br/>
                 1행은 헤더(제목)로 인식됩니다.
               </div>
               <div style={{position:"relative",borderRadius:7,overflow:"hidden"}}>
@@ -1064,10 +1121,24 @@ export default function CatalogApp(){
                           const newItems=lines.slice(1).map(line=>{
                             const cols=line.split(',').map(s=>{const t=s.trim();return t.startsWith('"')&&t.endsWith('"')?t.slice(1,-1):t;});
                             if(!cols[0])return null;
-                            return{id:nextId.current++,name:cols[0]||"",colorCat:cols[1]||"",category:cols[2]||categories[0]||"기타",note:cols[3]||"",quantity:parseInt(cols[4])||1,price:parseInt(cols[5])||0,acquired:false,date:new Date().toISOString().split("T")[0],image:null};
+                            // A이름 B색상 C수량 D금액 E카테고리 F메모
+                            return{id:nextId.current++,name:cols[0]||"",colorCat:cols[1]||"",quantity:parseInt(cols[2])||1,price:parseInt(cols[3])||0,category:cols[4]||categories[0]||"기타",note:cols[5]||"",acquired:false,date:new Date().toISOString().split("T")[0],image:null};
                           }).filter(Boolean);
                           if(!newItems.length){showToast("유효한 항목이 없습니다");return;}
-                          setItems(p=>[...p,...newItems]);
+                          // 중복 체크 (새 항목끼리 + 기존 항목과)
+                          setItems(prev=>{
+                            const all=[...prev];
+                            const checked=newItems.map(ni=>{
+                              const isDup=all.some(it=>it.name.trim()===ni.name.trim()&&it.colorCat===ni.colorCat);
+                              return isDup?{...ni,category:"중복"}:ni;
+                            });
+                            // 기존 항목도 새 항목과 중복이면 중복 카테고리로
+                            const updatedPrev=all.map(it=>{
+                              const isDup=newItems.some(ni=>ni.name.trim()===it.name.trim()&&ni.colorCat===it.colorCat);
+                              return isDup?{...it,category:"중복"}:it;
+                            });
+                            return [...updatedPrev,...checked];
+                          });
                           showToast(`✓ ${newItems.length}개 항목을 가져왔습니다`);
                         }catch{showToast("파일을 읽을 수 없습니다");}
                       };
@@ -1087,12 +1158,23 @@ export default function CatalogApp(){
                             if(rows.length<2){showToast("데이터가 없습니다");return;}
                             const newItems=rows.slice(1).filter(r=>r[0]?.toString().trim()).map(r=>({
                               id:nextId.current++,name:r[0]?.toString().trim()||"",colorCat:r[1]?.toString().trim()||"",
-                              category:r[2]?.toString().trim()||categories[0]||"기타",note:r[3]?.toString().trim()||"",
-                              quantity:parseInt(r[4])||1,price:parseInt(r[5])||0,
+                              quantity:parseInt(r[2])||1,price:parseInt(r[3])||0,
+                              category:r[4]?.toString().trim()||categories[0]||"기타",note:r[5]?.toString().trim()||"",
                               acquired:false,date:new Date().toISOString().split("T")[0],image:null,
                             }));
                             if(!newItems.length){showToast("유효한 항목이 없습니다");return;}
-                            setItems(p=>[...p,...newItems]);
+                            setItems(prev=>{
+                              const all=[...prev];
+                              const checked=newItems.map(ni=>{
+                                const isDup=all.some(it=>it.name.trim()===ni.name.trim()&&it.colorCat===ni.colorCat);
+                                return isDup?{...ni,category:"중복"}:ni;
+                              });
+                              const updatedPrev=all.map(it=>{
+                                const isDup=newItems.some(ni=>ni.name.trim()===it.name.trim()&&ni.colorCat===it.colorCat);
+                                return isDup?{...it,category:"중복"}:it;
+                              });
+                              return [...updatedPrev,...checked];
+                            });
                             showToast(`✓ ${newItems.length}개 항목을 가져왔습니다`);
                           }catch{showToast("파일을 읽을 수 없습니다");}
                         };
@@ -1173,7 +1255,7 @@ export default function CatalogApp(){
               <div style={{display:"flex",gap:8}}>
                 {/* 내보내기 버튼 */}
                 <Btn onClick={()=>{
-                  const data={items,categories,colorCats,settings:{photoMode,viewMode,gridCols,sortBy,nameEllipsis},exportedAt:new Date().toISOString()};
+                  const data={items,categories,colorCats,settings:{hideAcquired,hideQuantity,viewMode,gridCols,sortBy,nameEllipsis},exportedAt:new Date().toISOString()};
                   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
                   const url=URL.createObjectURL(blob);
                   const a=document.createElement("a");
@@ -1204,7 +1286,9 @@ export default function CatalogApp(){
                           if(data.colorCats)setColorCats(data.colorCats);
                           if(data.settings){
                             const s=data.settings;
-                            if(s.photoMode!==undefined)setPhotoMode(s.photoMode);
+                            if(s.hideAcquired!==undefined)setHideAcquired(s.hideAcquired);
+                            else if(s.photoMode!==undefined){setHideAcquired(s.photoMode);setHideQuantity(s.photoMode);}
+                            if(s.hideQuantity!==undefined)setHideQuantity(s.hideQuantity);
                             if(s.viewMode)setViewMode(s.viewMode);
                             if(s.gridCols)setGridCols(s.gridCols);
                             if(s.sortBy)setSortBy(s.sortBy);
