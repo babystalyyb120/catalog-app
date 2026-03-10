@@ -856,33 +856,46 @@ export default function CatalogApp(){
   const doCapture=useCallback(()=>{
     const grid=captureRef.current; if(!grid){showToast("캡쳐 영역 없음");return;}
     const run=()=>{
-      // 카드 요소들 수집
       const cards=[...grid.querySelectorAll("[data-card]")];
       if(!cards.length){showToast("캡쳐할 항목이 없습니다");return;}
-      const gridRect=grid.getBoundingClientRect();
       const viewBottom=window.innerHeight;
-      // 완전히 보이는 카드들만 필터링해서 그 중 가장 큰 bottom 찾기
       let lastFullRowBottom=0;
       for(const card of cards){
         const r=card.getBoundingClientRect();
-        if(r.bottom<=viewBottom+4){
-          lastFullRowBottom=Math.max(lastFullRowBottom,r.bottom);
-        }
+        if(r.bottom<=viewBottom+4) lastFullRowBottom=Math.max(lastFullRowBottom,r.bottom);
       }
-      // 완전히 보이는 카드가 하나도 없으면 첫 번째 카드까지만
       if(!lastFullRowBottom) lastFullRowBottom=cards[0].getBoundingClientRect().bottom;
+
+      const gridRect=grid.getBoundingClientRect();
+      // grid 요소 기준 상대 높이 (스크롤 무관)
       const captureH=Math.ceil(lastFullRowBottom-gridRect.top);
-      const captureW=grid.scrollWidth;
+      const captureW=grid.offsetWidth;
+      const SCALE=window.devicePixelRatio||2;
+      const PAD=24; // 여백 px
+
       window.html2canvas(grid,{
-        useCORS:true,allowTaint:true,scale:2,
-        width:captureW,height:captureH,
-        scrollX:0,scrollY:-window.scrollY,
-        windowWidth:window.innerWidth,windowHeight:window.innerHeight,
+        useCORS:true,
+        allowTaint:true,
+        scale:SCALE,
+        width:captureW,
+        height:captureH,
+        x:0,
+        y:0,
+        scrollX:-gridRect.left,
+        scrollY:-gridRect.top-window.scrollY,
+        windowWidth:document.documentElement.scrollWidth,
+        windowHeight:document.documentElement.scrollHeight,
+        logging:false,
       }).then(canvas=>{
-        // 높이 자르기
+        const bg=getComputedStyle(grid).backgroundColor||"#fffce8";
+        const padPx=PAD*SCALE;
         const out=document.createElement("canvas");
-        out.width=canvas.width;out.height=captureH*2;
-        out.getContext("2d").drawImage(canvas,0,0);
+        out.width=canvas.width+padPx*2;
+        out.height=captureH*SCALE+padPx*2;
+        const ctx2=out.getContext("2d");
+        ctx2.fillStyle=bg;
+        ctx2.fillRect(0,0,out.width,out.height);
+        ctx2.drawImage(canvas,padPx,padPx,canvas.width,captureH*SCALE);
         const a=document.createElement("a");
         a.href=out.toDataURL("image/png");
         a.download=`링동숲_${new Date().toISOString().slice(0,10)}.png`;
@@ -1169,7 +1182,7 @@ export default function CatalogApp(){
             );
           })}
         </div>
-        <div ref={captureRef} style={{background:theme.bg,padding:"4px 0 4px"}}>
+        <div ref={captureRef} style={{background:theme.bg,padding:"8px 12px"}}>
         {viewMode==="이미지형"&&(disp.length===0?<Empty/>:
           <VirtualGrid
             items={disp} cols={gridCols}
