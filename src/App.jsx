@@ -461,8 +461,8 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
   const pos=item.imagePosition||"50% 50%";
   return(
-    <div ref={ref} data-card="1" style={{background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"visible",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
-      <div style={{position:"relative",paddingTop:"100%",background:"var(--t-card-bg,#fff)",borderRadius:"8px 8px 0 0",overflow:"hidden"}}>
+    <div ref={ref} data-card="1" style={{position:"relative",background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
+      <div style={{position:"relative",paddingTop:"100%",background:"var(--t-card-bg,#fff)"}}>
         {item.image?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
           :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div>}
         {selectMode&&(
@@ -470,8 +470,13 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
-        {!hideQuantity&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5}}>×{item.quantity??1}</div>}
-        {!hidePrice&&(item.price||0)>0&&<div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5}}>₩{(item.price||0).toLocaleString()}</div>}
+        {/* 뱃지: 이미지 div 안의 position:absolute 기준으로 배치 — html2canvas 호환 */}
+        {!hideQuantity&&(item.quantity??1)>0&&(
+          <div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,lineHeight:"14px",zIndex:5}}>×{item.quantity??1}</div>
+        )}
+        {!hidePrice&&(item.price||0)>0&&(
+          <div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,lineHeight:"13px",zIndex:5}}>₩{(item.price||0).toLocaleString()}</div>
+        )}
       </div>
       <div style={{padding:"4px 5px",textAlign:"center"}}>
         <div style={{fontWeight:700,fontSize:nameFontSize||( gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10),color:"var(--t-item-name,#222222)",textAlign:"center",
@@ -901,14 +906,15 @@ export default function CatalogApp(){
       window.html2canvas(grid,{
         useCORS:true,
         allowTaint:true,
+        foreignObjectRendering:false,
         scale:SCALE,
         width:captureW,
         height:captureH,
         x:0,
         y:0,
-        scrollX:-gridRect.left,
-        scrollY:-gridRect.top-window.scrollY,
-        windowWidth:document.documentElement.scrollWidth,
+        scrollX:0,
+        scrollY:-window.scrollY,
+        windowWidth:document.documentElement.clientWidth,
         windowHeight:document.documentElement.scrollHeight,
         logging:false,
       }).then(canvas=>{
