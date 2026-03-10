@@ -938,8 +938,12 @@ export default function CatalogApp(){
 
     const run=()=>{
       const captureH=Math.ceil(maxBottom-minTop);
-      const captureW=grid.offsetWidth;
+      const captureW=grid.offsetWidth; // html2canvas는 grid 전체 너비로 찍어야 레이아웃 정확
       const yOff=minTop-gridRect.top;
+
+      // 뱃지 위치 보정용: 실제 카드 좌우 범위
+      const realLeft=minLeft;
+      const realRight=maxRight;
 
       window.html2canvas(grid,{
         useCORS:true,
@@ -961,19 +965,26 @@ export default function CatalogApp(){
 
         const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
         const padPx=PAD*SCALE;
+
+        // 실제 카드가 차지하는 너비 (우측 빈 여백 제거)
+        const realW=Math.ceil(maxRight-minLeft);
+        const realWScaled=realW*SCALE;
+
         const out=document.createElement("canvas");
-        out.width=canvas.width+padPx*2;
+        out.width=realWScaled+padPx*2;
         out.height=canvas.height+padPx*2;
         const ctx=out.getContext("2d");
         ctx.fillStyle=bg;
         ctx.fillRect(0,0,out.width,out.height);
-        ctx.drawImage(canvas,padPx,padPx);
+        // html2canvas는 grid 왼쪽(minLeft-gridRect.left)부터 찍으므로 그 오프셋 보정
+        const gridLeftOffset=Math.round((minLeft-gridRect.left)*SCALE);
+        ctx.drawImage(canvas,-gridLeftOffset+padPx,padPx);
 
         // 뱃지를 Canvas에 직접 그리기 (위치 정확)
         ctx.save();
         ctx.scale(SCALE,SCALE);
         for(const b of badgeInfos){
-          // 캡쳐 영역 기준 상대 좌표
+          // 캡쳐 영역 기준 상대 좌표 (grid 왼쪽 기준 → 실제 카드 왼쪽 기준으로 보정)
           const bx=b.rect.left-minLeft+PAD;
           const by=b.rect.top-minTop+PAD;
           const bw=b.rect.width;
