@@ -883,7 +883,17 @@ export default function CatalogApp(){
     vp.content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
   },[]);
 
-  const captureCountRef=useRef({date:"",count:0});
+  const captureCountRef=useRef(null);
+  // localStorage에서 캡쳐 카운트 초기화
+  if(captureCountRef.current===null){
+    try{
+      const saved=JSON.parse(localStorage.getItem("captureCount")||"{}");
+      const today=new Date().toISOString().slice(0,10);
+      captureCountRef.current=(saved.date===today)?saved:{date:today,count:0};
+    }catch(e){
+      captureCountRef.current={date:new Date().toISOString().slice(0,10),count:0};
+    }
+  }
 
   const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
 
@@ -938,12 +948,9 @@ export default function CatalogApp(){
 
     const run=()=>{
       const captureH=Math.ceil(maxBottom-minTop);
-      const captureW=grid.offsetWidth; // html2canvas는 grid 전체 너비로 찍어야 레이아웃 정확
-      const yOff=minTop-gridRect.top;
-
-      // 뱃지 위치 보정용: 실제 카드 좌우 범위
-      const realLeft=minLeft;
-      const realRight=maxRight;
+      const captureW=Math.ceil(maxRight-minLeft); // 실제 카드 너비만
+      const xOff=minLeft-gridRect.left; // grid 내 카드 시작 x
+      const yOff=minTop-gridRect.top;   // grid 내 카드 시작 y
 
       window.html2canvas(grid,{
         useCORS:true,
@@ -952,7 +959,7 @@ export default function CatalogApp(){
         scale:SCALE,
         width:captureW,
         height:captureH,
-        x:0,
+        x:xOff,
         y:yOff,
         scrollX:0,
         scrollY:0,
@@ -966,19 +973,13 @@ export default function CatalogApp(){
         const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
         const padPx=PAD*SCALE;
 
-        // 실제 카드가 차지하는 너비 (우측 빈 여백 제거)
-        const realW=Math.ceil(maxRight-minLeft);
-        const realWScaled=realW*SCALE;
-
         const out=document.createElement("canvas");
-        out.width=realWScaled+padPx*2;
+        out.width=canvas.width+padPx*2;
         out.height=canvas.height+padPx*2;
         const ctx=out.getContext("2d");
         ctx.fillStyle=bg;
         ctx.fillRect(0,0,out.width,out.height);
-        // html2canvas는 grid 왼쪽(minLeft-gridRect.left)부터 찍으므로 그 오프셋 보정
-        const gridLeftOffset=Math.round((minLeft-gridRect.left)*SCALE);
-        ctx.drawImage(canvas,-gridLeftOffset+padPx,padPx);
+        ctx.drawImage(canvas,padPx,padPx);
 
         // 뱃지를 Canvas에 직접 그리기 (위치 정확)
         ctx.save();
@@ -1018,6 +1019,7 @@ export default function CatalogApp(){
         } else {
           captureCountRef.current.count+=1;
         }
+        try{ localStorage.setItem("captureCount",JSON.stringify(captureCountRef.current)); }catch(e){}
         const fname=`링동숲_${today}-${captureCountRef.current.count}.png`;
         const a=document.createElement("a");
         a.href=out.toDataURL("image/png");
