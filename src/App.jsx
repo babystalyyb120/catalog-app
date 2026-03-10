@@ -884,12 +884,11 @@ export default function CatalogApp(){
   },[]);
 
   const captureCountRef=useRef(null);
-  // localStorage에서 캡쳐 카운트 초기화
-  if(captureCountRef.current===null){
+  if(!captureCountRef.current){
     try{
-      const saved=JSON.parse(localStorage.getItem("captureCount")||"{}");
+      const saved=JSON.parse(localStorage.getItem("rds_cap")||"{}");
       const today=new Date().toISOString().slice(0,10);
-      captureCountRef.current=(saved.date===today)?saved:{date:today,count:0};
+      captureCountRef.current=(saved.date===today)?{...saved}:{date:today,count:0};
     }catch(e){
       captureCountRef.current={date:new Date().toISOString().slice(0,10),count:0};
     }
@@ -948,9 +947,8 @@ export default function CatalogApp(){
 
     const run=()=>{
       const captureH=Math.ceil(maxBottom-minTop);
-      const captureW=Math.ceil(maxRight-minLeft); // 실제 카드 너비만
-      const xOff=minLeft-gridRect.left; // grid 내 카드 시작 x
-      const yOff=minTop-gridRect.top;   // grid 내 카드 시작 y
+      const captureW=grid.offsetWidth;
+      const yOff=minTop-gridRect.top;
 
       window.html2canvas(grid,{
         useCORS:true,
@@ -959,7 +957,7 @@ export default function CatalogApp(){
         scale:SCALE,
         width:captureW,
         height:captureH,
-        x:xOff,
+        x:0,
         y:yOff,
         scrollX:0,
         scrollY:0,
@@ -973,13 +971,18 @@ export default function CatalogApp(){
         const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
         const padPx=PAD*SCALE;
 
+        // html2canvas가 찍은 전체 캔버스에서 실제 카드 범위만 잘라내기
+        const cardLeft=Math.round((minLeft-gridRect.left)*SCALE);
+        const realW=Math.round((maxRight-minLeft)*SCALE);
+
         const out=document.createElement("canvas");
-        out.width=canvas.width+padPx*2;
+        out.width=realW+padPx*2;
         out.height=canvas.height+padPx*2;
         const ctx=out.getContext("2d");
         ctx.fillStyle=bg;
         ctx.fillRect(0,0,out.width,out.height);
-        ctx.drawImage(canvas,padPx,padPx);
+        // 캔버스에서 카드 시작점(cardLeft)부터 realW만큼만 복사
+        ctx.drawImage(canvas, cardLeft,0, realW,canvas.height, padPx,padPx, realW,canvas.height);
 
         // 뱃지를 Canvas에 직접 그리기 (위치 정확)
         ctx.save();
@@ -1019,7 +1022,7 @@ export default function CatalogApp(){
         } else {
           captureCountRef.current.count+=1;
         }
-        try{ localStorage.setItem("captureCount",JSON.stringify(captureCountRef.current)); }catch(e){}
+        try{ localStorage.setItem("rds_cap",JSON.stringify(captureCountRef.current)); }catch(e){}
         const fname=`링동숲_${today}-${captureCountRef.current.count}.png`;
         const a=document.createElement("a");
         a.href=out.toDataURL("image/png");
@@ -1383,10 +1386,10 @@ export default function CatalogApp(){
               {viewItem.price>0&&<p style={{margin:"0 0 5px",fontSize:13,color:"#2a6a2a",fontWeight:700}}>₩{((viewItem.price||0)*(viewItem.quantity??1)).toLocaleString()}{(viewItem.quantity??1)>1&&<span style={{fontSize:11,color:"#5a8060"}}> (단가 ₩{viewItem.price.toLocaleString()})</span>}</p>}
               {(viewItem.quantity??1)>1&&<p style={{margin:"0 0 5px",fontSize:12,color:"#a09070"}}>수량: {viewItem.quantity}</p>}
               <p style={{margin:"0 0 12px",fontSize:11,color:"#a09070"}}>추가일: {viewItem.date}</p>
-              <div style={{display:"flex",gap:8}}>
-                <Btn onClick={()=>openEdit(viewItem)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #8a7060",background:"transparent",color:"#8a7060",fontWeight:700,fontSize:13}}>수정</Btn>
-                {!hideAcquired&&<Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#ffffff":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득완료":"○ 습득체크"}</Btn>}
-                <Btn onClick={()=>delItem(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontWeight:700,fontSize:13}}>삭제</Btn>
+              <div style={{display:"flex",gap:8,marginTop:4}}>
+                <Btn onClick={()=>openEdit(viewItem)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #8a7060",background:"transparent",color:"#8a7060",fontWeight:700,fontSize:13}}>✏️ 수정</Btn>
+                {!hideAcquired&&<Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#ffffff":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득":"○ 미습득"}</Btn>}
+                <Btn onClick={()=>delItem(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontWeight:700,fontSize:13}}>🗑 삭제</Btn>
               </div>
             </div>
           </Modal>
