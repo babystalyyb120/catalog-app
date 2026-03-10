@@ -472,14 +472,14 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
-        {/* 금액 뱃지: 이미지 div 안 우측 하단 — inset 사용으로 bottom 정확히 고정 */}
+        {/* 금액 뱃지 */}
         {!hidePrice&&(item.price||0)>0&&(
-          <div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>₩{(item.price||0).toLocaleString()}</div>
+          <div data-badge="price" style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>₩{(item.price||0).toLocaleString()}</div>
         )}
       </div>
-      {/* 수량 뱃지: 카드 전체 기준 우측 상단 */}
+      {/* 수량 뱃지 */}
       {!hideQuantity&&(item.quantity??1)>0&&(
-        <div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>×{item.quantity??1}</div>
+        <div data-badge="qty" style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>×{item.quantity??1}</div>
       )}
       <div style={{padding:"4px 5px",textAlign:"center"}}>
         <div style={{fontWeight:700,fontSize:nameFontSize||( gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10),color:"var(--t-item-name,#222222)",textAlign:"center",
@@ -893,20 +893,33 @@ export default function CatalogApp(){
     const cards=[...grid.querySelectorAll("[data-card]")];
     if(!cards.length){showToast("캡쳐할 항목이 없습니다");return;}
 
-    const viewTop=0;
+    // 화면에 완전히 보이는 카드만
     const viewBottom=window.innerHeight;
-
-    // 화면에 완전히 보이는 카드만 필터
     const visibleCards=cards.filter(c=>{
       const r=c.getBoundingClientRect();
-      return r.top>=viewTop-4 && r.bottom<=viewBottom+4;
+      return r.top>=-4 && r.bottom<=viewBottom+4;
     });
-    const targetCards=visibleCards.length?visibleCards:[cards[0]];
+    const targetCards=visibleCards.length?visibleCards:[...cards].slice(0,4);
 
-    const SCALE=window.devicePixelRatio||2;
-    const PAD=10;
+    // 뱃지 위치 미리 수집 (숨기기 전에)
+    const badgeInfos=[];
+    for(const card of targetCards){
+      const badges=[...card.querySelectorAll("[data-badge]")];
+      for(const b of badges){
+        const br=b.getBoundingClientRect();
+        const style=window.getComputedStyle(b);
+        badgeInfos.push({
+          rect:br,
+          text:b.textContent.trim(),
+          bg:style.backgroundColor,
+          color:style.color,
+          fontSize:parseFloat(style.fontSize)||10,
+          el:b,
+        });
+      }
+    }
 
-    // 카드들의 전체 범위 계산 (viewport 기준)
+    // 캡쳐 범위
     let minTop=Infinity,maxBottom=-Infinity,minLeft=Infinity,maxRight=-Infinity;
     for(const c of targetCards){
       const r=c.getBoundingClientRect();
@@ -916,155 +929,108 @@ export default function CatalogApp(){
       maxRight=Math.max(maxRight,r.right);
     }
 
-    const captureW=Math.ceil(maxRight-minLeft);
-    const captureH=Math.ceil(maxBottom-minTop);
-    const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
+    const SCALE=window.devicePixelRatio||2;
+    const PAD=10;
+    const gridRect=grid.getBoundingClientRect();
 
-    const out=document.createElement("canvas");
-    out.width=(captureW+PAD*2)*SCALE;
-    out.height=(captureH+PAD*2)*SCALE;
-    const ctx=out.getContext("2d");
-    ctx.scale(SCALE,SCALE);
-    ctx.fillStyle=bg;
-    ctx.fillRect(0,0,out.width,out.height);
+    // 뱃지 숨기기
+    badgeInfos.forEach(b=>{ b.el.style.visibility="hidden"; });
 
-    // 각 카드를 Canvas에 직접 그리기
-    const drawPromises=targetCards.map(card=>{
-      return new Promise(resolve=>{
-        const r=card.getBoundingClientRect();
-        const cx=r.left-minLeft+PAD; // canvas 내 x
-        const cy=r.top-minTop+PAD;   // canvas 내 y
-        const cw=r.width;
-        const ch=r.height;
+    const run=()=>{
+      const captureH=Math.ceil(maxBottom-minTop);
+      const captureW=grid.offsetWidth;
+      const yOff=minTop-gridRect.top;
 
-        // 카드 배경 + 테두리
-        const cardBg=getComputedStyle(card).backgroundColor||"#fff";
-        const radius=10;
+      window.html2canvas(grid,{
+        useCORS:true,
+        allowTaint:true,
+        foreignObjectRendering:false,
+        scale:SCALE,
+        width:captureW,
+        height:captureH,
+        x:0,
+        y:yOff,
+        scrollX:0,
+        scrollY:0,
+        windowWidth:captureW,
+        windowHeight:captureH,
+        logging:false,
+      }).then(canvas=>{
+        // 뱃지 다시 보이기
+        badgeInfos.forEach(b=>{ b.el.style.visibility=""; });
+
+        const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
+        const padPx=PAD*SCALE;
+        const out=document.createElement("canvas");
+        out.width=canvas.width+padPx*2;
+        out.height=canvas.height+padPx*2;
+        const ctx=out.getContext("2d");
+        ctx.fillStyle=bg;
+        ctx.fillRect(0,0,out.width,out.height);
+        ctx.drawImage(canvas,padPx,padPx);
+
+        // 뱃지를 Canvas에 직접 그리기 (위치 정확)
         ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(cx+radius,cy);
-        ctx.lineTo(cx+cw-radius,cy);
-        ctx.quadraticCurveTo(cx+cw,cy,cx+cw,cy+radius);
-        ctx.lineTo(cx+cw,cy+ch-radius);
-        ctx.quadraticCurveTo(cx+cw,cy+ch,cx+cw-radius,cy+ch);
-        ctx.lineTo(cx+radius,cy+ch);
-        ctx.quadraticCurveTo(cx,cy+ch,cx,cy+ch-radius);
-        ctx.lineTo(cx,cy+radius);
-        ctx.quadraticCurveTo(cx,cy,cx+radius,cy);
-        ctx.closePath();
-        ctx.fillStyle=cardBg;
-        ctx.fill();
-        ctx.strokeStyle="#e0d8c8";
-        ctx.lineWidth=1.5;
-        ctx.stroke();
-        ctx.clip();
-
-        // 이미지 영역 (정사각형: 카드너비 = 이미지높이)
-        const imgH=cw; // 1:1 비율
-        const imgEl=card.querySelector("img");
-        if(imgEl&&imgEl.complete&&imgEl.naturalWidth>0){
-          ctx.drawImage(imgEl,cx,cy,cw,imgH);
-        } else {
-          // 이미지 없음: 배경색 채우기
-          ctx.fillStyle="#f5f5f5";
-          ctx.fillRect(cx,cy,cw,imgH);
-          ctx.fillStyle="#c0b8a8";
-          ctx.font=`${cw*0.25}px serif`;
-          ctx.textAlign="center";
-          ctx.textBaseline="middle";
-          ctx.fillText("🖼️",cx+cw/2,cy+imgH/2);
-        }
-
-        ctx.restore();
-
-        // 텍스트 영역 (이미지 아래)
-        const textY=cy+imgH;
-        const textH=ch-imgH;
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(cx,textY,cw,textH);
-        ctx.clip();
-
-        // 아이템 이름
-        const nameEl=card.querySelector("[data-card] > div:nth-child(2) div, div[style*='padding: 4px'] div, div[style*='padding:4px'] div");
-        const fontSize=Math.max(9, cw<=60?9:cw<=80?10:11);
-        ctx.font=`700 ${fontSize}px 'Noto Sans KR',sans-serif`;
-        ctx.textAlign="center";
-        ctx.textBaseline="middle";
-        ctx.fillStyle="#222222";
-
-        // 이름 텍스트 직접 구성
-        const nameText=card.querySelector("div[style*='fontWeight']")?.textContent||"";
-        if(nameText){
-          ctx.fillText(nameText,cx+cw/2,textY+textH*0.45,cw-6);
-        }
-        ctx.restore();
-
-        // ── 뱃지 그리기 ──
-        const badgeR=99; // border-radius
-        const badgePadX=6,badgePadY=2;
-
-        // 수량 뱃지 (우상단) — CSS변수 대신 직접 색상
-        const qtyEl=card.querySelector("[data-card] > div[style*='top:5'][style*='right:5'], [data-card] > div:not([style*='padding'])");
-        // data-badge-qty 속성으로 찾기 대신 텍스트로 찾기
-        const allAbsDivs=[...card.querySelectorAll("div")].filter(d=>d.style.position==="absolute");
-        for(const d of allAbsDivs){
-          const s=d.style;
-          const text=d.textContent.trim();
-          if(!text)continue;
-          const dr=d.getBoundingClientRect();
-          const bx=dr.left-minLeft+PAD;
-          const by=dr.top-minTop+PAD;
-          const bw=dr.width;
-          const bh=dr.height;
-          if(bw<4||bh<4)continue;
-
-          const bgColor=getComputedStyle(d).backgroundColor;
-          const fgColor=getComputedStyle(d).color;
-          const fSize=parseFloat(getComputedStyle(d).fontSize)||10;
+        ctx.scale(SCALE,SCALE);
+        for(const b of badgeInfos){
+          // 캡쳐 영역 기준 상대 좌표
+          const bx=b.rect.left-minLeft+PAD;
+          const by=b.rect.top-minTop+PAD;
+          const bw=b.rect.width;
+          const bh=b.rect.height;
+          if(bw<2||bh<2) continue;
 
           // 둥근 배경
-          ctx.save();
-          ctx.beginPath();
           const br=bh/2;
+          ctx.beginPath();
           ctx.moveTo(bx+br,by);
           ctx.lineTo(bx+bw-br,by);
-          ctx.quadraticCurveTo(bx+bw,by,bx+bw,by+br);
-          ctx.quadraticCurveTo(bx+bw,by+bh,bx+bw-br,by+bh);
+          ctx.arc(bx+bw-br,by+br,br,-Math.PI/2,Math.PI/2);
           ctx.lineTo(bx+br,by+bh);
-          ctx.quadraticCurveTo(bx,by+bh,bx,by+br);
-          ctx.quadraticCurveTo(bx,by,bx+br,by);
+          ctx.arc(bx+br,by+br,br,Math.PI/2,Math.PI*1.5);
           ctx.closePath();
-          ctx.fillStyle=bgColor;
+          ctx.fillStyle=b.bg;
           ctx.fill();
-          ctx.font=`700 ${fSize}px 'Noto Sans KR',sans-serif`;
+
+          // 텍스트
+          ctx.fillStyle=b.color;
+          ctx.font=`700 ${b.fontSize}px sans-serif`;
           ctx.textAlign="center";
           ctx.textBaseline="middle";
-          ctx.fillStyle=fgColor;
-          ctx.fillText(text,bx+bw/2,by+bh/2);
-          ctx.restore();
+          ctx.fillText(b.text,bx+bw/2,by+bh/2);
         }
+        ctx.restore();
 
-        resolve();
+        const today=new Date().toISOString().slice(0,10);
+        if(captureCountRef.current.date!==today){
+          captureCountRef.current={date:today,count:1};
+        } else {
+          captureCountRef.current.count+=1;
+        }
+        const fname=`링동숲_${today}-${captureCountRef.current.count}.png`;
+        const a=document.createElement("a");
+        a.href=out.toDataURL("image/png");
+        a.download=fname;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast(`✓ 저장됨 (${fname})`);
+      }).catch(e=>{
+        badgeInfos.forEach(b=>{ b.el.style.visibility=""; });
+        console.error(e);showToast("캡쳐 실패");
       });
-    });
+    };
 
-    Promise.all(drawPromises).then(()=>{
-      const today=new Date().toISOString().slice(0,10);
-      if(captureCountRef.current.date!==today){
-        captureCountRef.current={date:today,count:1};
-      } else {
-        captureCountRef.current.count+=1;
-      }
-      const fname=`링동숲_${today}-${captureCountRef.current.count}.png`;
-      const a=document.createElement("a");
-      a.href=out.toDataURL("image/png");
-      a.download=fname;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast(`✓ 저장됨 (${fname})`);
-    });
+    if(!window.html2canvas){
+      const s=document.createElement("script");
+      s.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      s.onload=run;
+      s.onerror=()=>{
+        badgeInfos.forEach(b=>{ b.el.style.visibility=""; });
+        showToast("라이브러리 로드 실패");
+      };
+      document.head.appendChild(s);
+    } else run();
   // eslint-disable-next-line
   },[]);
   const doSave=async(silent=false)=>{
