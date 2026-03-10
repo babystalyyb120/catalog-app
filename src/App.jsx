@@ -461,8 +461,8 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
   const pos=item.imagePosition||"50% 50%";
   return(
-    <div ref={ref} data-card="1" style={{background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
-      <div style={{position:"relative",paddingTop:"100%",background:"var(--t-card-bg,#fff)"}}>
+    <div ref={ref} data-card="1" style={{background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"visible",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
+      <div style={{position:"relative",paddingTop:"100%",background:"var(--t-card-bg,#fff)",borderRadius:"8px 8px 0 0",overflow:"hidden"}}>
         {item.image?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
           :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div>}
         {selectMode&&(
@@ -470,8 +470,8 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
-        {!hideQuantity&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:2}}>×{item.quantity??1}</div>}
-        {!hidePrice&&(item.price||0)>0&&<div style={{position:"absolute",bottom:5,left:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:2}}>₩{(item.price||0).toLocaleString()}</div>}
+        {!hideQuantity&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5}}>×{item.quantity??1}</div>}
+        {!hidePrice&&(item.price||0)>0&&<div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5}}>₩{(item.price||0).toLocaleString()}</div>}
       </div>
       <div style={{padding:"4px 5px",textAlign:"center"}}>
         <div style={{fontWeight:700,fontSize:nameFontSize||( gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10),color:"var(--t-item-name,#222222)",textAlign:"center",
@@ -851,9 +851,14 @@ export default function CatalogApp(){
     return()=>ro.disconnect();
   },[selectMode,hideAcquired,hideQuantity,viewMode]);
 
-  const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
+  // viewport 메타태그 강제 설정 — 조건부 return 이전에 위치해야 Hook 규칙 준수
+  useEffect(()=>{
+    let vp=document.querySelector('meta[name="viewport"]');
+    if(!vp){vp=document.createElement("meta");vp.name="viewport";document.head.appendChild(vp);}
+    vp.content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+  },[]);
 
-  const captureCountRef=useRef({date:"",count:0});
+  const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
 
   const doCapture=useCallback(()=>{
     const grid=captureRef.current; if(!grid){showToast("캡쳐 영역 없음");return;}
@@ -869,10 +874,11 @@ export default function CatalogApp(){
       if(!lastFullRowBottom) lastFullRowBottom=cards[0].getBoundingClientRect().bottom;
 
       const gridRect=grid.getBoundingClientRect();
+      // grid 요소 기준 상대 높이 (스크롤 무관)
       const captureH=Math.ceil(lastFullRowBottom-gridRect.top);
       const captureW=grid.offsetWidth;
       const SCALE=window.devicePixelRatio||2;
-      const PAD=10; // 여백 축소
+      const PAD=24; // 여백 px
 
       window.html2canvas(grid,{
         useCORS:true,
@@ -897,24 +903,11 @@ export default function CatalogApp(){
         ctx2.fillStyle=bg;
         ctx2.fillRect(0,0,out.width,out.height);
         ctx2.drawImage(canvas,padPx,padPx,canvas.width,captureH*SCALE);
-
-        // 날짜별 자동 증가 파일명
-        const today=new Date().toISOString().slice(0,10);
-        if(captureCountRef.current.date!==today){
-          captureCountRef.current={date:today,count:1};
-        } else {
-          captureCountRef.current.count+=1;
-        }
-        const num=captureCountRef.current.count;
-        const fname=`링동숲_${today}-${num}.png`;
-
         const a=document.createElement("a");
         a.href=out.toDataURL("image/png");
-        a.download=fname;
-        document.body.appendChild(a);
+        a.download=`링동숲_${new Date().toISOString().slice(0,10)}.png`;
         a.click();
-        document.body.removeChild(a);
-        showToast(`✓ 저장됨 (${fname})`);
+        showToast("✓ 캡쳐 저장됨");
       }).catch(e=>{console.error(e);showToast("캡쳐 실패");});
     };
     if(!window.html2canvas){
