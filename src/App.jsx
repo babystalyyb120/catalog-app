@@ -461,16 +461,17 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
   const pos=item.imagePosition||"50% 50%";
   return(
-    <div ref={ref} data-card="1" style={{position:"relative",background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
-      <div style={{position:"relative",paddingTop:"100%",background:"var(--t-card-bg,#fff)"}}>
-        {item.image?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
+    <div ref={ref} data-card="1" style={{background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
+      {/* aspect-ratio 사용: paddingTop:100% 트릭 제거 → html2canvas absolute 위치 버그 해결 */}
+      <div style={{position:"relative",width:"100%",aspectRatio:"1/1",background:"var(--t-card-bg,#fff)",overflow:"hidden"}}>
+        {item.image
+          ?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
           :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div>}
         {selectMode&&(
           <div style={{position:"absolute",top:5,left:5,width:26,height:26,borderRadius:6,border:`3px solid ${selected?"#4a7ec9":"rgba(80,80,80,.7)"}`,background:selected?"#4a7ec9":"rgba(255,255,255,.95)",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none",zIndex:10,boxShadow:"0 2px 6px rgba(0,0,0,.4)"}}>
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
-        {/* 뱃지: 이미지 div 안의 position:absolute 기준으로 배치 — html2canvas 호환 */}
         {!hideQuantity&&(item.quantity??1)>0&&(
           <div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,lineHeight:"14px",zIndex:5}}>×{item.quantity??1}</div>
         )}
