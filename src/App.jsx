@@ -765,14 +765,28 @@ function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,s
   });
 
   const GAP=8;
-  const cardW=Math.floor((Math.min(window.innerWidth,480)-16-(GAP*(cols-1)))/cols);
+  const [containerW,setContainerW]=useState(0);
+  const wrapRef=useRef(null);
+  useEffect(()=>{
+    const el=wrapRef.current; if(!el)return;
+    const ro=new ResizeObserver(entries=>{
+      const w=entries[0]?.contentRect?.width||el.offsetWidth;
+      if(w>0)setContainerW(w);
+    });
+    ro.observe(el);
+    setContainerW(el.offsetWidth);
+    return()=>ro.disconnect();
+  },[]);
+  const effectiveW=containerW||Math.min(window.innerWidth,600);
+  const cardW=Math.floor((effectiveW-(GAP*(cols-1)))/cols);
   const rowH=cardH;
   const {containerRef,visibleItems,totalH,paddingTop,paddingBottom}=useVirtualGrid(items,cols,rowH);
 
   return(
+    <div ref={wrapRef} style={{width:"100%"}}>
     <div ref={containerRef} style={{position:"relative",minHeight:totalH}}>
       <div style={{height:paddingTop}}/>
-      <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW}px)`,gap:GAP,justifyContent:"start"}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW>0?cardW+"px":"1fr"})`,gap:GAP,justifyContent:"start"}}>
         {visibleItems.map(({item,idx})=>(
           <div key={item.id} ref={idx===0?measureRef:null}>
             <ImageCard item={item} hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
@@ -783,6 +797,7 @@ function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,s
         ))}
       </div>
       <div style={{height:paddingBottom}}/>
+    </div>
     </div>
   );
 }
@@ -1182,7 +1197,7 @@ export default function CatalogApp(){
             );
           })}
         </div>
-        <div ref={captureRef} style={{background:theme.bg,padding:"8px 12px"}}>
+        <div ref={captureRef} style={{background:theme.bg,padding:"8px 0"}}>
         {viewMode==="이미지형"&&(disp.length===0?<Empty/>:
           <VirtualGrid
             items={disp} cols={gridCols}
