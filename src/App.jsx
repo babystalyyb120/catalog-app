@@ -946,9 +946,20 @@ export default function CatalogApp(){
     badgeInfos.forEach(b=>{ b.el.style.visibility="hidden"; });
 
     const run=()=>{
-      const captureH=Math.ceil(maxBottom-minTop);
+      const scrollY=window.scrollY||0;
+      const scrollX=window.scrollX||0;
+
+      // getBoundingClientRect는 viewport 기준 → 문서 기준으로 변환
+      const cardTop =minTop  + scrollY;
+      const cardBottom=maxBottom+scrollY;
+      const cardLeft_doc=minLeft +scrollX;
+      const cardRight_doc=maxRight+scrollX;
+      const gridTop_doc =gridRect.top +scrollY;
+      const gridLeft_doc=gridRect.left+scrollX;
+
+      const captureH=Math.ceil(cardBottom-cardTop);
       const captureW=grid.offsetWidth;
-      const yOff=minTop-gridRect.top;
+      const yOff=Math.round(cardTop-gridTop_doc);   // grid 내부 y 오프셋
 
       window.html2canvas(grid,{
         useCORS:true,
@@ -971,9 +982,9 @@ export default function CatalogApp(){
         const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
         const padPx=PAD*SCALE;
 
-        // html2canvas가 찍은 전체 캔버스에서 실제 카드 범위만 잘라내기
-        const cardLeft=Math.round((minLeft-gridRect.left)*SCALE);
-        const realW=Math.round((maxRight-minLeft)*SCALE);
+        // 실제 카드 가로 범위만 잘라내기 (grid 내부 x 오프셋 기준)
+        const xOff=Math.round((cardLeft_doc-gridLeft_doc)*SCALE);
+        const realW=Math.round((cardRight_doc-cardLeft_doc)*SCALE);
 
         const out=document.createElement("canvas");
         out.width=realW+padPx*2;
@@ -981,8 +992,7 @@ export default function CatalogApp(){
         const ctx=out.getContext("2d");
         ctx.fillStyle=bg;
         ctx.fillRect(0,0,out.width,out.height);
-        // 캔버스에서 카드 시작점(cardLeft)부터 realW만큼만 복사
-        ctx.drawImage(canvas, cardLeft,0, realW,canvas.height, padPx,padPx, realW,canvas.height);
+        ctx.drawImage(canvas, xOff,0, realW,canvas.height, padPx,padPx, realW,canvas.height);
 
         // 뱃지를 Canvas에 직접 그리기 (위치 정확)
         ctx.save();
@@ -1388,7 +1398,7 @@ export default function CatalogApp(){
               <p style={{margin:"0 0 12px",fontSize:11,color:"#a09070"}}>추가일: {viewItem.date}</p>
               <div style={{display:"flex",gap:8,marginTop:4}}>
                 <Btn onClick={()=>openEdit(viewItem)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #8a7060",background:"transparent",color:"#8a7060",fontWeight:700,fontSize:13}}>✏️ 수정</Btn>
-                {!hideAcquired&&<Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#ffffff":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득":"○ 미습득"}</Btn>}
+                <Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#ffffff":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득":"○ 미습득"}</Btn>
                 <Btn onClick={()=>delItem(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontWeight:700,fontSize:13}}>🗑 삭제</Btn>
               </div>
             </div>
