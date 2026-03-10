@@ -171,6 +171,19 @@ const DEF_ITEMS=[{id:1,name:"빈티지 카메라",category:"수집품",colorCat:
 const DEF_STATE={items:DEF_ITEMS,categories:DEF_CATS,colorCats:DEF_CC,settings:{photoMode:false,viewMode:"이미지형",gridCols:3,sortBy:"date-desc"}};
 const SORT_OPTS=[{v:"date-desc",l:"최근 추가순"},{v:"date-asc",l:"오래된순"},{v:"name-asc",l:"이름 ↑"},{v:"name-desc",l:"이름 ↓"},{v:"category-name-asc",l:"카테고리→이름 ↑"},{v:"category-name-desc",l:"카테고리→이름 ↓"},{v:"acquired-first",l:"습득 먼저"},{v:"not-acquired-first",l:"미습득 먼저"}];
 const GRID_COLS=[2,3,4,5,6];
+
+// ══════ 테마 정의 ══════
+const THEMES={
+  "블랙":    {name:"🖤 블랙",    header:"#222222", headerText:"#ffffff", headerSubText:"#aaaaaa", accent:"#4a7a4a", accentText:"#ffffff", bg:"#f8f5f0", card:"#ffffff", cardBorder:"#e0d8c8", cardEmpty:"#f5f5f5", cardIcon:"#c0b8a8", acquiredBorder:"#444444", catActive:"#444444", catActiveText:"#ffffff", catInactiveText:"#666666", selectBar:"#1e3a5f", btnBg:"#333333", btnText:"#cccccc", btnBorder:"#666666", qtyBg:"rgba(0,0,0,.55)", qtyText:"#ffffff", priceBg:"rgba(30,60,30,.75)", priceText:"#a8e8a8"},
+  "벚꽃":    {name:"🌸 벚꽃",    header:"#5a2a3a", headerText:"#ffe0ea", headerSubText:"#f0a0b8", accent:"#c0607a", accentText:"#ffffff", bg:"#fff5f8", card:"#ffffff", cardBorder:"#f0d0da", cardEmpty:"#fff8fa", cardIcon:"#e0a0b8", acquiredBorder:"#c0607a", catActive:"#c0607a", catActiveText:"#ffffff", catInactiveText:"#a06070", selectBar:"#5a2a3a", btnBg:"#6a3045", btnText:"#ffd0e0", btnBorder:"#8a5060", qtyBg:"rgba(90,42,58,.7)", qtyText:"#ffe0ea", priceBg:"rgba(80,20,40,.7)", priceText:"#ffb8cc"},
+  "바다":    {name:"🌊 바다",    header:"#1a3a5a", headerText:"#c0e8ff", headerSubText:"#80b8e0", accent:"#2a7ab0", accentText:"#ffffff", bg:"#f0f8ff", card:"#ffffff", cardBorder:"#b8d8f0", cardEmpty:"#f0f8ff", cardIcon:"#80b8d8", acquiredBorder:"#2a7ab0", catActive:"#2a7ab0", catActiveText:"#ffffff", catInactiveText:"#5080a0", selectBar:"#1a3a5a", btnBg:"#1e3a5a", btnText:"#a0d0f0", btnBorder:"#3a6080", qtyBg:"rgba(26,58,90,.7)", qtyText:"#c0e8ff", priceBg:"rgba(10,50,80,.7)", priceText:"#90d8f8"},
+  "가을":    {name:"🍂 가을",    header:"#3a2010", headerText:"#ffe0b0", headerSubText:"#c09060", accent:"#c06820", accentText:"#ffffff", bg:"#fff8f0", card:"#ffffff", cardBorder:"#e8d0b0", cardEmpty:"#fff5ec", cardIcon:"#c09060", acquiredBorder:"#c06820", catActive:"#c06820", catActiveText:"#ffffff", catInactiveText:"#906040", selectBar:"#3a2010", btnBg:"#3a2010", btnText:"#f0c080", btnBorder:"#7a5030", qtyBg:"rgba(58,32,16,.7)", qtyText:"#ffe0b0", priceBg:"rgba(80,40,10,.7)", priceText:"#ffc060"},
+  "화이트":  {name:"🤍 화이트",  header:"#f0f0f0", headerText:"#222222", headerSubText:"#888888", accent:"#555555", accentText:"#ffffff", bg:"#ffffff", card:"#f8f8f8", cardBorder:"#e0e0e0", cardEmpty:"#f5f5f5", cardIcon:"#aaaaaa", acquiredBorder:"#555555", catActive:"#444444", catActiveText:"#ffffff", catInactiveText:"#666666", selectBar:"#444444", btnBg:"#e8e8e8", btnText:"#333333", btnBorder:"#cccccc", qtyBg:"rgba(60,60,60,.7)", qtyText:"#ffffff", priceBg:"rgba(40,80,40,.7)", priceText:"#80d080"},
+  "숲속노트": {name:"🌿 숲속노트", header:"#1e3d2a", headerText:"#e8f5e2", headerSubText:"#90c898", accent:"#2d7a4a", accentText:"#ffffff", bg:"#f5f0e8", card:"#fffdf7", cardBorder:"#d8e8d0", cardEmpty:"#f5f8f0", cardIcon:"#90b890", acquiredBorder:"#2d7a4a", catActive:"#2d7a4a", catActiveText:"#ffffff", catInactiveText:"#6a9070", selectBar:"#1e3d2a", btnBg:"#243d2e", btnText:"#b8d8b8", btnBorder:"#3a6048", qtyBg:"rgba(20,50,30,.65)", qtyText:"#d0f0d0", priceBg:"rgba(15,60,30,.7)", priceText:"#90e8a8"},
+  "딥다크":  {name:"🌙 딥다크",  header:"#0a0a0a", headerText:"#d0aaff", headerSubText:"#8855cc", accent:"#9933ff", accentText:"#ffffff", bg:"#0d0d0d", card:"#1a1a1a", cardBorder:"#4a2a8a", cardEmpty:"#222235", cardIcon:"#7755aa", acquiredBorder:"#9933ff", catActive:"#7722dd", catActiveText:"#ffffff", catInactiveText:"#7755aa", selectBar:"#0a0a0a", btnBg:"#1a1a2e", btnText:"#cc88ff", btnBorder:"#5522aa", qtyBg:"rgba(80,0,160,.6)", qtyText:"#e0c0ff", priceBg:"rgba(60,0,120,.7)", priceText:"#cc88ff"},
+  "파스텔":  {name:"🍬 파스텔",  header:"#f8f0ff", headerText:"#8855aa", headerSubText:"#cc99dd", accent:"#dd88cc", accentText:"#ffffff", bg:"#fdf8ff", card:"#ffffff", cardBorder:"#eebbee", cardEmpty:"#faf0ff", cardIcon:"#cc99dd", acquiredBorder:"#dd88cc", catActive:"#dd88cc", catActiveText:"#ffffff", catInactiveText:"#bb88cc", selectBar:"#e8d0f8", btnBg:"#f0e0f8", btnText:"#9966bb", btnBorder:"#ddbbed", qtyBg:"rgba(180,100,200,.5)", qtyText:"#ffffff", priceBg:"rgba(160,80,180,.5)", priceText:"#ffffff"},
+};
+const DEF_THEME="블랙";
 const getHex=(cc,n)=>cc.find(c=>c.name===n)?.hex||"#aaa";
 
 // ══════ 이미지 압축 + Cloudinary 업로드 ══════
@@ -398,14 +411,22 @@ const Empty=()=>(
     <div style={{fontSize:44,marginBottom:10}}>📂</div><p>항목이 없습니다.</p>
   </div>
 );
-const Confirm=({message,onOk,onCancel})=>(
+const Confirm=({message,onOk,onCancel,choices})=>(
   <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",zIndex:600,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
     <div style={{background:"#fff8f0",borderRadius:14,padding:"22px 20px",maxWidth:320,width:"100%"}}>
-      <p style={{margin:"0 0 18px",fontSize:15,lineHeight:1.6}}>{message}</p>
-      <div style={{display:"flex",gap:10}}>
-        <Btn onClick={onCancel} style={{flex:1,padding:10,borderRadius:8,border:"2px solid #cccccc",background:"transparent",color:"#666666",fontSize:14,fontWeight:900}}>취소</Btn>
-        <Btn onClick={onOk}    style={{flex:1,padding:10,borderRadius:8,border:"none",background:"#e05050",color:"#fff",fontSize:14,fontWeight:700}}>삭제</Btn>
-      </div>
+      <p style={{margin:"0 0 18px",fontSize:15,lineHeight:1.6,whiteSpace:"pre-line"}}>{message}</p>
+      {choices?(
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {choices.map(({label,fn},i)=>(
+            <Btn key={i} onClick={fn} style={{padding:11,borderRadius:8,border:i===choices.length-1?"2px solid #cccccc":"none",background:i===choices.length-1?"transparent":i===0?"#4a7ec9":"#888888",color:i===choices.length-1?"#666666":"#fff",fontSize:14,fontWeight:700}}>{label}</Btn>
+          ))}
+        </div>
+      ):(
+        <div style={{display:"flex",gap:10}}>
+          <Btn onClick={onCancel} style={{flex:1,padding:10,borderRadius:8,border:"2px solid #cccccc",background:"transparent",color:"#666666",fontSize:14,fontWeight:900}}>취소</Btn>
+          <Btn onClick={onOk}    style={{flex:1,padding:10,borderRadius:8,border:"none",background:"#e05050",color:"#fff",fontSize:14,fontWeight:700}}>삭제</Btn>
+        </div>
+      )}
     </div>
   </div>
 );
@@ -432,22 +453,23 @@ function CtxMenu({x,y,onCopy,onEdit,onDelete,onClose}){
 // ══════════════════════════════════════════════════════════════
 //  ImageCard
 // ══════════════════════════════════════════════════════════════
-const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong,gridCols=3,nameEllipsis=true}){
+const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePrice,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong,gridCols=3,nameEllipsis=true}){
   const ref=useRef(null);
   const hex=item.colorCat?getHex(colorCats,item.colorCat):null;
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
   const pos=item.imagePosition||"50% 50%";
   return(
-    <div ref={ref} style={{background:"#fff",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"#444444":"#e0e0e0")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
-      <div style={{position:"relative",paddingTop:"100%",background:"#fff"}}>
+    <div ref={ref} style={{background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
+      <div style={{position:"relative",paddingTop:"100%",background:"var(--t-card-bg,#fff)"}}>
         {item.image?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
-          :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"#c0b8a8",background:"#f8f5f0"}}>🖼️</div>}
+          :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div>}
         {selectMode&&(
           <div style={{position:"absolute",top:5,left:5,width:26,height:26,borderRadius:6,border:`3px solid ${selected?"#4a7ec9":"rgba(80,80,80,.7)"}`,background:selected?"#4a7ec9":"rgba(255,255,255,.95)",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none",zIndex:10,boxShadow:"0 2px 6px rgba(0,0,0,.4)"}}>
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
-        {!hideQuantity&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"rgba(0,0,0,.55)",color:"#ffffff",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99}}>×{item.quantity??1}</div>}
+        {!hideQuantity&&(item.quantity??1)>0&&<div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99}}>×{item.quantity??1}</div>}
+        {!hidePrice&&(item.price||0)>0&&<div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99}}>₩{(item.price||0).toLocaleString()}</div>}
       </div>
       <div style={{padding:"4px 5px",textAlign:"center"}}>
         <div style={{fontWeight:700,fontSize:gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10,color:"#222222",textAlign:"center",
@@ -475,7 +497,7 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,colorCat
 // ══════════════════════════════════════════════════════════════
 //  ListRow
 // ══════════════════════════════════════════════════════════════
-const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong}){
+const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,hidePrice,colorCats,selected,selectMode,onOpen,onToggle,onSelect,onLong}){
   const ref=useRef(null);
   const hex=item.colorCat?getHex(colorCats,item.colorCat):null;
   useTapLong(ref, ()=>(selectMode?onSelect:onOpen), ()=>onLong);
@@ -495,8 +517,8 @@ const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,colorCats,se
         </div>
         <div style={{fontSize:11,color:"#888888",marginTop:1}}>{item.category}{item.note?` · ${item.note}`:""}</div>
       </div>
-      {!hideQuantity&&(item.quantity??1)>0&&<div style={{background:"#222222",color:"#ffffff",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0}}>×{item.quantity??1}</div>}
-      {!hideQuantity&&item.price>0&&<div style={{background:"#2a4a2a",color:"#a8e0a8",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0}}>₩{((item.price||0)*(item.quantity??1)).toLocaleString()}{(item.quantity??1)>1&&<span style={{fontSize:9,opacity:.8}}> (×{item.quantity??1})</span>}</div>}
+      {!hideQuantity&&(item.quantity??1)>0&&<div style={{background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0}}>×{item.quantity??1}</div>}
+      {!hidePrice&&item.price>0&&<div style={{background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:99,flexShrink:0,whiteSpace:"nowrap"}}>₩{((item.price||0)*(item.quantity??1)).toLocaleString()}</div>}
       {!hideAcquired&&!selectMode&&(
         <button
           onTouchEnd={e=>{e.stopPropagation();e.preventDefault();onToggle();}}
@@ -728,7 +750,7 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
 //  VirtualGrid — 화면에 보이는 행만 DOM에 렌더링
 //  카드 높이를 동적으로 측정해 정확한 패딩 계산
 // ══════════════════════════════════════════════════════════════
-function VirtualGrid({items,cols,hideAcquired,hideQuantity,colorCats,sel,selectMode,nameEllipsis,onOpen,onToggle,onSelect,onLong}){
+function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,sel,selectMode,nameEllipsis,onOpen,onToggle,onSelect,onLong}){
   // 카드 높이: 화면 너비에서 cols와 gap을 고려해 추정
   // 정사각형 이미지(100%) + 이름 + 버튼 영역 ≒ 카드너비 * 1.38
   const [cardH,setCardH]=useState(160);
@@ -751,7 +773,7 @@ function VirtualGrid({items,cols,hideAcquired,hideQuantity,colorCats,sel,selectM
       <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW}px)`,gap:GAP,justifyContent:"start"}}>
         {visibleItems.map(({item,idx})=>(
           <div key={item.id} ref={idx===0?measureRef:null}>
-            <ImageCard item={item} hideAcquired={hideAcquired} hideQuantity={hideQuantity} colorCats={colorCats}
+            <ImageCard item={item} hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
               selected={sel.has(item.id)} selectMode={selectMode} gridCols={cols} nameEllipsis={nameEllipsis}
               onOpen={()=>onOpen(item)} onToggle={()=>onToggle(item.id)}
               onSelect={()=>onSelect(item.id)} onLong={pos=>onLong(pos,item)}/>
@@ -772,7 +794,11 @@ export default function CatalogApp(){
   const [categories,setCategories]=useState(DEF_CATS);
   const [colorCats,setColorCats]=useState(DEF_CC);
   const [hideAcquired,setHideAcquired]=useState(false);
+  const [themeOpen,setThemeOpen]=useState(false);
   const [hideQuantity,setHideQuantity]=useState(false);
+  const [hidePrice,setHidePrice]=useState(false);
+  const [themeName,setThemeName]=useState(DEF_THEME);
+  const [customTheme,setCustomTheme]=useState({header:"#222222",bg:"#f8f5f0",accent:"#4a7a4a"});
   const [viewMode,setViewMode]=useState("이미지형");
   const [gridCols,setGridCols]=useState(3);
   const [sortBy,setSortBy]=useState("date-desc");
@@ -798,6 +824,7 @@ export default function CatalogApp(){
   const [newCN,setNewCN]=useState("");
   const [newCH,setNewCH]=useState("#888888");
   const [editCI,setEditCI]=useState(null);
+  const [editCatIdx,setEditCatIdx]=useState(null);
   const [editCN,setEditCN]=useState("");
   const [editCH,setEditCH]=useState("#888888");
   const [headerVis,setHeaderVis]=useState(true);
@@ -805,7 +832,7 @@ export default function CatalogApp(){
 
   const nextId=useRef(100),toastT=useRef(null),stRef=useRef(null),hashRef=useRef(""),readyRef=useRef(false),saveT=useRef(null),saving=useRef(false),lastSY=useRef(0),hdrRef=useRef(null),newCatRef=useRef(null),newCNRef=useRef(null);
 
-  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,viewMode,gridCols,sortBy,nameEllipsis}};},[items,categories,colorCats,hideAcquired,hideQuantity,viewMode,gridCols,sortBy]);
+  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,nameEllipsis,themeName,customTheme}};},[items,categories,colorCats,hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,themeName,customTheme]);
   useEffect(()=>{
     const fn=()=>{const c=window.scrollY;setHeaderVis(c<10||c<lastSY.current);lastSY.current=c;};
     window.addEventListener("scroll",fn,{passive:true});return()=>window.removeEventListener("scroll",fn);
@@ -838,7 +865,8 @@ export default function CatalogApp(){
       if(shared){d=shared;lbl="☁️ 공유 동기화";lsSet(d);}
       const{items:i,categories:c,colorCats:cc,settings:s}=d;
       setItems(i??DEF_ITEMS);setCategories(c??DEF_CATS);setColorCats(cc??DEF_CC);
-      setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
+      setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
+      if(s?.themeName)setThemeName(s.themeName);if(s?.customTheme)setCustomTheme(s.customTheme);
       nextId.current=Math.max(100,...(i??DEF_ITEMS).map(x=>x.id))+1;
       hashRef.current=JSON.stringify(d);setSyncLbl(lbl);readyRef.current=true;setLoading(false);
     })();
@@ -855,7 +883,8 @@ export default function CatalogApp(){
         hashRef.current=h;lsSet(sh);
         const{items:i,categories:c,colorCats:cc,settings:s}=sh;
         setItems(i??DEF_ITEMS);setCategories(c??DEF_CATS);setColorCats(cc??DEF_CC);
-        setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
+        setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);
+        if(s?.themeName)setThemeName(s.themeName);if(s?.customTheme)setCustomTheme(s.customTheme);
         nextId.current=Math.max(nextId.current,...(i??[]).map(x=>x.id))+1;
         showToast("🔄 동기화됨");
       }
@@ -879,19 +908,23 @@ export default function CatalogApp(){
     return isDup?{...newItem,category:"중복"}:newItem;
   },[]);
 
+  // 수량 0이면 "[0]" 카테고리로 자동 이동 (단, 이미 "[0]"이면 유지)
+  const applyZeroQty=useCallback((item)=>{
+    if((item.quantity??1)===0 && item.category!=="0") return {...item,category:"0"};
+    return item;
+  },[]);
+
   const handleSave=useCallback(form=>{
     if(editItem){
       setItems(p=>{
         const updated=p.map(it=>it.id===editItem.id?{...it,...form}:it);
-        // 수정된 항목 중복 체크
         const others=updated.filter(it=>it.id!==editItem.id);
-        return updated.map(it=>it.id===editItem.id?applyDupCheck(it,others):it);
+        return updated.map(it=>it.id===editItem.id?applyZeroQty(applyDupCheck(it,others)):it);
       });
     } else {
       setItems(p=>{
         const newItem={id:nextId.current++,acquired:false,date:new Date().toISOString().split("T")[0],...form};
-        const checked=applyDupCheck(newItem,p);
-        // 기존 항목 중에 이 항목과 이름+색상이 같은 것도 중복으로 표시
+        const checked=applyZeroQty(applyDupCheck(newItem,p));
         const updatedP=p.map(it=>
           it.name.trim()===newItem.name.trim()&&it.colorCat===newItem.colorCat
             ?{...it,category:"중복"}:it
@@ -900,7 +933,7 @@ export default function CatalogApp(){
       });
     }
     setModal(false);
-  },[editItem,applyDupCheck]);
+  },[editItem,applyDupCheck,applyZeroQty]);
   const copyItem=useCallback(it=>{setItems(p=>[...p,{...it,id:nextId.current++,name:`${it.name} (복사)`,date:new Date().toISOString().split("T")[0]}]);setCtx(null);showToast("📋 복사됨");},[]);
   const togAcq=useCallback((id)=>{setItems(p=>p.map(it=>it.id===id?{...it,acquired:!it.acquired}:it));setViewItem(v=>v?.id===id?{...v,acquired:!v.acquired}:v);},[]);
   const delItem=useCallback(id=>{setCtx(null);setConfirm({msg:"이 항목을 삭제할까요?",ok:()=>{setItems(p=>p.filter(it=>it.id!==id));setViewItem(null);setConfirm(null);}});},[]);
@@ -908,6 +941,7 @@ export default function CatalogApp(){
   const clearSel=useCallback(()=>{setSel(new Set());setSelectMode(false);},[]);
   const doBulkDel=useCallback(()=>{if(!sel.size)return;const ids=new Set(sel);setConfirm({msg:`${ids.size}개 항목을 삭제할까요?`,ok:()=>{setItems(p=>p.filter(it=>!ids.has(it.id)));clearSel();setConfirm(null);}});},[sel,clearSel]);
   const doBulkMove=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>p.map(it=>ids.has(it.id)?{...it,category:bulkCat}:it));setBulkMove(false);clearSel();},[bulkCat,sel,clearSel]);
+  const doBulkCopy=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>[...p,...p.filter(it=>ids.has(it.id)).map(it=>({...it,id:nextId.current++,name:`${it.name} [복사]`,category:bulkCat,date:new Date().toISOString().split("T")[0]}))]);setBulkMove(false);clearSel();showToast(`📋 ${ids.size}개 복사됨`);},[bulkCat,sel,clearSel]);
   const addCat=()=>{
     const v=(newCatRef.current?.value||"").trim();
     if(!v)return;
@@ -922,7 +956,18 @@ export default function CatalogApp(){
     setNewCN("");setNewCH("#888888");
     if(newCNRef.current)newCNRef.current.value="";
   };
-  const remCat=c=>{setCategories(p=>p.filter(x=>x!==c));setActiveCats(p=>p.filter(x=>x!==c));};
+  const remCat=c=>{
+    const count=items.filter(it=>it.category===c).length;
+    if(count===0){setCategories(p=>p.filter(x=>x!==c));setActiveCats(p=>p.filter(x=>x!==c));return;}
+    setConfirm({
+      msg:`"${c}" 카테고리에 항목이 ${count}개 있어요.\n삭제 후 항목을 어떻게 처리할까요?`,
+      choices:[
+        {label:"기타로 이동",fn:()=>{setItems(p=>p.map(it=>it.category===c?{...it,category:"기타"}:it));setCategories(p=>p.filter(x=>x!==c));setActiveCats(p=>p.filter(x=>x!==c));setConfirm(null);}},
+        {label:"빈값으로 처리",fn:()=>{setItems(p=>p.map(it=>it.category===c?{...it,category:""}:it));setCategories(p=>p.filter(x=>x!==c));setActiveCats(p=>p.filter(x=>x!==c));setConfirm(null);}},
+        {label:"취소",fn:()=>setConfirm(null)},
+      ]
+    });
+  };
   const remCC=n=>{setColorCats(p=>p.filter(c=>c.name!==n));setItems(p=>p.map(it=>it.colorCat===n?{...it,colorCat:""}:it));};
   const startEC=i=>{setEditCI(i);setEditCN(colorCats[i].name);setEditCH(colorCats[i].hex);};
   const saveEC=()=>{if(!editCN.trim())return;const old=colorCats[editCI].name;setColorCats(p=>p.map((c,i)=>i===editCI?{name:editCN.trim(),hex:editCH}:c));setItems(p=>p.map(it=>it.colorCat===old?{...it,colorCat:editCN.trim()}:it));setEditCI(null);};
@@ -960,8 +1005,14 @@ export default function CatalogApp(){
   function setCdnConfig(cfg){setCdnConfig_(cfg);setCdnConfig_local(cfg);}
   function setCdnConfig_local(cfg){try{localStorage.setItem(CK,JSON.stringify(cfg));}catch{}}
 
+  // 현재 테마 계산
+  const theme = themeName==="커스텀"
+    ? {...THEMES["블랙"], header:customTheme.header, bg:customTheme.bg, accent:customTheme.accent, accentText:"#ffffff", catActive:customTheme.accent, catActiveText:"#ffffff", selectBar:customTheme.header, btnBg:customTheme.header}
+    : (THEMES[themeName]??THEMES["블랙"]);
+
   return(
-    <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif",minHeight:"100vh",letterSpacing:"0.05em",background:"#f8f8f8",color:"#222222"}}>
+    <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif",minHeight:"100vh",letterSpacing:"0.05em",background:theme.bg,color:"#222222",
+      "--t-qty-bg":theme.qtyBg,"--t-qty-text":theme.qtyText,"--t-price-bg":theme.priceBg,"--t-price-text":theme.priceText,"--t-card-border":theme.cardBorder,"--t-cat-inactive":theme.catInactiveText,"--t-card-bg":theme.card,"--t-card-empty":theme.cardEmpty,"--t-card-icon":theme.cardIcon,"--t-acquired-border":theme.acquiredBorder}}>
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet"/>
 
       {/* 토스트 */}
@@ -972,15 +1023,15 @@ export default function CatalogApp(){
       {ctx&&<CtxMenu x={ctx.x} y={ctx.y} onCopy={()=>copyItem(ctx.item)} onEdit={()=>openEdit(ctx.item)} onDelete={()=>delItem(ctx.item.id)} onClose={()=>setCtx(null)}/>}
 
       {/* 헤더 — 크롬/모바일 모두 동일하게 보이도록 단순 구조 */}
-      <header ref={hdrRef} style={{background:"#222222",padding:"10px 14px 8px",position:"fixed",top:0,left:0,right:0,zIndex:100,boxShadow:"0 2px 16px rgba(0,0,0,.45)",transition:"transform .3s",transform:headerVis?"translateY(0)":"translateY(-100%)"}}>
+      <header ref={hdrRef} style={{background:theme.header,padding:"10px 14px 8px",position:"fixed",top:0,left:0,right:0,zIndex:100,boxShadow:"0 2px 16px rgba(0,0,0,.45)",transition:"transform .3s",transform:headerVis?"translateY(0)":"translateY(-100%)"}}>
 
         {/* Row 1: 타이틀 + 추가 + 통계 + 저장 */}
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:7,flexWrap:"nowrap"}}>
-          <span style={{fontSize:22,fontWeight:900,color:"#ffffff",flexShrink:0}}>🍃 모동숲</span>
-          <Btn onClick={openAdd} style={{...HB,background:"#ffffff",color:"#222222",padding:"5px 13px",fontSize:15,flexShrink:0,border:"none"}}>+ 추가</Btn>
-          <span style={{fontSize:14,color:"#aaaaaa",whiteSpace:"nowrap",flexShrink:0}}>전체 <b onClick={()=>{setActiveCats([]);setSearch("");}} style={{color:"#ffffff",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{items.length}</b> · 습득 <b onClick={()=>{setActiveCats([]);setSearch("[습득]");}} style={{color:"#ffffff",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{acq}</b></span>
+          <span style={{fontSize:22,fontWeight:900,color:theme.headerText,flexShrink:0}}>🍃 모동숲</span>
+          <Btn onClick={openAdd} style={{...HB,background:theme.headerText,color:theme.header,padding:"5px 13px",fontSize:15,flexShrink:0,border:"none"}}>+ 추가</Btn>
+          <span style={{fontSize:14,color:theme.headerSubText,whiteSpace:"nowrap",flexShrink:0}}>전체 <b onClick={()=>{setActiveCats([]);setSearch("");}} style={{color:theme.headerText,cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{items.length}</b> · 습득 <b onClick={()=>{setActiveCats([]);setSearch("[습득]");}} style={{color:theme.headerText,cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>{acq}</b></span>
           <div style={{flex:1}}/>
-          <Btn onClick={()=>doSave(false)} style={{...HB,background:unsaved?"#f5c842":"#444444",color:unsaved?"#222222":"#ffffff",border:`1.5px solid ${unsaved?"#f5c842":"#666666"}`,padding:"5px 11px",fontSize:14,flexShrink:0,boxShadow:unsaved?"0 0 6px rgba(245,200,66,.5)":"none"}}>
+          <Btn onClick={()=>doSave(false)} style={{...HB,background:unsaved?"#f5c842":theme.btnBg,color:unsaved?"#222222":theme.btnText,border:`1.5px solid ${unsaved?"#f5c842":theme.btnBorder}`,padding:"5px 11px",fontSize:14,flexShrink:0,boxShadow:unsaved?"0 0 6px rgba(245,200,66,.5)":"none"}}>
             {unsaved?"💾 저장":"✓ 저장됨"}
           </Btn>
         </div>
@@ -989,8 +1040,8 @@ export default function CatalogApp(){
         <div style={{display:"flex",gap:6,marginBottom:4}}>
           <input value={search} onChange={e=>setSearch(e.target.value)}
             onFocus={()=>setActiveCats([])}
-            placeholder="🔍 검색 · [숫자만] [영어만] [자음ㄱ만]…" style={{flex:1,padding:"6px 10px",borderRadius:7,border:"1.5px solid #555555",background:"#333333",color:"#ffffff",fontFamily:"inherit",fontSize:14,outline:"none",minWidth:0}}/>
-          <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"5px 4px",borderRadius:7,border:"1.5px solid #555555",background:"#333333",color:"#ffffff",fontFamily:"inherit",fontSize:14,cursor:"pointer",flexShrink:0,maxWidth:110}}>
+            placeholder="🔍 검색 · [숫자만] [영어만] [자음ㄱ만]…" style={{flex:1,padding:"6px 10px",borderRadius:7,border:`1.5px solid ${theme.btnBorder}`,background:theme.btnBg,color:theme.btnText,fontFamily:"inherit",fontSize:14,outline:"none",minWidth:0}}/>
+          <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"5px 4px",borderRadius:7,border:`1.5px solid ${theme.btnBorder}`,background:theme.btnBg,color:theme.btnText,fontFamily:"inherit",fontSize:14,cursor:"pointer",flexShrink:0,maxWidth:110}}>
             {SORT_OPTS.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
           </select>
         </div>
@@ -1004,7 +1055,7 @@ export default function CatalogApp(){
                 setActiveCats([]);
                 setSearch(p=>p.includes(tag)?p.replace(tag,"").trim():((p?p+" ":"")+tag).trim());
               }}
-                style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?"#ffffff":"#666666"}`,background:active?"#ffffff":"#333333",color:active?"#222222":"#cccccc",fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0}}>
+                style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?theme.headerText:theme.btnBorder}`,background:active?theme.headerText:theme.btnBg,color:active?theme.header:theme.btnText,fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0}}>
                 {{"숫자":"숫자","영어":"영어","ㄱ":"ㄱ·ㄲ","ㄴ":"ㄴ","ㄷ":"ㄷ·ㄸ","ㄹ":"ㄹ","ㅁ":"ㅁ","ㅂ":"ㅂ·ㅃ","ㅅ":"ㅅ·ㅆ","ㅇ":"ㅇ","ㅈ":"ㅈ·ㅉ","ㅊ":"ㅊ","ㅋ":"ㅋ","ㅌ":"ㅌ","ㅍ":"ㅍ","ㅎ":"ㅎ"}[k]}
               </button>
             );
@@ -1013,28 +1064,33 @@ export default function CatalogApp(){
 
         {/* Row 3: 뷰 + 열 + 선택 + 설정 */}
         <div style={{display:"flex",gap:5,alignItems:"center",overflowX:"auto",paddingBottom:2,scrollbarWidth:"none",msOverflowStyle:"none"}}>
-          <div style={{display:"flex",borderRadius:6,overflow:"hidden",border:"1.5px solid #666666",flexShrink:0}}>
+          <div style={{display:"flex",borderRadius:6,overflow:"hidden",border:`1.5px solid ${theme.btnBorder}`,flexShrink:0}}>
             {["이미지형","목록형"].map(m=>(
-              <Btn key={m} onClick={()=>setViewMode(m)} style={{...HB,borderRadius:0,padding:"5px 9px",fontSize:14,background:viewMode===m?"#ffffff":"#333333",color:viewMode===m?"#222222":"#cccccc"}}>{m}</Btn>
+              <Btn key={m} onClick={()=>{setViewMode(m);setGridCols(m==="목록형"?1:3);}} style={{...HB,borderRadius:0,padding:"5px 9px",fontSize:14,background:viewMode===m?theme.headerText:theme.btnBg,color:viewMode===m?theme.header:theme.btnText}}>{m}</Btn>
             ))}
           </div>
-          {viewMode==="이미지형"&&<>
-            <span style={{color:"#cccccc",fontSize:14,flexShrink:0}}>열:</span>
-            {GRID_COLS.map(n=>(
-              <Btn key={n} onClick={()=>setGridCols(n)} style={{...HB,padding:"4px 8px",background:gridCols===n?"#ffffff":"#333333",color:gridCols===n?"#222222":"#cccccc",border:"1.5px solid #666666",borderRadius:6,fontSize:14,flexShrink:0,minWidth:28,textAlign:"center"}}>{n}</Btn>
+          <>
+            <span style={{color:theme.btnText,fontSize:14,flexShrink:0}}>열:</span>
+            {(viewMode==="목록형"?[1,2]:GRID_COLS).map(n=>(
+              <Btn key={n} onClick={()=>setGridCols(n)} style={{...HB,padding:"4px 8px",background:gridCols===n?theme.headerText:theme.btnBg,color:gridCols===n?theme.header:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,borderRadius:6,fontSize:14,flexShrink:0,minWidth:28,textAlign:"center"}}>{n}</Btn>
             ))}
-          </>}
-          <Btn onClick={()=>{setSelectMode(s=>!s);setSel(new Set());}} style={{...HB,background:selectMode?"#4a7ec9":"#333333",color:selectMode?"#fff":"#cccccc",border:"1.5px solid #666666",padding:"5px 10px",fontSize:14,flexShrink:0}}>
+          </>
+          <Btn onClick={()=>{setSelectMode(s=>!s);setSel(new Set());}} style={{...HB,background:selectMode?theme.accent:theme.btnBg,color:selectMode?theme.accentText:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"5px 10px",fontSize:14,flexShrink:0}}>
             {selectMode?"✓선택중":"☐선택"}
           </Btn>
-          <Btn onClick={()=>setSettings(true)} style={{...HB,background:"#333333",color:"#cccccc",border:"1.5px solid #666666",padding:"5px 10px",fontSize:14,flexShrink:0}}>⚙️</Btn>
+          <Btn onClick={()=>setSettings(true)} style={{...HB,background:theme.btnBg,color:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"5px 10px",fontSize:14,flexShrink:0}}>⚙️</Btn>
         </div>
       </header>
 
       {selectMode&&(
-        <div style={{background:"#1e3a5f",padding:"8px 14px",position:"fixed",top:headerVis?hdrH:0,left:0,right:0,zIndex:99,transition:"top .3s",boxShadow:"0 2px 10px rgba(0,0,0,.3)"}}>
+        <div style={{background:theme.selectBar,padding:"8px 14px",position:"fixed",top:headerVis?hdrH:0,left:0,right:0,zIndex:99,transition:"top .3s",boxShadow:"0 2px 10px rgba(0,0,0,.3)"}}>
           <div style={{display:"flex",alignItems:"center",gap:7,overflowX:"auto",scrollbarWidth:"none"}}>
-            <span style={{color:"#a8c8f0",fontSize:13,fontWeight:700,flexShrink:0}}>{sel.size}개</span>
+            <span style={{color:"#a8c8f0",fontSize:13,fontWeight:700,flexShrink:0}}>
+              {sel.size}개
+              {[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+(it?.quantity??1);},0) !== sel.size &&
+                <span style={{color:"#c8d8f0",fontWeight:400}}> ({[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+(it?.quantity??1);},0)}개)</span>
+              }
+            </span>
             {[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+((it?.price||0)*(it?.quantity??1));},0)>0&&(
               <span style={{color:"#a8e0a8",fontSize:12,fontWeight:700,flexShrink:0}}>
                 합계 ₩{[...sel].reduce((sum,id)=>{const it=items.find(x=>x.id===id);return sum+((it?.price||0)*(it?.quantity??1));},0).toLocaleString()}
@@ -1062,23 +1118,23 @@ export default function CatalogApp(){
               <Btn key={c} onClick={()=>{
                 if(isAll){setActiveCats([]);setSearch("");return;}
                 setActiveCats(p=>p.includes(c)?p.filter(x=>x!==c):[...p,c]);
-              }} style={{padding:"4px 12px",borderRadius:99,border:"2px solid",borderColor:active?"#444444":"#dddddd",background:active?"#444444":"transparent",color:active?"#222222":"#666666",fontWeight:active?700:400,fontSize:16,whiteSpace:"nowrap",flexShrink:0}}>{c}</Btn>
+              }} style={{padding:"4px 12px",borderRadius:99,border:"2px solid",borderColor:active?theme.catActive:"var(--t-card-border)",background:active?theme.catActive:"transparent",color:active?theme.catActiveText:"var(--t-cat-inactive)",fontWeight:active?700:400,fontSize:16,whiteSpace:"nowrap",flexShrink:0}}>{c}</Btn>
             );
           })}
         </div>
         {viewMode==="이미지형"&&(disp.length===0?<Empty/>:
           <VirtualGrid
             items={disp} cols={gridCols}
-            hideAcquired={hideAcquired} hideQuantity={hideQuantity} colorCats={colorCats}
+            hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
             sel={sel} selectMode={selectMode} nameEllipsis={nameEllipsis}
             onOpen={setViewItem} onToggle={togAcq} onSelect={togSel}
             onLong={(pos,it)=>setCtx({...pos,item:it})}
           />
         )}
         {viewMode==="목록형"&&(disp.length===0?<Empty/>:
-          <div style={{display:"flex",flexDirection:"column",gap:7}}>
+          <div style={{display:"grid",gridTemplateColumns:viewMode==="목록형"?(gridCols>=2?"repeat(2,minmax(0,1fr))":"1fr"):`repeat(${gridCols},minmax(0,1fr))`,gap:7}}>
             {disp.map(it=>(
-              <ListRow key={it.id} item={it} hideAcquired={hideAcquired} hideQuantity={hideQuantity} colorCats={colorCats}
+              <ListRow key={it.id} item={it} hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
                 selected={sel.has(it.id)} selectMode={selectMode}
                 onOpen={()=>setViewItem(it)} onToggle={()=>togAcq(it.id)}
                 onSelect={()=>togSel(it.id)} onLong={pos=>setCtx({...pos,item:it})}/>
@@ -1087,20 +1143,21 @@ export default function CatalogApp(){
         )}
       </main>
 
-      {confirm&&<Confirm message={confirm.msg} onOk={confirm.ok} onCancel={()=>setConfirm(null)}/>}
+      {confirm&&<Confirm message={confirm.msg} onOk={confirm.ok} onCancel={()=>setConfirm(null)} choices={confirm.choices}/>}
 
       {bulkMove&&(
         <Overlay onClick={()=>setBulkMove(false)}>
           <Modal onClick={e=>e.stopPropagation()} style={{maxWidth:340}}>
             <h2 style={{margin:"0 0 8px",fontSize:16,fontWeight:700}}>📁 카테고리 이동</h2>
-            <p style={{margin:"0 0 14px",fontSize:13,color:"#666666"}}><b>{sel.size}개</b> 항목 이동:</p>
-            <select value={bulkCat} onChange={e=>setBulkCat(e.target.value)} style={{...IS,marginBottom:18,cursor:"pointer"}}>
+            <p style={{margin:"0 0 14px",fontSize:13,color:"#666666"}}><b>{sel.size}개</b> 항목:</p>
+            <select value={bulkCat} onChange={e=>setBulkCat(e.target.value)} style={{...IS,marginBottom:14,cursor:"pointer"}}>
               {categories.map(c=><option key={c}>{c}</option>)}
             </select>
-            <div style={{display:"flex",gap:10}}>
-              <Btn onClick={()=>setBulkMove(false)} style={{flex:1,padding:10,borderRadius:8,border:"2px solid #cccccc",background:"transparent",color:"#666666",fontSize:14,fontWeight:900}}>취소</Btn>
-              <Btn onClick={doBulkMove} style={{flex:2,padding:10,borderRadius:8,border:"none",background:"#4a7ec9",color:"#fff",fontSize:14,fontWeight:700}}>이동</Btn>
+            <div style={{display:"flex",gap:8,marginBottom:8}}>
+              <Btn onClick={doBulkMove} style={{flex:1,padding:10,borderRadius:8,border:"none",background:"#4a7ec9",color:"#fff",fontSize:13,fontWeight:700}}>📁 이동</Btn>
+              <Btn onClick={doBulkCopy} style={{flex:1,padding:10,borderRadius:8,border:"none",background:"#6a9a4a",color:"#fff",fontSize:13,fontWeight:700}}>📋 복사하여 이동</Btn>
             </div>
+            <Btn onClick={()=>setBulkMove(false)} style={{width:"100%",padding:9,borderRadius:8,border:"2px solid #cccccc",background:"transparent",color:"#666666",fontSize:14,fontWeight:900}}>취소</Btn>
           </Modal>
         </Overlay>
       )}
@@ -1122,9 +1179,9 @@ export default function CatalogApp(){
               {(viewItem.quantity??1)>1&&<p style={{margin:"0 0 5px",fontSize:12,color:"#a09070"}}>수량: {viewItem.quantity}</p>}
               <p style={{margin:"0 0 12px",fontSize:11,color:"#a09070"}}>추가일: {viewItem.date}</p>
               <div style={{display:"flex",gap:8}}>
-                {!hideAcquired&&<Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#222222":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득완료":"○ 습득체크"}</Btn>}
-                <Btn onClick={()=>openEdit(viewItem)} style={{padding:"9px 12px",borderRadius:8,border:"2px solid #8a7060",background:"transparent",color:"#8a7060",fontSize:13}}>수정</Btn>
-                <Btn onClick={()=>delItem(viewItem.id)} style={{padding:"9px 12px",borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontSize:13}}>삭제</Btn>
+                <Btn onClick={()=>openEdit(viewItem)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #8a7060",background:"transparent",color:"#8a7060",fontWeight:700,fontSize:13}}>수정</Btn>
+                {!hideAcquired&&<Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#ffffff":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득완료":"○ 습득체크"}</Btn>}
+                <Btn onClick={()=>delItem(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontWeight:700,fontSize:13}}>삭제</Btn>
               </div>
             </div>
           </Modal>
@@ -1145,9 +1202,72 @@ export default function CatalogApp(){
               <div><div style={{fontWeight:700,fontSize:14}}>수량 숨기기</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>수량 표시를 숨깁니다</div></div>
               <Toggle value={hideQuantity} onChange={setHideQuantity}/>
             </div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #e8dcc8"}}>
+              <div><div style={{fontWeight:700,fontSize:14}}>가격 숨기기</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>가격 표시를 숨깁니다</div></div>
+              <Toggle value={hidePrice} onChange={setHidePrice}/>
+            </div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #e8dcc8",marginBottom:16}}>
               <div><div style={{fontWeight:700,fontSize:14}}>이름 생략 모드</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>켜면 긴 이름을 …으로 생략, 끄면 줄바꿈으로 전체 표시</div></div>
               <Toggle value={nameEllipsis} onChange={setNameEllipsis}/>
+            </div>
+
+            {/* 테마 */}
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                <div style={{fontWeight:700,fontSize:14}}>🎨 테마</div>
+                <button type="button" onClick={()=>setThemeOpen(p=>!p)}
+                  style={{padding:"4px 10px",borderRadius:8,border:"1.5px solid #ccc",background:themeOpen?"#444":"#f0f0f0",color:themeOpen?"#fff":"#444",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                  {themeOpen?"▲ 닫기":"🎨 테마 선택"}
+                </button>
+              </div>
+              {/* 현재 테마 미리보기 */}
+              <div style={{borderRadius:10,overflow:"hidden",border:"1.5px solid #ddd",marginBottom:themeOpen?10:0}}>
+                <div style={{background:theme.header,padding:"7px 12px",display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{color:theme.headerText,fontWeight:700,fontSize:13}}>🍃 모동숲</span>
+                  <span style={{background:theme.headerText,color:theme.header,borderRadius:6,padding:"1px 8px",fontSize:11,fontWeight:700}}>+ 추가</span>
+                  <span style={{color:theme.headerSubText,fontSize:11}}>전체 <b style={{color:theme.headerText}}>264</b> · 습득 <b style={{color:theme.headerText}}>1</b></span>
+                </div>
+                <div style={{background:theme.bg,padding:"6px 10px",display:"flex",gap:6,alignItems:"center"}}>
+                  <span style={{background:theme.catActive,color:theme.catActiveText,borderRadius:99,padding:"2px 10px",fontSize:12,fontWeight:700}}>전체</span>
+                  <span style={{border:`1.5px solid ${theme.cardBorder}`,color:theme.catInactiveText,borderRadius:99,padding:"2px 10px",fontSize:12}}>가구</span>
+                  <div style={{display:"flex",gap:5,marginLeft:4}}>
+                    {[theme.card,theme.card].map((c,i)=>(
+                      <div key={i} style={{width:34,height:34,borderRadius:6,border:`1.5px solid ${theme.cardBorder}`,background:i===0?"#fff":theme.cardEmpty,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>{i===0?"🖼️":"🖼️"}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* 테마 선택 패널 */}
+              {themeOpen&&(
+                <div style={{background:"#f8f8f8",borderRadius:10,padding:"10px",border:"1.5px solid #ddd"}}>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
+                    {Object.entries(THEMES).map(([key,t])=>(
+                      <button key={key} type="button" onClick={()=>setThemeName(key)}
+                        style={{padding:"5px 10px",borderRadius:8,border:`2px solid ${themeName===key?t.accent:"#dddddd"}`,background:themeName===key?t.header:"#ffffff",color:themeName===key?t.headerText:"#444444",fontSize:12,fontWeight:themeName===key?700:400,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+                        {t.name}
+                      </button>
+                    ))}
+                    <button type="button" onClick={()=>setThemeName("커스텀")}
+                      style={{padding:"5px 10px",borderRadius:8,border:`2px solid ${themeName==="커스텀"?"#888":"#dddddd"}`,background:themeName==="커스텀"?"#444":"#fff",color:themeName==="커스텀"?"#fff":"#444",fontSize:12,fontWeight:themeName==="커스텀"?700:400,cursor:"pointer",fontFamily:"inherit"}}>
+                      🖌️ 커스텀
+                    </button>
+                  </div>
+                  {themeName==="커스텀"&&(
+                    <div style={{background:"#ffffff",borderRadius:8,padding:"10px",border:"1.5px solid #ddd",display:"flex",flexDirection:"column",gap:8}}>
+                      {[["header","헤더 배경색"],["bg","앱 배경색"],["accent","강조색 (버튼/탭)"]].map(([key,label])=>(
+                        <div key={key} style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                          <span style={{fontSize:12,color:"#444"}}>{label}</span>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            <div style={{width:24,height:24,borderRadius:5,background:customTheme[key],border:"1.5px solid #ccc"}}/>
+                            <input type="color" value={customTheme[key]} onChange={e=>setCustomTheme(p=>({...p,[key]:e.target.value}))}
+                              style={{width:32,height:28,borderRadius:5,border:"1.5px solid #ccc",cursor:"pointer",padding:1}}/>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             {/* 엑셀 가져오기 */}
             <div style={{marginBottom:16,padding:"12px 14px",background:"#f0f8f0",borderRadius:10,border:"1.5px solid #b0d8b0"}}>
@@ -1245,11 +1365,24 @@ export default function CatalogApp(){
 
             <div style={{fontWeight:700,fontSize:14,marginBottom:8}}>카테고리 관리</div>
             <CatInput onAdd={v=>{if(v&&!categories.includes(v))setCategories(p=>[...p,v]);}} IS={IS}/>
-            <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:18}}>
-              {categories.map(c=>(
-                <div key={c} style={{display:"flex",alignItems:"center",gap:4,background:"#f8f8f8",border:"1.5px solid #dddddd",borderRadius:99,padding:"4px 10px 4px 12px"}}>
-                  <span style={{fontSize:13}}>{c}</span>
-                  <Btn onClick={()=>remCat(c)} style={{background:"none",border:"none",color:"#e05050",fontSize:15,padding:"0 0 0 4px",lineHeight:1}}>×</Btn>
+            <div style={{display:"flex",flexDirection:"column",gap:4,marginBottom:18}}>
+              {categories.map((c,i)=>(
+                <div key={c} style={{display:"flex",alignItems:"center",gap:4,background:"#f8f8f8",border:"1.5px solid #dddddd",borderRadius:8,padding:"5px 8px"}}>
+                  <button type="button" onClick={()=>setCategories(p=>{if(i===0)return p;const a=[...p];[a[i-1],a[i]]=[a[i],a[i-1]];return a;})}
+                    style={{background:"none",border:"none",color:i===0?"#cccccc":"#888888",fontSize:14,cursor:i===0?"default":"pointer",padding:"2px 4px",lineHeight:1}}>▲</button>
+                  {editCatIdx===i?(
+                    <input autoFocus defaultValue={c} onBlur={e=>{const v=e.target.value.trim();if(v&&v!==c&&!categories.includes(v)){setCategories(p=>p.map(x=>x===c?v:x));setItems(p=>p.map(it=>it.category===c?{...it,category:v}:it));}setEditCatIdx(null);}}
+                      onKeyDown={e=>{if(e.key==="Enter")e.target.blur();if(e.key==="Escape")setEditCatIdx(null);}}
+                      style={{flex:1,fontSize:13,textAlign:"center",border:"1.5px solid #4a7ec9",borderRadius:5,padding:"2px 6px",outline:"none"}}/>
+                  ):(
+                    <span style={{flex:1,fontSize:13,textAlign:"center"}}>{c}</span>
+                  )}
+                  <button type="button" onClick={()=>setCategories(p=>{if(i===p.length-1)return p;const a=[...p];[a[i],a[i+1]]=[a[i+1],a[i]];return a;})}
+                    style={{background:"none",border:"none",color:i===categories.length-1?"#cccccc":"#888888",fontSize:14,cursor:i===categories.length-1?"default":"pointer",padding:"2px 4px",lineHeight:1}}>▼</button>
+                  <button type="button" onClick={()=>setEditCatIdx(i===editCatIdx?null:i)}
+                    style={{background:"#f0f4ff",border:"1.5px solid #c0cce8",borderRadius:6,color:"#4a7ec9",fontSize:12,fontWeight:700,padding:"3px 10px",lineHeight:1,cursor:"pointer",marginLeft:8}}>수정</button>
+                  <button type="button" onClick={()=>remCat(c)}
+                    style={{background:"#fff0f0",border:"1.5px solid #f0c0c0",borderRadius:6,color:"#e05050",fontSize:12,fontWeight:700,padding:"3px 10px",lineHeight:1,cursor:"pointer"}}>삭제</button>
                 </div>
               ))}
             </div>
