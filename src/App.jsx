@@ -886,7 +886,7 @@ export default function CatalogApp(){
 
   const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
 
-  const doCapture=useCallback(()=>{\
+  const doCapture=useCallback(()=>{
     const grid=captureRef.current; if(!grid){showToast("캡쳐 영역 없음");return;}
     const run=()=>{
       // 화면에 보이는 카드만 추출
