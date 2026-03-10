@@ -753,36 +753,53 @@ function AddModal({categories,colorCats,editItem,onSave,onClose,cdnConfig}){
 //  카드 높이를 동적으로 측정해 정확한 패딩 계산
 // ══════════════════════════════════════════════════════════════
 function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,sel,selectMode,nameEllipsis,nameFontSize=0,onOpen,onToggle,onSelect,onLong}){
-  // 카드 높이: 화면 너비에서 cols와 gap을 고려해 추정
-  // 정사각형 이미지(100%) + 이름 + 버튼 영역 ≒ 카드너비 * 1.38
   const [cardH,setCardH]=useState(160);
+  const [containerW,setContainerW]=useState(0);
   const measureRef=useRef(null);
+  const wrapRef=useRef(null);
+
   useEffect(()=>{
     if(measureRef.current){
       const h=measureRef.current.getBoundingClientRect().height;
-      if(h>40)setCardH(h+8); // +8은 gap
+      if(h>40)setCardH(h+8);
     }
   });
 
+  // ResizeObserver로 실제 컨테이너 너비를 정확히 측정
+  // window.innerWidth는 핀치줌/viewport 미설정 시 부정확해서 사용 안 함
+  useEffect(()=>{
+    const el=wrapRef.current; if(!el) return;
+    const ro=new ResizeObserver(entries=>{
+      const w=entries[0]?.contentRect?.width||el.offsetWidth;
+      if(w>0) setContainerW(w);
+    });
+    ro.observe(el);
+    setContainerW(el.offsetWidth);
+    return()=>ro.disconnect();
+  },[]);
+
   const GAP=8;
-  const cardW=Math.floor((Math.min(window.innerWidth,480)-16-(GAP*(cols-1)))/cols);
+  const effectiveW=containerW>0?containerW:window.innerWidth;
+  const cardW=Math.floor((effectiveW-(GAP*(cols-1)))/cols);
   const rowH=cardH;
   const {containerRef,visibleItems,totalH,paddingTop,paddingBottom}=useVirtualGrid(items,cols,rowH);
 
   return(
-    <div ref={containerRef} style={{position:"relative",minHeight:totalH}}>
-      <div style={{height:paddingTop}}/>
-      <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW}px)`,gap:GAP,justifyContent:"start"}}>
-        {visibleItems.map(({item,idx})=>(
-          <div key={item.id} ref={idx===0?measureRef:null}>
-            <ImageCard item={item} hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
-              selected={sel.has(item.id)} selectMode={selectMode} gridCols={cols} nameEllipsis={nameEllipsis} nameFontSize={nameFontSize}
-              onOpen={()=>onOpen(item)} onToggle={()=>onToggle(item.id)}
-              onSelect={()=>onSelect(item.id)} onLong={pos=>onLong(pos,item)}/>
-          </div>
-        ))}
+    <div ref={wrapRef} style={{width:"100%"}}>
+      <div ref={containerRef} style={{position:"relative",minHeight:totalH}}>
+        <div style={{height:paddingTop}}/>
+        <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},${cardW>0?cardW+"px":"1fr"})`,gap:GAP,justifyContent:"start"}}>
+          {visibleItems.map(({item,idx})=>(
+            <div key={item.id} ref={idx===0?measureRef:null}>
+              <ImageCard item={item} hideAcquired={hideAcquired} hideQuantity={hideQuantity} hidePrice={hidePrice} colorCats={colorCats}
+                selected={sel.has(item.id)} selectMode={selectMode} gridCols={cols} nameEllipsis={nameEllipsis} nameFontSize={nameFontSize}
+                onOpen={()=>onOpen(item)} onToggle={()=>onToggle(item.id)}
+                onSelect={()=>onSelect(item.id)} onLong={pos=>onLong(pos,item)}/>
+            </div>
+          ))}
+        </div>
+        <div style={{height:paddingBottom}}/>
       </div>
-      <div style={{height:paddingBottom}}/>
     </div>
   );
 }
@@ -851,12 +868,14 @@ export default function CatalogApp(){
     return()=>ro.disconnect();
   },[selectMode,hideAcquired,hideQuantity,viewMode]);
 
-  // viewport 메타태그 강제 설정 — 조건부 return 이전에 위치해야 Hook 규칙 준수
+  // viewport 메타태그 강제 설정 — Hook 규칙상 조건부 return 이전에 위치
   useEffect(()=>{
     let vp=document.querySelector('meta[name="viewport"]');
     if(!vp){vp=document.createElement("meta");vp.name="viewport";document.head.appendChild(vp);}
     vp.content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
   },[]);
+
+  const captureCountRef=useRef({date:"",count:0});
 
   const showToast=msg=>{setToast(msg);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(""),2200);};
 
@@ -874,11 +893,10 @@ export default function CatalogApp(){
       if(!lastFullRowBottom) lastFullRowBottom=cards[0].getBoundingClientRect().bottom;
 
       const gridRect=grid.getBoundingClientRect();
-      // grid 요소 기준 상대 높이 (스크롤 무관)
       const captureH=Math.ceil(lastFullRowBottom-gridRect.top);
       const captureW=grid.offsetWidth;
       const SCALE=window.devicePixelRatio||2;
-      const PAD=24; // 여백 px
+      const PAD=10; // 여백 축소
 
       window.html2canvas(grid,{
         useCORS:true,
@@ -903,11 +921,23 @@ export default function CatalogApp(){
         ctx2.fillStyle=bg;
         ctx2.fillRect(0,0,out.width,out.height);
         ctx2.drawImage(canvas,padPx,padPx,canvas.width,captureH*SCALE);
+
+        // 날짜별 자동 증가 파일명
+        const today=new Date().toISOString().slice(0,10);
+        if(captureCountRef.current.date!==today){
+          captureCountRef.current={date:today,count:1};
+        } else {
+          captureCountRef.current.count+=1;
+        }
+        const fname=`링동숲_${today}-${captureCountRef.current.count}.png`;
+
         const a=document.createElement("a");
         a.href=out.toDataURL("image/png");
-        a.download=`링동숲_${new Date().toISOString().slice(0,10)}.png`;
+        a.download=fname;
+        document.body.appendChild(a);
         a.click();
-        showToast("✓ 캡쳐 저장됨");
+        document.body.removeChild(a);
+        showToast(`✓ 저장됨 (${fname})`);
       }).catch(e=>{console.error(e);showToast("캡쳐 실패");});
     };
     if(!window.html2canvas){
@@ -1189,7 +1219,7 @@ export default function CatalogApp(){
             );
           })}
         </div>
-        <div ref={captureRef} style={{background:theme.bg,padding:"8px 12px"}}>
+        <div ref={captureRef} style={{background:theme.bg,padding:"8px 0"}}>
         {viewMode==="이미지형"&&(disp.length===0?<Empty/>:
           <VirtualGrid
             items={disp} cols={gridCols}
