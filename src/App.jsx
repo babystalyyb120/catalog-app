@@ -462,7 +462,7 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
   const pos=item.imagePosition||"50% 50%";
   return(
     <div ref={ref} data-card="1" style={{position:"relative",background:"var(--t-card-bg,#fff)",border:`2px solid ${selected?"#4a7ec9":(item.acquired&&!hideAcquired?"var(--t-acquired-border,#444)":"var(--t-card-border)")}`,borderRadius:10,overflow:"hidden",cursor:"pointer",boxShadow:selected?"0 0 0 3px rgba(74,126,201,.3)":"0 2px 8px rgba(0,0,0,.07)",userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none",touchAction:"pan-y"}}>
-      {/* 이미지 영역: paddingTop:100% 유지 (html2canvas aspectRatio 미지원) */}
+      {/* 이미지 영역: paddingTop:100% 유지 */}
       <div style={{position:"relative",paddingTop:"100%",overflow:"hidden",background:"var(--t-card-bg,#fff)"}}>
         {item.image
           ?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
@@ -472,13 +472,14 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
             {selected&&<span style={{color:"#fff",fontSize:16,lineHeight:1}}>✓</span>}
           </div>
         )}
+        {/* 금액 뱃지: 이미지 div 안 우측 하단 — inset 사용으로 bottom 정확히 고정 */}
+        {!hidePrice&&(item.price||0)>0&&(
+          <div style={{position:"absolute",bottom:5,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>₩{(item.price||0).toLocaleString()}</div>
+        )}
       </div>
-      {/* 뱃지: 카드 전체(position:relative) 기준 absolute — html2canvas 정확히 렌더링 */}
+      {/* 수량 뱃지: 카드 전체 기준 우측 상단 */}
       {!hideQuantity&&(item.quantity??1)>0&&(
         <div style={{position:"absolute",top:5,right:5,background:"var(--t-qty-bg)",color:"var(--t-qty-text)",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>×{item.quantity??1}</div>
-      )}
-      {!hidePrice&&(item.price||0)>0&&(
-        <div style={{position:"absolute",top:24,right:5,background:"var(--t-price-bg)",color:"var(--t-price-text)",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:99,zIndex:5,pointerEvents:"none"}}>₩{(item.price||0).toLocaleString()}</div>
       )}
       <div style={{padding:"4px 5px",textAlign:"center"}}>
         <div style={{fontWeight:700,fontSize:nameFontSize||( gridCols<=2?13:gridCols<=3?12:gridCols<=4?11:10),color:"var(--t-item-name,#222222)",textAlign:"center",
@@ -888,97 +889,182 @@ export default function CatalogApp(){
 
   const doCapture=useCallback(()=>{
     const grid=captureRef.current; if(!grid){showToast("캡쳐 영역 없음");return;}
-    const run=()=>{
-      // 화면에 보이는 카드만 추출
-      const cards=[...grid.querySelectorAll("[data-card]")];
-      if(!cards.length){showToast("캡쳐할 항목이 없습니다");return;}
 
-      const viewTop=0;
-      const viewBottom=window.innerHeight;
+    const cards=[...grid.querySelectorAll("[data-card]")];
+    if(!cards.length){showToast("캡쳐할 항목이 없습니다");return;}
 
-      // 화면에 걸친 카드 중 완전히 보이는 마지막 행 bottom
-      let lastVisibleBottom=0;
-      for(const card of cards){
+    const viewTop=0;
+    const viewBottom=window.innerHeight;
+
+    // 화면에 완전히 보이는 카드만 필터
+    const visibleCards=cards.filter(c=>{
+      const r=c.getBoundingClientRect();
+      return r.top>=viewTop-4 && r.bottom<=viewBottom+4;
+    });
+    const targetCards=visibleCards.length?visibleCards:[cards[0]];
+
+    const SCALE=window.devicePixelRatio||2;
+    const PAD=10;
+
+    // 카드들의 전체 범위 계산 (viewport 기준)
+    let minTop=Infinity,maxBottom=-Infinity,minLeft=Infinity,maxRight=-Infinity;
+    for(const c of targetCards){
+      const r=c.getBoundingClientRect();
+      minTop=Math.min(minTop,r.top);
+      maxBottom=Math.max(maxBottom,r.bottom);
+      minLeft=Math.min(minLeft,r.left);
+      maxRight=Math.max(maxRight,r.right);
+    }
+
+    const captureW=Math.ceil(maxRight-minLeft);
+    const captureH=Math.ceil(maxBottom-minTop);
+    const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
+
+    const out=document.createElement("canvas");
+    out.width=(captureW+PAD*2)*SCALE;
+    out.height=(captureH+PAD*2)*SCALE;
+    const ctx=out.getContext("2d");
+    ctx.scale(SCALE,SCALE);
+    ctx.fillStyle=bg;
+    ctx.fillRect(0,0,out.width,out.height);
+
+    // 각 카드를 Canvas에 직접 그리기
+    const drawPromises=targetCards.map(card=>{
+      return new Promise(resolve=>{
         const r=card.getBoundingClientRect();
-        if(r.top>=viewTop-4 && r.bottom<=viewBottom+4){
-          lastVisibleBottom=Math.max(lastVisibleBottom,r.bottom);
-        }
-      }
-      // 완전히 보이는 카드가 없으면 첫 카드까지만
-      if(!lastVisibleBottom){
-        const r=cards[0].getBoundingClientRect();
-        lastVisibleBottom=r.bottom;
-      }
+        const cx=r.left-minLeft+PAD; // canvas 내 x
+        const cy=r.top-minTop+PAD;   // canvas 내 y
+        const cw=r.width;
+        const ch=r.height;
 
-      // 화면에 보이는 첫 카드의 top
-      let firstVisibleTop=viewBottom;
-      for(const card of cards){
-        const r=card.getBoundingClientRect();
-        if(r.top>=viewTop-4 && r.bottom<=viewBottom+4){
-          firstVisibleTop=Math.min(firstVisibleTop,r.top);
-        }
-      }
+        // 카드 배경 + 테두리
+        const cardBg=getComputedStyle(card).backgroundColor||"#fff";
+        const radius=10;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cx+radius,cy);
+        ctx.lineTo(cx+cw-radius,cy);
+        ctx.quadraticCurveTo(cx+cw,cy,cx+cw,cy+radius);
+        ctx.lineTo(cx+cw,cy+ch-radius);
+        ctx.quadraticCurveTo(cx+cw,cy+ch,cx+cw-radius,cy+ch);
+        ctx.lineTo(cx+radius,cy+ch);
+        ctx.quadraticCurveTo(cx,cy+ch,cx,cy+ch-radius);
+        ctx.lineTo(cx,cy+radius);
+        ctx.quadraticCurveTo(cx,cy,cx+radius,cy);
+        ctx.closePath();
+        ctx.fillStyle=cardBg;
+        ctx.fill();
+        ctx.strokeStyle="#e0d8c8";
+        ctx.lineWidth=1.5;
+        ctx.stroke();
+        ctx.clip();
 
-      const SCALE=window.devicePixelRatio||2;
-      const PAD=10;
-
-      // grid의 클립 영역: 화면에 보이는 카드 범위만
-      const captureTop=firstVisibleTop; // viewport 기준
-      const captureH=Math.ceil(lastVisibleBottom-firstVisibleTop);
-      const captureW=grid.offsetWidth;
-
-      // grid를 기준으로 y오프셋 계산
-      const gridRect=grid.getBoundingClientRect();
-      const yOffset=captureTop-gridRect.top; // grid 내 상대 위치
-
-      window.html2canvas(grid,{
-        useCORS:true,
-        allowTaint:true,
-        foreignObjectRendering:false,
-        scale:SCALE,
-        width:captureW,
-        height:captureH,
-        x:0,
-        y:yOffset,
-        scrollX:0,
-        scrollY:0,
-        windowWidth:captureW,
-        windowHeight:captureH,
-        logging:false,
-      }).then(canvas=>{
-        const bg=getComputedStyle(grid).backgroundColor||"#f8f5f0";
-        const padPx=PAD*SCALE;
-        const out=document.createElement("canvas");
-        out.width=canvas.width+padPx*2;
-        out.height=canvas.height+padPx*2;
-        const ctx2=out.getContext("2d");
-        ctx2.fillStyle=bg;
-        ctx2.fillRect(0,0,out.width,out.height);
-        ctx2.drawImage(canvas,padPx,padPx);
-
-        const today=new Date().toISOString().slice(0,10);
-        if(captureCountRef.current.date!==today){
-          captureCountRef.current={date:today,count:1};
+        // 이미지 영역 (정사각형: 카드너비 = 이미지높이)
+        const imgH=cw; // 1:1 비율
+        const imgEl=card.querySelector("img");
+        if(imgEl&&imgEl.complete&&imgEl.naturalWidth>0){
+          ctx.drawImage(imgEl,cx,cy,cw,imgH);
         } else {
-          captureCountRef.current.count+=1;
+          // 이미지 없음: 배경색 채우기
+          ctx.fillStyle="#f5f5f5";
+          ctx.fillRect(cx,cy,cw,imgH);
+          ctx.fillStyle="#c0b8a8";
+          ctx.font=`${cw*0.25}px serif`;
+          ctx.textAlign="center";
+          ctx.textBaseline="middle";
+          ctx.fillText("🖼️",cx+cw/2,cy+imgH/2);
         }
-        const fname=`링동숲_${today}-${captureCountRef.current.count}.png`;
 
-        const a=document.createElement("a");
-        a.href=out.toDataURL("image/png");
-        a.download=fname;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showToast(`✓ 저장됨 (${fname})`);
-      }).catch(e=>{console.error(e);showToast("캡쳐 실패");});
-    };
-    if(!window.html2canvas){
-      const s=document.createElement("script");
-      s.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-      s.onload=run;s.onerror=()=>showToast("라이브러리 로드 실패");
-      document.head.appendChild(s);
-    } else run();
+        ctx.restore();
+
+        // 텍스트 영역 (이미지 아래)
+        const textY=cy+imgH;
+        const textH=ch-imgH;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(cx,textY,cw,textH);
+        ctx.clip();
+
+        // 아이템 이름
+        const nameEl=card.querySelector("[data-card] > div:nth-child(2) div, div[style*='padding: 4px'] div, div[style*='padding:4px'] div");
+        const fontSize=Math.max(9, cw<=60?9:cw<=80?10:11);
+        ctx.font=`700 ${fontSize}px 'Noto Sans KR',sans-serif`;
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+        ctx.fillStyle="#222222";
+
+        // 이름 텍스트 직접 구성
+        const nameText=card.querySelector("div[style*='fontWeight']")?.textContent||"";
+        if(nameText){
+          ctx.fillText(nameText,cx+cw/2,textY+textH*0.45,cw-6);
+        }
+        ctx.restore();
+
+        // ── 뱃지 그리기 ──
+        const badgeR=99; // border-radius
+        const badgePadX=6,badgePadY=2;
+
+        // 수량 뱃지 (우상단) — CSS변수 대신 직접 색상
+        const qtyEl=card.querySelector("[data-card] > div[style*='top:5'][style*='right:5'], [data-card] > div:not([style*='padding'])");
+        // data-badge-qty 속성으로 찾기 대신 텍스트로 찾기
+        const allAbsDivs=[...card.querySelectorAll("div")].filter(d=>d.style.position==="absolute");
+        for(const d of allAbsDivs){
+          const s=d.style;
+          const text=d.textContent.trim();
+          if(!text)continue;
+          const dr=d.getBoundingClientRect();
+          const bx=dr.left-minLeft+PAD;
+          const by=dr.top-minTop+PAD;
+          const bw=dr.width;
+          const bh=dr.height;
+          if(bw<4||bh<4)continue;
+
+          const bgColor=getComputedStyle(d).backgroundColor;
+          const fgColor=getComputedStyle(d).color;
+          const fSize=parseFloat(getComputedStyle(d).fontSize)||10;
+
+          // 둥근 배경
+          ctx.save();
+          ctx.beginPath();
+          const br=bh/2;
+          ctx.moveTo(bx+br,by);
+          ctx.lineTo(bx+bw-br,by);
+          ctx.quadraticCurveTo(bx+bw,by,bx+bw,by+br);
+          ctx.quadraticCurveTo(bx+bw,by+bh,bx+bw-br,by+bh);
+          ctx.lineTo(bx+br,by+bh);
+          ctx.quadraticCurveTo(bx,by+bh,bx,by+br);
+          ctx.quadraticCurveTo(bx,by,bx+br,by);
+          ctx.closePath();
+          ctx.fillStyle=bgColor;
+          ctx.fill();
+          ctx.font=`700 ${fSize}px 'Noto Sans KR',sans-serif`;
+          ctx.textAlign="center";
+          ctx.textBaseline="middle";
+          ctx.fillStyle=fgColor;
+          ctx.fillText(text,bx+bw/2,by+bh/2);
+          ctx.restore();
+        }
+
+        resolve();
+      });
+    });
+
+    Promise.all(drawPromises).then(()=>{
+      const today=new Date().toISOString().slice(0,10);
+      if(captureCountRef.current.date!==today){
+        captureCountRef.current={date:today,count:1};
+      } else {
+        captureCountRef.current.count+=1;
+      }
+      const fname=`링동숲_${today}-${captureCountRef.current.count}.png`;
+      const a=document.createElement("a");
+      a.href=out.toDataURL("image/png");
+      a.download=fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast(`✓ 저장됨 (${fname})`);
+    });
   // eslint-disable-next-line
   },[]);
   const doSave=async(silent=false)=>{
