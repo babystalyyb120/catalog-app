@@ -821,6 +821,11 @@ export default function CatalogApp(){
   const [categories,setCategories]=useState(DEF_CATS);
   const [colorCats,setColorCats]=useState(DEF_CC);
   const [hideAcquired,setHideAcquired]=useState(false);
+  const [watermark,setWatermark]=useState(false);
+  const [wmOpacity,setWmOpacity]=useState(7);
+  const [wmSize,setWmSize]=useState(0);
+  const [wmGap,setWmGap]=useState(4);
+  const [wmMode,setWmMode]=useState("grid"); // "grid" | "random"
   const [themeOpen,setThemeOpen]=useState(false);
   const [hideQuantity,setHideQuantity]=useState(false);
   const [hidePrice,setHidePrice]=useState(false);
@@ -867,7 +872,7 @@ export default function CatalogApp(){
 
   const nextId=useRef(100),toastT=useRef(null),stRef=useRef(null),hashRef=useRef(""),readyRef=useRef(false),saveT=useRef(null),saving=useRef(false),lastSY=useRef(0),hdrRef=useRef(null),newCatRef=useRef(null),newCNRef=useRef(null),captureRef=useRef(null);
 
-  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,nameEllipsis,nameFontSize,themeName,customTheme}};},[items,categories,colorCats,hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,themeName,customTheme,nameFontSize]);
+  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,nameEllipsis,nameFontSize,themeName,customTheme,watermark,wmOpacity,wmSize,wmGap,wmMode}};},[items,categories,colorCats,hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,themeName,customTheme,nameFontSize,watermark,wmOpacity,wmSize,wmGap,wmMode]);
   useEffect(()=>{
     const fn=()=>{const c=window.scrollY;setHeaderVis(c<10||c<lastSY.current);lastSY.current=c;};
     window.addEventListener("scroll",fn,{passive:true});return()=>window.removeEventListener("scroll",fn);
@@ -991,6 +996,59 @@ export default function CatalogApp(){
         }
         ctx.restore();
 
+        // 워터마크
+        if(watermark){
+          const wCtx=out.getContext("2d");
+          const text="갱1도";
+          const autoSize=Math.max(8,Math.round(out.width/SCALE/28));
+          const baseFontSize=(wmSize||autoSize);
+          const fontSize=baseFontSize*SCALE;
+          const opacity=(wmOpacity||7)/100;
+          const gap=wmGap||4;
+          wCtx.save();
+          wCtx.font=`700 ${fontSize}px sans-serif`;
+          wCtx.fillStyle=`rgba(0,0,0,${opacity})`;
+          wCtx.textBaseline="middle";
+
+          if(wmMode==="random"){
+            // 자유분방 모드: 시드 기반 랜덤 배치
+            const tw=wCtx.measureText(text).width;
+            const cellW=tw*gap*3;
+            const cellH=baseFontSize*SCALE*gap*3;
+            let seed=42;
+            const rand=()=>{seed=(seed*1664525+1013904223)&0xffffffff;return(seed>>>0)/0xffffffff;};
+            for(let cy=0;cy<out.height;cy+=cellH){
+              for(let cx=0;cx<out.width;cx+=cellW){
+                const x=cx+rand()*cellW*0.7;
+                const y=cy+rand()*cellH*0.7;
+                const angle=(rand()-0.5)*Math.PI*0.6;
+                const scale=0.7+rand()*0.7;
+                wCtx.save();
+                wCtx.translate(x,y);
+                wCtx.rotate(angle);
+                wCtx.scale(scale,scale);
+                wCtx.fillText(text,0,0);
+                wCtx.restore();
+              }
+            }
+          } else {
+            // 격자 모드
+            const tw=wCtx.measureText(text).width;
+            const spacingX=tw*gap;
+            const spacingY=baseFontSize*SCALE*gap*2;
+            for(let y=spacingY/2;y<out.height;y+=spacingY){
+              for(let x=spacingX/2;x<out.width;x+=spacingX){
+                wCtx.save();
+                wCtx.translate(x,y);
+                wCtx.rotate(-Math.PI/8);
+                wCtx.fillText(text,0,0);
+                wCtx.restore();
+              }
+            }
+          }
+          wCtx.restore();
+        }
+
         const today=new Date().toISOString().slice(0,10);
         if(captureCountRef.current.date!==today){captureCountRef.current={date:today,count:1};}
         else{captureCountRef.current.count+=1;}
@@ -1015,7 +1073,7 @@ export default function CatalogApp(){
       document.head.appendChild(s);
     } else run();
   // eslint-disable-next-line
-  },[]);
+  },[watermark,wmOpacity,wmSize,wmGap]);
   const doSave=async(silent=false)=>{
     if(!readyRef.current||saving.current)return;
     const st=stRef.current;if(!st)return;
@@ -1035,7 +1093,7 @@ export default function CatalogApp(){
       if(shared){d=shared;lbl="☁️ 공유 동기화";lsSet(d);}
       const{items:i,categories:c,colorCats:cc,settings:s}=d;
       setItems(i??DEF_ITEMS);setCategories(c??DEF_CATS);setColorCats(cc??DEF_CC);
-      setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);if(s?.nameFontSize!==undefined)setNameFontSize(s.nameFontSize);
+      setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);if(s?.nameFontSize!==undefined)setNameFontSize(s.nameFontSize);if(s?.watermark!==undefined)setWatermark(s.watermark);if(s?.wmOpacity!==undefined)setWmOpacity(s.wmOpacity);if(s?.wmSize!==undefined)setWmSize(s.wmSize);if(s?.wmGap!==undefined)setWmGap(s.wmGap);if(s?.wmMode!==undefined)setWmMode(s.wmMode);
       if(s?.themeName)setThemeName(s.themeName);if(s?.customTheme)setCustomTheme(s.customTheme);
       nextId.current=Math.max(100,...(i??DEF_ITEMS).map(x=>x.id))+1;
       hashRef.current=JSON.stringify(d);setSyncLbl(lbl);readyRef.current=true;setLoading(false);
@@ -1053,7 +1111,7 @@ export default function CatalogApp(){
         hashRef.current=h;lsSet(sh);
         const{items:i,categories:c,colorCats:cc,settings:s}=sh;
         setItems(i??DEF_ITEMS);setCategories(c??DEF_CATS);setColorCats(cc??DEF_CC);
-        setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);if(s?.nameFontSize!==undefined)setNameFontSize(s.nameFontSize);
+        setHideAcquired(s?.hideAcquired??s?.photoMode??false);setHideQuantity(s?.hideQuantity??s?.photoMode??false);setHidePrice(s?.hidePrice??false);setViewMode(s?.viewMode??"이미지형");setGridCols(s?.gridCols??3);setSortBy(s?.sortBy??"date-desc");setNameEllipsis(s?.nameEllipsis??true);if(s?.nameFontSize!==undefined)setNameFontSize(s.nameFontSize);if(s?.watermark!==undefined)setWatermark(s.watermark);if(s?.wmOpacity!==undefined)setWmOpacity(s.wmOpacity);if(s?.wmSize!==undefined)setWmSize(s.wmSize);if(s?.wmGap!==undefined)setWmGap(s.wmGap);if(s?.wmMode!==undefined)setWmMode(s.wmMode);
         if(s?.themeName)setThemeName(s.themeName);if(s?.customTheme)setCustomTheme(s.customTheme);
         nextId.current=Math.max(nextId.current,...(i??[]).map(x=>x.id))+1;
         showToast("🔄 동기화됨");
@@ -1573,6 +1631,78 @@ export default function CatalogApp(){
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #e8dcc8",marginBottom:16}}>
               <div><div style={{fontWeight:700,fontSize:14}}>📸 캡쳐 버튼 숨기기</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>우측 하단 캡쳐 버튼을 숨깁니다</div></div>
               <Toggle value={hideCapture} onChange={setHideCapture}/>
+            </div>
+            <div style={{padding:"10px 0",borderBottom:"1px solid #e8dcc8",marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:watermark?12:0}}>
+                <div><div style={{fontWeight:700,fontSize:14}}>🔏 캡쳐 워터마크</div><div style={{fontSize:12,color:"#888888",marginTop:2}}>캡쳐 이미지에 반투명 워터마크를 넣습니다</div></div>
+                <Toggle value={watermark} onChange={setWatermark}/>
+              </div>
+              {watermark&&(
+                <div style={{background:"#f8f5f0",borderRadius:10,padding:12}}>
+                  {/* 모드 선택 */}
+                  <div style={{display:"flex",gap:6,marginBottom:12}}>
+                    {[["grid","📐 격자형"],["random","🎲 자유형"]].map(([m,label])=>(
+                      <Btn key={m} onClick={()=>setWmMode(m)} style={{flex:1,padding:"7px 0",borderRadius:8,border:`2px solid ${wmMode===m?theme.accent:"#ccc"}`,background:wmMode===m?theme.accent:"transparent",color:wmMode===m?"#fff":"#666",fontSize:12,fontWeight:700}}>{label}</Btn>
+                    ))}
+                  </div>
+                  {/* 미리보기 */}
+                  <div style={{position:"relative",height:80,borderRadius:8,overflow:"hidden",background:"#fff",border:"1px solid #e0e0e0",marginBottom:12}}>
+                    {(()=>{
+                      const fs=wmSize||14;
+                      const gap=wmGap||4;
+                      const op=(wmOpacity||7)/100;
+                      if(wmMode==="random"){
+                        // 자유형 미리보기 - gap 반영한 동적 배치
+                        const cellW=Math.max(60, fs*gap*4);
+                        const cellH=Math.max(45, fs*gap*3);
+                        const previews=[];
+                        // 시드 기반 고정 랜덤 (같은 설정이면 동일하게 보이도록)
+                        const rands=[0.15,0.6,0.3,0.8,0.1,0.55,0.4,0.9,0.2,0.65,0.35,0.75];
+                        let ri=0;
+                        const r=()=>rands[ri++%rands.length];
+                        for(let cy=0;cy<120;cy+=cellH){
+                          for(let cx=0;cx<460;cx+=cellW){
+                            const x=cx+r()*cellW*0.4;
+                            const y=cy+r()*cellH*0.7;
+                            const angle=(r()-0.5)*40;
+                            const scale=0.75+r()*0.5;
+                            previews.push({x,y,angle,scale});
+                          }
+                        }
+                        return previews.map((p,i)=>(
+                          <span key={i} style={{position:"absolute",left:p.x,top:p.y,fontSize:fs*p.scale,fontWeight:700,color:`rgba(0,0,0,${op})`,transform:`rotate(${p.angle}deg)`,transformOrigin:"center",whiteSpace:"nowrap",pointerEvents:"none"}}>갱1도</span>
+                        ));
+                      } else {
+                        // 격자형 미리보기
+                        const items2=[];
+                        for(let y=fs*gap/2;y<200;y+=fs*gap){
+                          for(let x=fs*gap;x<400;x+=fs*gap*3){
+                            items2.push({x,y});
+                          }
+                        }
+                        return items2.map((p,i)=>(
+                          <span key={i} style={{position:"absolute",left:p.x,top:p.y,fontSize:fs,fontWeight:700,color:`rgba(0,0,0,${op})`,transform:"rotate(-22.5deg)",transformOrigin:"center",whiteSpace:"nowrap",pointerEvents:"none"}}>갱1도</span>
+                        ));
+                      }
+                    })()}
+                  </div>
+                  {/* 투명도 */}
+                  <div style={{marginBottom:10}}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:12,fontWeight:700,marginBottom:4}}><span>투명도</span><span>{wmOpacity}%</span></div>
+                    <input type="range" min="1" max="30" value={wmOpacity} onChange={e=>setWmOpacity(Number(e.target.value))} style={{width:"100%",accentColor:theme.accent}}/>
+                  </div>
+                  {/* 폰트 크기 */}
+                  <div style={{marginBottom:10}}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:12,fontWeight:700,marginBottom:4}}><span>글자 크기</span><span>{wmSize?`${wmSize}px`:"자동"}</span></div>
+                    <input type="range" min="0" max="40" value={wmSize} onChange={e=>setWmSize(Number(e.target.value))} style={{width:"100%",accentColor:theme.accent}}/>
+                  </div>
+                  {/* 간격 */}
+                  <div>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:12,fontWeight:700,marginBottom:4}}><span>간격</span><span>{wmGap}</span></div>
+                    <input type="range" min="2" max="12" value={wmGap} onChange={e=>setWmGap(Number(e.target.value))} style={{width:"100%",accentColor:theme.accent}}/>
+                  </div>
+                </div>
+              )}
             </div>
             <div style={{padding:"10px 0",marginBottom:8}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
