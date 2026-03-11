@@ -1096,8 +1096,9 @@ export default function CatalogApp(){
       setItems(p=>{
         const orig=p.find(it=>it.id===editItem.id);
         const prevCat=orig?.originalCategory||(orig?.category!=="0"?orig?.category:undefined);
-        // form에 category:"0"이 있어도 수량이 1이상이면 복귀 가능하도록 originalCategory 유지
-        const mergedForm={...form,originalCategory:orig?.originalCategory||prevCat};
+        // form.category가 "0"이면 prevCat으로 교체 (수량이 1이상이면 복귀되도록)
+        const resolvedCat=form.category==="0"?(prevCat||form.category):form.category;
+        const mergedForm={...form,category:resolvedCat,originalCategory:orig?.originalCategory||prevCat};
         const updated=p.map(it=>it.id===editItem.id?{...it,...mergedForm}:it);
         const others=updated.filter(it=>it.id!==editItem.id);
         return updated.map(it=>it.id===editItem.id?applyZeroQty(applyDupCheck(it,others),prevCat):it);
@@ -1309,7 +1310,7 @@ export default function CatalogApp(){
           </select>
         </div>
         {/* 특수 검색 버튼 */}
-        <div style={{display:"flex",gap:4,marginBottom:6,overflowX:"auto",scrollbarWidth:"none",msOverflowStyle:"none"}}>
+        <div style={{display:"flex",gap:4,marginBottom:6,flexWrap:"wrap"}}>
           {["숫자","영어","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"].map(k=>{
             const tag=k.length===1&&!"숫자영어".includes(k)?`[자음${k}만]`:`[${k}만]`;
             const active=search.includes(tag);
@@ -1317,7 +1318,7 @@ export default function CatalogApp(){
               <button key={k} onClick={()=>{
                 setSearch(p=>p.includes(tag)?p.replace(tag,"").trim():((p?p+" ":"")+tag).trim());
               }}
-                style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?theme.headerText:theme.btnBorder}`,background:active?theme.headerText:theme.btnBg,color:active?(theme.activeText||theme.header):theme.btnText,fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0}}>
+                style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?theme.headerText:theme.btnBorder}`,background:active?theme.headerText:theme.btnBg,color:active?(theme.activeText||theme.header):theme.btnText,fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
                 {{"숫자":"숫자","영어":"영어","ㄱ":"ㄱ·ㄲ","ㄴ":"ㄴ","ㄷ":"ㄷ·ㄸ","ㄹ":"ㄹ","ㅁ":"ㅁ","ㅂ":"ㅂ·ㅃ","ㅅ":"ㅅ·ㅆ","ㅇ":"ㅇ","ㅈ":"ㅈ·ㅉ","ㅊ":"ㅊ","ㅋ":"ㅋ","ㅌ":"ㅌ","ㅍ":"ㅍ","ㅎ":"ㅎ"}[k]}
               </button>
             );
@@ -1381,7 +1382,7 @@ export default function CatalogApp(){
       )}
 
       <main style={{maxWidth:1100,margin:"0 auto",padding:`${FULL+12}px 12px 28px`}}>
-        <div style={{display:"flex",gap:6,marginBottom:10,overflowX:"auto",paddingBottom:3,scrollbarWidth:"none"}}>
+        <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
           {["전체",...categories].map(c=>{
             const isAll=c==="전체";
             const active=isAll?(activeCats.length===0):activeCats.includes(c);
@@ -1389,7 +1390,7 @@ export default function CatalogApp(){
               <Btn key={c} onClick={()=>{
                 if(isAll){setActiveCats([]);setSearch("");return;}
                 setActiveCats(p=>p.includes(c)?p.filter(x=>x!==c):[...p,c]);
-              }} style={{padding:"4px 12px",borderRadius:99,border:"2px solid",borderColor:active?theme.catActive:"var(--t-card-border)",background:active?theme.catActive:"transparent",color:active?theme.catActiveText:"var(--t-cat-inactive)",fontWeight:active?700:400,fontSize:16,whiteSpace:"nowrap",flexShrink:0}}>{c}</Btn>
+              }} style={{padding:"4px 12px",borderRadius:99,border:"2px solid",borderColor:active?theme.catActive:"var(--t-card-border)",background:active?theme.catActive:"transparent",color:active?theme.catActiveText:"var(--t-cat-inactive)",fontWeight:active?700:400,fontSize:16,whiteSpace:"nowrap"}}>{c}</Btn>
             );
           })}
         </div>
