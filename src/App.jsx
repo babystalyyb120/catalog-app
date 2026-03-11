@@ -840,6 +840,8 @@ export default function CatalogApp(){
   const [selectMode,setSelectMode]=useState(false);
   const [sel,setSel]=useState(new Set());
   const [bulkMove,setBulkMove]=useState(false);
+  const [bulkQtyModal,setBulkQtyModal]=useState(false);
+  const [bulkQtyInput,setBulkQtyInput]=useState(1);
   const [bulkCat,setBulkCat]=useState("");
   const [bulkSplitQty,setBulkSplitQty]=useState(1);
   const [bulkSplitMax,setBulkSplitMax]=useState(50);
@@ -1077,17 +1079,28 @@ export default function CatalogApp(){
   },[]);
 
   // 수량 0이면 "[0]" 카테고리로 자동 이동 (단, 이미 "[0]"이면 유지)
-  const applyZeroQty=useCallback((item)=>{
-    if((item.quantity??1)===0 && item.category!=="0") return {...item,category:"0"};
+  const applyZeroQty=useCallback((item,fallbackCat)=>{
+    const qty=item.quantity??1;
+    if(qty<=0 && item.category!=="0"){
+      return {...item,quantity:0,category:"0",originalCategory:item.originalCategory||item.category};
+    }
+    if(qty>0 && item.category==="0"){
+      const restoreTo=item.originalCategory||fallbackCat;
+      if(restoreTo) return {...item,category:restoreTo,originalCategory:undefined};
+    }
     return item;
   },[]);
 
   const handleSave=useCallback(form=>{
     if(editItem){
       setItems(p=>{
-        const updated=p.map(it=>it.id===editItem.id?{...it,...form}:it);
+        const orig=p.find(it=>it.id===editItem.id);
+        const prevCat=orig?.originalCategory||(orig?.category!=="0"?orig?.category:undefined);
+        // form에 category:"0"이 있어도 수량이 1이상이면 복귀 가능하도록 originalCategory 유지
+        const mergedForm={...form,originalCategory:orig?.originalCategory||prevCat};
+        const updated=p.map(it=>it.id===editItem.id?{...it,...mergedForm}:it);
         const others=updated.filter(it=>it.id!==editItem.id);
-        return updated.map(it=>it.id===editItem.id?applyZeroQty(applyDupCheck(it,others)):it);
+        return updated.map(it=>it.id===editItem.id?applyZeroQty(applyDupCheck(it,others),prevCat):it);
       });
     } else {
       setItems(p=>{
@@ -1145,6 +1158,23 @@ export default function CatalogApp(){
     showToast("🔄 수량이 복원됐어요");
   },[sel,clearSel]);
   const doBulkDel=useCallback(()=>{if(!sel.size)return;const ids=new Set(sel);setConfirm({msg:`${ids.size}개 항목을 삭제할까요?`,ok:()=>{setItems(p=>p.filter(it=>!ids.has(it.id)));clearSel();setConfirm(null);}});},[sel,clearSel]);
+  const doBulkQtySet=useCallback(()=>{
+    const ids=new Set(sel);
+    const v=Math.max(0,parseInt(bulkQtyInput)||0);
+    setItems(p=>p.map(it=>ids.has(it.id)?applyZeroQty({...it,quantity:v}):it));
+    setBulkQtyModal(false); clearSel();
+    showToast(`🔢 ${ids.size}개 수량 → ${v}개로 변경됨`);
+  },[sel,bulkQtyInput,clearSel,applyZeroQty]);
+  const doBulkQtyDelta=useCallback((delta)=>{
+    const ids=new Set(sel);
+    setItems(p=>p.map(it=>{
+      if(!ids.has(it.id)) return it;
+      const nq=Math.max(0,(it.quantity??1)+delta);
+      return applyZeroQty({...it,quantity:nq});
+    }));
+    setBulkQtyModal(false); clearSel();
+    showToast(`🔢 ${ids.size}개 수량 ${delta>0?"+1":"-1"} 변경됨`);
+  },[sel,clearSel,applyZeroQty]);
   const doBulkMove=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>p.map(it=>ids.has(it.id)?{...it,category:bulkCat}:it));setBulkMove(false);clearSel();},[bulkCat,sel,clearSel]);
   const doBulkCopy=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>[...p,...p.filter(it=>ids.has(it.id)).map(it=>({...it,id:nextId.current++,name:`${it.name} [복사]`,category:bulkCat,date:new Date().toISOString().split("T")[0]}))]);setBulkMove(false);clearSel();showToast(`📋 ${ids.size}개 복사됨`);},[bulkCat,sel,clearSel]);
   const doBulkSplit=useCallback(()=>{
@@ -1310,6 +1340,9 @@ export default function CatalogApp(){
           <Btn onClick={()=>{setSelectMode(s=>!s);setSel(new Set());}} style={{...HB,background:selectMode?theme.accent:theme.btnBg,color:selectMode?theme.accentText:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"5px 10px",fontSize:14,flexShrink:0,height:"34px",boxSizing:"border-box",display:"flex",alignItems:"center"}}>
             {selectMode?"☑️ 선택중":"☑️ 선택"}
           </Btn>
+          {selectMode&&(
+            <Btn onClick={()=>{setBulkQtyInput(1);setBulkQtyModal(true);}} style={{...HB,background:theme.btnBg,color:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"5px 10px",fontSize:13,flexShrink:0,height:"34px",boxSizing:"border-box",display:"flex",alignItems:"center"}}>🔢수량</Btn>
+          )}
           <Btn onClick={()=>setSettings(true)} style={{...HB,background:theme.btnBg,color:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"1px 10px",fontSize:18,flexShrink:0,lineHeight:"24px",height:"34px",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center"}}>⚙️</Btn>
         </div>
       </header>
@@ -1392,6 +1425,37 @@ export default function CatalogApp(){
       )}
 
       {confirm&&<Confirm message={confirm.msg} onOk={confirm.ok} onCancel={()=>setConfirm(null)} choices={confirm.choices}/>}
+
+      {bulkQtyModal&&(
+        <Overlay onClick={()=>setBulkQtyModal(false)}>
+          <Modal onClick={e=>e.stopPropagation()} style={{maxWidth:320}}>
+            <h2 style={{margin:"0 0 6px",fontSize:16,fontWeight:700}}>🔢 수량 변경</h2>
+            <p style={{margin:"0 0 14px",fontSize:13,color:"#666"}}><b>{sel.size}개</b> 항목의 수량을 변경해요.</p>
+
+            {/* 1씩 조절 */}
+            <p style={{margin:"0 0 8px",fontSize:12,fontWeight:700,color:"#444"}}>각 항목 기준 ±1씩 변경</p>
+            <div style={{display:"flex",gap:8,marginBottom:16}}>
+              <Btn onClick={()=>doBulkQtyDelta(1)} style={{flex:1,padding:10,borderRadius:8,border:"none",background:"#4a7ec9",color:"#fff",fontSize:14,fontWeight:700}}>+1 올리기</Btn>
+              <Btn onClick={()=>doBulkQtyDelta(-1)} style={{flex:1,padding:10,borderRadius:8,border:"none",background:"#c07030",color:"#fff",fontSize:14,fontWeight:700}}>-1 내리기</Btn>
+            </div>
+
+            {/* 직접 입력 */}
+            <p style={{margin:"0 0 8px",fontSize:12,fontWeight:700,color:"#444"}}>직접 입력한 수량으로 일괄 변경</p>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+              <Btn onClick={()=>setBulkQtyInput(v=>Math.max(0,Number(v)-1))} style={{width:32,height:32,borderRadius:8,border:"1.5px solid #ccc",background:"#f5f5f5",fontSize:16,fontWeight:700,flexShrink:0}}>−</Btn>
+              <input
+                type="number" min="0"
+                value={bulkQtyInput}
+                onChange={e=>setBulkQtyInput(Math.max(0,parseInt(e.target.value)||0))}
+                style={{...IS,width:60,textAlign:"center",padding:"6px 4px",fontSize:15,fontWeight:700}}
+              />
+              <Btn onClick={()=>setBulkQtyInput(v=>Number(v)+1)} style={{width:32,height:32,borderRadius:8,border:"1.5px solid #ccc",background:"#f5f5f5",fontSize:16,fontWeight:700,flexShrink:0}}>+</Btn>
+            </div>
+            <Btn onClick={doBulkQtySet} style={{width:"100%",padding:10,borderRadius:8,border:"none",background:"#6a9a4a",color:"#fff",fontSize:13,fontWeight:700,marginBottom:8}}>✓ {bulkQtyInput}개로 일괄 변경</Btn>
+            <Btn onClick={()=>setBulkQtyModal(false)} style={{width:"100%",padding:9,borderRadius:8,border:"2px solid #ccc",background:"transparent",color:"#666",fontSize:14,fontWeight:900}}>취소</Btn>
+          </Modal>
+        </Overlay>
+      )}
 
       {bulkMove&&(
         <Overlay onClick={()=>setBulkMove(false)}>
