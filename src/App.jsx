@@ -841,6 +841,8 @@ export default function CatalogApp(){
   const [sel,setSel]=useState(new Set());
   const [bulkMove,setBulkMove]=useState(false);
   const [bulkCat,setBulkCat]=useState("");
+  const [bulkSplitQty,setBulkSplitQty]=useState(1);
+  const [bulkSplitMax,setBulkSplitMax]=useState(50);
   const [confirm,setConfirm]=useState(null);
   const [ctx,setCtx]=useState(null);
   const [toast,setToast]=useState("");
@@ -1108,6 +1110,35 @@ export default function CatalogApp(){
   const doBulkDel=useCallback(()=>{if(!sel.size)return;const ids=new Set(sel);setConfirm({msg:`${ids.size}개 항목을 삭제할까요?`,ok:()=>{setItems(p=>p.filter(it=>!ids.has(it.id)));clearSel();setConfirm(null);}});},[sel,clearSel]);
   const doBulkMove=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>p.map(it=>ids.has(it.id)?{...it,category:bulkCat}:it));setBulkMove(false);clearSel();},[bulkCat,sel,clearSel]);
   const doBulkCopy=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>[...p,...p.filter(it=>ids.has(it.id)).map(it=>({...it,id:nextId.current++,name:`${it.name} [복사]`,category:bulkCat,date:new Date().toISOString().split("T")[0]}))]);setBulkMove(false);clearSel();showToast(`📋 ${ids.size}개 복사됨`);},[bulkCat,sel,clearSel]);
+  const doBulkSplit=useCallback(()=>{
+    if(!bulkCat) return;
+    const ids=new Set(sel);
+    const qty=Math.max(1,Math.min(bulkSplitMax,parseInt(bulkSplitQty)||1));
+    setItems(p=>{
+      const next=[...p];
+      const toAdd=[];
+      for(let i=0;i<next.length;i++){
+        const it=next[i];
+        if(!ids.has(it.id)) continue;
+        const orig=it.quantity??1;
+        const take=Math.min(qty,orig);
+        const remain=orig-take;
+        if(remain<=0){
+          // 수량이 0 이하 → [0] 카테고리로 자동 이동
+          next[i]={...it,quantity:0,category:"0"};
+          // 빼낸 수량은 대상 폴더로
+          toAdd.push({...it,id:nextId.current++,category:bulkCat,quantity:take,date:new Date().toISOString().split("T")[0]});
+        } else {
+          next[i]={...it,quantity:remain};
+          toAdd.push({...it,id:nextId.current++,category:bulkCat,quantity:take,date:new Date().toISOString().split("T")[0]});
+        }
+      }
+      return [...next,...toAdd];
+    });
+    setBulkMove(false);
+    clearSel();
+    showToast(`✂️ ${ids.size}개 분리 이동됨`);
+  },[bulkCat,sel,bulkSplitQty,clearSel]);
   const addCat=()=>{
     const v=(newCatRef.current?.value||"").trim();
     if(!v)return;
@@ -1263,7 +1294,7 @@ export default function CatalogApp(){
             <Btn onClick={()=>setSel(new Set(disp.map(it=>it.id)))} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>전체</Btn>
             <Btn onClick={()=>setSel(new Set())} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>해제</Btn>
             <div style={{flex:1}}/>
-            <Btn onClick={()=>{setBulkCat(categories[0]||"");setBulkMove(true);}} disabled={!sel.size} style={{...HB,background:sel.size?"#4a7ec9":"#334",color:"#fff",padding:"5px 10px",fontSize:12,flexShrink:0,opacity:sel.size?1:.5}}>📁이동</Btn>
+            <Btn onClick={()=>{const minQ=Math.max(1,Math.min(...[...sel].map(id=>{const it=items.find(x=>x.id===id);return it?.quantity??1;})));setBulkSplitMax(minQ);setBulkSplitQty(1);setBulkCat(categories[0]||"");setBulkMove(true);}} disabled={!sel.size} style={{...HB,background:sel.size?"#4a7ec9":"#334",color:"#fff",padding:"5px 10px",fontSize:12,flexShrink:0,opacity:sel.size?1:.5}}>📁이동</Btn>
             <Btn onClick={doBulkDel} disabled={!sel.size} style={{...HB,background:sel.size?"#e05050":"#334",color:"#fff",padding:"5px 10px",fontSize:12,flexShrink:0,opacity:sel.size?1:.5}}>🗑삭제</Btn>
             <Btn onClick={clearSel} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>취소</Btn>
           </div>
@@ -1327,6 +1358,23 @@ export default function CatalogApp(){
             <div style={{display:"flex",gap:8,marginBottom:8}}>
               <Btn onClick={doBulkMove} style={{flex:1,padding:10,borderRadius:8,border:"none",background:"#4a7ec9",color:"#fff",fontSize:13,fontWeight:700}}>📁 이동</Btn>
               <Btn onClick={doBulkCopy} style={{flex:1,padding:10,borderRadius:8,border:"none",background:"#6a9a4a",color:"#fff",fontSize:13,fontWeight:700}}>📋 복사하여 이동</Btn>
+            </div>
+            {/* 수량 분리 이동 */}
+            <div style={{borderTop:"1px solid #e0e0e0",paddingTop:12,marginBottom:8}}>
+              <p style={{margin:"0 0 8px",fontSize:12,color:"#666",fontWeight:700}}>✂️ N개 빼고 이동</p>
+              <p style={{margin:"0 0 10px",fontSize:11,color:"#999"}}>원본 수량에서 N개를 빼서 선택 폴더로 이동해요.</p>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                <Btn onClick={()=>setBulkSplitQty(v=>Math.max(1,Number(v)-1))} style={{width:32,height:32,borderRadius:8,border:"1.5px solid #ccc",background:"#f5f5f5",fontSize:16,fontWeight:700,flexShrink:0}}>−</Btn>
+                <input
+                  type="number" min="1" max={bulkSplitMax}
+                  value={bulkSplitQty}
+                  onChange={e=>{const v=parseInt(e.target.value)||1;setBulkSplitQty(Math.max(1,Math.min(bulkSplitMax,v)));}}
+                  style={{...IS,width:60,textAlign:"center",padding:"6px 4px",fontSize:15,fontWeight:700}}
+                />
+                <Btn onClick={()=>setBulkSplitQty(v=>Math.min(bulkSplitMax,Number(v)+1))} style={{width:32,height:32,borderRadius:8,border:"1.5px solid #ccc",background:"#f5f5f5",fontSize:16,fontWeight:700,flexShrink:0}}>+</Btn>
+                <span style={{fontSize:11,color:"#999"}}>개 (최대 {bulkSplitMax})</span>
+              </div>
+              <Btn onClick={doBulkSplit} style={{width:"100%",padding:10,borderRadius:8,border:"none",background:"#c07030",color:"#fff",fontSize:13,fontWeight:700}}>✂️ {bulkSplitQty}개 빼고 이동</Btn>
             </div>
             <Btn onClick={()=>setBulkMove(false)} style={{width:"100%",padding:9,borderRadius:8,border:"2px solid #cccccc",background:"transparent",color:"#666666",fontSize:14,fontWeight:900}}>취소</Btn>
           </Modal>
