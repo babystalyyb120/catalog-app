@@ -1105,8 +1105,45 @@ export default function CatalogApp(){
   const copyItem=useCallback(it=>{setItems(p=>[...p,{...it,id:nextId.current++,name:`${it.name} (복사)`,date:new Date().toISOString().split("T")[0]}]);setCtx(null);showToast("📋 복사됨");},[]);
   const togAcq=useCallback((id)=>{setItems(p=>p.map(it=>it.id===id?{...it,acquired:!it.acquired}:it));setViewItem(v=>v?.id===id?{...v,acquired:!v.acquired}:v);},[]);
   const delItem=useCallback(id=>{setCtx(null);setConfirm({msg:"이 항목을 삭제할까요?",ok:()=>{setItems(p=>p.filter(it=>it.id!==id));setViewItem(null);setConfirm(null);}});},[]);
+  const restoreItem=useCallback((copyItem)=>{
+    const originId=copyItem.splitFrom;
+    setItems(p=>{
+      const origin=p.find(it=>it.id===originId);
+      if(!origin) return p;
+      const newQty=(origin.quantity??1)+(copyItem.quantity??1);
+      const restoredCat=(origin.category==="0"&&origin.originalCategory)?origin.originalCategory:origin.category;
+      return p
+        .filter(it=>it.id!==copyItem.id)
+        .map(it=>it.id===originId
+          ? {...it,quantity:newQty,category:restoredCat,originalCategory:undefined}
+          : it
+        );
+    });
+    setViewItem(null);
+    showToast("🔄 원본에 수량이 복원됐어요");
+  },[]);
   const togSel=useCallback(id=>setSel(p=>{const n=new Set(p);n.has(id)?n.delete(id):n.add(id);return n;}),[]);
   const clearSel=useCallback(()=>{setSel(new Set());setSelectMode(false);},[]);
+  const bulkRestoreItems=useCallback(()=>{
+    const ids=new Set(sel);
+    setItems(p=>{
+      const copies=p.filter(it=>ids.has(it.id));
+      let next=[...p];
+      for(const copy of copies){
+        next=next
+          .filter(it=>it.id!==copy.id)
+          .map(it=>{
+            if(it.id!==copy.splitFrom) return it;
+            const newQty=(it.quantity??1)+(copy.quantity??1);
+            const restoredCat=(it.category==="0"&&it.originalCategory)?it.originalCategory:it.category;
+            return {...it,quantity:newQty,category:restoredCat,originalCategory:undefined};
+          });
+      }
+      return next;
+    });
+    clearSel();
+    showToast("🔄 수량이 복원됐어요");
+  },[sel,clearSel]);
   const doBulkDel=useCallback(()=>{if(!sel.size)return;const ids=new Set(sel);setConfirm({msg:`${ids.size}개 항목을 삭제할까요?`,ok:()=>{setItems(p=>p.filter(it=>!ids.has(it.id)));clearSel();setConfirm(null);}});},[sel,clearSel]);
   const doBulkMove=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>p.map(it=>ids.has(it.id)?{...it,category:bulkCat}:it));setBulkMove(false);clearSel();},[bulkCat,sel,clearSel]);
   const doBulkCopy=useCallback(()=>{if(!bulkCat)return;const ids=new Set(sel);setItems(p=>[...p,...p.filter(it=>ids.has(it.id)).map(it=>({...it,id:nextId.current++,name:`${it.name} [복사]`,category:bulkCat,date:new Date().toISOString().split("T")[0]}))]);setBulkMove(false);clearSel();showToast(`📋 ${ids.size}개 복사됨`);},[bulkCat,sel,clearSel]);
@@ -1124,13 +1161,13 @@ export default function CatalogApp(){
         const take=Math.min(qty,orig);
         const remain=orig-take;
         if(remain<=0){
-          // 수량이 0 이하 → [0] 카테고리로 자동 이동
-          next[i]={...it,quantity:0,category:"0"};
+          // 수량이 0 이하 → [0] 카테고리로 자동 이동, 원래 카테고리 기억
+          next[i]={...it,quantity:0,category:"0",originalCategory:it.category};
           // 빼낸 수량은 대상 폴더로
-          toAdd.push({...it,id:nextId.current++,category:bulkCat,quantity:take,date:new Date().toISOString().split("T")[0]});
+          toAdd.push({...it,id:nextId.current++,name:`${it.name} [복사]`,category:bulkCat,quantity:take,splitFrom:it.id,date:new Date().toISOString().split("T")[0]});
         } else {
           next[i]={...it,quantity:remain};
-          toAdd.push({...it,id:nextId.current++,category:bulkCat,quantity:take,date:new Date().toISOString().split("T")[0]});
+          toAdd.push({...it,id:nextId.current++,name:`${it.name} [복사]`,category:bulkCat,quantity:take,splitFrom:it.id,date:new Date().toISOString().split("T")[0]});
         }
       }
       return [...next,...toAdd];
@@ -1294,6 +1331,15 @@ export default function CatalogApp(){
             <Btn onClick={()=>setSel(new Set(disp.map(it=>it.id)))} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>전체</Btn>
             <Btn onClick={()=>setSel(new Set())} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>해제</Btn>
             <div style={{flex:1}}/>
+            {(()=>{
+              const allRestorable=sel.size>0&&[...sel].every(id=>{
+                const it=items.find(x=>x.id===id);
+                return it?.splitFrom && items.find(x=>x.id===it.splitFrom);
+              });
+              return allRestorable&&(
+                <Btn onClick={bulkRestoreItems} style={{...HB,background:"#4a8a6a",color:"#fff",padding:"5px 10px",fontSize:12,flexShrink:0}}>🔄복원</Btn>
+              );
+            })()}
             <Btn onClick={()=>{const minQ=Math.max(1,Math.min(...[...sel].map(id=>{const it=items.find(x=>x.id===id);return it?.quantity??1;})));setBulkSplitMax(minQ);setBulkSplitQty(1);setBulkCat(categories[0]||"");setBulkMove(true);}} disabled={!sel.size} style={{...HB,background:sel.size?"#4a7ec9":"#334",color:"#fff",padding:"5px 10px",fontSize:12,flexShrink:0,opacity:sel.size?1:.5}}>📁이동</Btn>
             <Btn onClick={doBulkDel} disabled={!sel.size} style={{...HB,background:sel.size?"#e05050":"#334",color:"#fff",padding:"5px 10px",fontSize:12,flexShrink:0,opacity:sel.size?1:.5}}>🗑삭제</Btn>
             <Btn onClick={clearSel} style={{...HB,background:"transparent",color:theme.selectBarText||"#a8c8f0",border:`1px solid ${theme.selectBarText||"#4a7ec9"}`,padding:"3px 9px",fontSize:12,flexShrink:0}}>취소</Btn>
@@ -1402,6 +1448,11 @@ export default function CatalogApp(){
                 <Btn onClick={()=>togAcq(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #444444",background:viewItem.acquired?"#444444":"transparent",color:viewItem.acquired?"#ffffff":"#444444",fontWeight:700,fontSize:13}}>{viewItem.acquired?"✓ 습득":"○ 미습득"}</Btn>
                 <Btn onClick={()=>delItem(viewItem.id)} style={{flex:1,padding:9,borderRadius:8,border:"2px solid #c0503a",background:"transparent",color:"#e05050",fontWeight:700,fontSize:13}}>🗑 삭제</Btn>
               </div>
+              {viewItem.splitFrom&&items.find(it=>it.id===viewItem.splitFrom)&&(
+                <Btn onClick={()=>restoreItem(viewItem)} style={{width:"100%",marginTop:8,padding:9,borderRadius:8,border:"2px solid #4a8a6a",background:"transparent",color:"#4a8a6a",fontWeight:700,fontSize:13}}>
+                  🔄 [{items.find(it=>it.id===viewItem.splitFrom)?.category}] {items.find(it=>it.id===viewItem.splitFrom)?.name} 에 수량 복원
+                </Btn>
+              )}
             </div>
           </Modal>
         </Overlay>
