@@ -1319,7 +1319,7 @@ export default function CatalogApp(){
                 setSearch(p=>p.includes(tag)?p.replace(tag,"").trim():((p?p+" ":"")+tag).trim());
               }}
                 style={{padding:"3px 7px",borderRadius:99,border:`1.5px solid ${active?theme.headerText:theme.btnBorder}`,background:active?theme.headerText:theme.btnBg,color:active?(theme.activeText||theme.header):theme.btnText,fontSize:12,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-                {{"숫자":"숫자","영어":"영어","ㄱ":"ㄱ·ㄲ","ㄴ":"ㄴ","ㄷ":"ㄷ·ㄸ","ㄹ":"ㄹ","ㅁ":"ㅁ","ㅂ":"ㅂ·ㅃ","ㅅ":"ㅅ·ㅆ","ㅇ":"ㅇ","ㅈ":"ㅈ·ㅉ","ㅊ":"ㅊ","ㅋ":"ㅋ","ㅌ":"ㅌ","ㅍ":"ㅍ","ㅎ":"ㅎ"}[k]}
+                {{"숫자":"숫자","영어":"영어","ㄱ":"ㄱ","ㄴ":"ㄴ","ㄷ":"ㄷ","ㄹ":"ㄹ","ㅁ":"ㅁ","ㅂ":"ㅂ","ㅅ":"ㅅ","ㅇ":"ㅇ","ㅈ":"ㅈ","ㅊ":"ㅊ","ㅋ":"ㅋ","ㅌ":"ㅌ","ㅍ":"ㅍ","ㅎ":"ㅎ"}[k]}
               </button>
             );
           })}
@@ -1390,7 +1390,7 @@ export default function CatalogApp(){
               <Btn key={c} onClick={()=>{
                 if(isAll){setActiveCats([]);setSearch("");return;}
                 setActiveCats(p=>p.includes(c)?p.filter(x=>x!==c):[...p,c]);
-              }} style={{padding:"4px 12px",borderRadius:99,border:"2px solid",borderColor:active?theme.catActive:"var(--t-card-border)",background:active?theme.catActive:"transparent",color:active?theme.catActiveText:"var(--t-cat-inactive)",fontWeight:active?700:400,fontSize:16,whiteSpace:"nowrap"}}>{c}</Btn>
+              }} style={{padding:"3px 10px",borderRadius:99,border:"1.5px solid",borderColor:active?theme.catActive:"var(--t-card-border)",background:active?theme.catActive:"transparent",color:active?theme.catActiveText:"var(--t-cat-inactive)",fontWeight:active?700:400,fontSize:13,whiteSpace:"nowrap"}}>{c}</Btn>
             );
           })}
         </div>
