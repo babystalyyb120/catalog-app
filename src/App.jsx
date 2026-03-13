@@ -169,7 +169,7 @@ const DEF_CC=[
 const DEF_CATS=["수집품","도서","의류","전자기기","기타","중복"];
 const DEF_ITEMS=[{id:1,name:"빈티지 카메라",category:"수집품",colorCat:"블랙",acquired:true,quantity:1,date:"2024-01-10",image:null,note:"Leica M3",price:0},{id:2,name:"디자인 패턴",category:"도서",colorCat:"",acquired:false,quantity:2,date:"2024-02-15",image:null,note:"Gang of Four",price:0},{id:3,name:"레더 재킷",category:"의류",colorCat:"브라운",acquired:true,quantity:1,date:"2024-03-01",image:null,note:"빈티지 스타일",price:0}];
 const DEF_STATE={items:DEF_ITEMS,categories:DEF_CATS,colorCats:DEF_CC,settings:{photoMode:false,viewMode:"이미지형",gridCols:3,sortBy:"date-desc"}};
-const SORT_OPTS=[{v:"date-desc",l:"최근 추가순"},{v:"date-asc",l:"오래된순"},{v:"name-asc",l:"이름 ↑"},{v:"name-desc",l:"이름 ↓"},{v:"category-name-asc",l:"카테고리→이름 ↑"},{v:"category-name-desc",l:"카테고리→이름 ↓"},{v:"acquired-first",l:"습득 먼저"},{v:"not-acquired-first",l:"미습득 먼저"}];
+const SORT_OPTS=[{v:"date-desc",l:"최근 추가순"},{v:"date-asc",l:"오래된순"},{v:"name-asc",l:"이름 ↑"},{v:"name-desc",l:"이름 ↓"},{v:"category-name-asc",l:"카테고리→이름 ↑"},{v:"category-name-desc",l:"카테고리→이름 ↓"},{v:"acquired-first",l:"습득 먼저"},{v:"not-acquired-first",l:"미습득 먼저"},{v:"no-image-first",l:"사진없는것 먼저"}];
 const GRID_COLS=[2,3,4,5,6];
 
 // ══════ 테마 정의 ══════
@@ -853,6 +853,8 @@ export default function CatalogApp(){
   const [bulkCat,setBulkCat]=useState("");
   const [bulkSplitQty,setBulkSplitQty]=useState(1);
   const [bulkSplitMax,setBulkSplitMax]=useState(50);
+  const [indivSplitOpen,setIndivSplitOpen]=useState(false); // 개별 수량 탭 열림 여부
+  const [indivSplitQtys,setIndivSplitQtys]=useState({}); // {id: qty}
   const [confirm,setConfirm]=useState(null);
   const [ctx,setCtx]=useState(null);
   const [toast,setToast]=useState("");
@@ -1326,6 +1328,38 @@ export default function CatalogApp(){
     clearSel();
     showToast(`✂️ ${ids.size}개 분리 이동됨`);
   },[bulkCat,sel,bulkSplitQty,clearSel]);
+
+  const doIndivSplit=useCallback(()=>{
+    if(!bulkCat)return;
+    const entries=Object.entries(indivSplitQtys);
+    if(!entries.length)return;
+    setItems(p=>{
+      let next=[...p];
+      entries.forEach(([idStr,qty])=>{
+        const id=Number(idStr);
+        const idx=next.findIndex(it=>it.id===id);
+        if(idx===-1)return;
+        const orig=next[idx];
+        const origQty=orig.quantity??1;
+        const moveQty=Math.max(1,Math.min(origQty,parseInt(qty)||1));
+        const remaining=origQty-moveQty;
+        // 복사본 생성 → bulkCat으로
+        const copy={...orig,id:nextId.current++,quantity:moveQty,category:bulkCat,date:new Date().toISOString().split("T")[0],splitFrom:orig.id};
+        if(remaining<=0){
+          next[idx]={...orig,quantity:0,category:"0",originalCategory:orig.originalCategory||orig.category};
+        } else {
+          next[idx]={...orig,quantity:remaining};
+        }
+        next.push(copy);
+      });
+      return next;
+    });
+    setBulkMove(false);
+    setIndivSplitOpen(false);
+    setIndivSplitQtys({});
+    clearSel();
+    showToast(`✂️ 개별 수량 이동 완료`);
+  },[bulkCat,indivSplitQtys,clearSel]);
   const addCat=()=>{
     const v=(newCatRef.current?.value||"").trim();
     if(!v)return;
@@ -1368,6 +1402,7 @@ export default function CatalogApp(){
       if(sortBy==="acquired-first")return b.acquired-a.acquired;
       if(sortBy==="not-acquired-first")return a.acquired-b.acquired;
       if(sortBy==="category-name-asc"){const cc=a.category.localeCompare(b.category,"ko");return cc||dispName(a).localeCompare(dispName(b),"ko");}
+      if(sortBy==="no-image-first")return (a.image?1:0)-(b.image?1:0);
       if(sortBy==="category-name-desc"){const cc=a.category.localeCompare(b.category,"ko");return cc||dispName(b).localeCompare(dispName(a),"ko");}
       return 0;
     }),[items,activeCats,search,sortBy]);
@@ -1609,6 +1644,55 @@ export default function CatalogApp(){
                 <span style={{fontSize:11,color:"#999"}}>개 (최대 {bulkSplitMax})</span>
               </div>
               <Btn onClick={doBulkSplit} style={{width:"100%",padding:10,borderRadius:8,border:"none",background:"#c07030",color:"#fff",fontSize:13,fontWeight:700}}>✂️ {bulkSplitQty}개 빼고 이동</Btn>
+            </div>
+            {/* 개별 수량 지정 이동 */}
+            <div style={{borderTop:"1px solid #e0e0e0",paddingTop:12,marginBottom:8}}>
+              <Btn onClick={()=>{
+                if(!indivSplitOpen){
+                  // 열 때 각 항목 기본값 1로 초기화
+                  const init={};
+                  [...sel].forEach(id=>{init[id]=1;});
+                  setIndivSplitQtys(init);
+                }
+                setIndivSplitOpen(p=>!p);
+              }} style={{width:"100%",padding:9,borderRadius:8,border:"1.5px solid #c07030",background:indivSplitOpen?"#c07030":"transparent",color:indivSplitOpen?"#fff":"#c07030",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <span>✂️ 개별 수량 지정 이동</span>
+                <span style={{fontSize:11}}>{indivSplitOpen?"▲":"▼"}</span>
+              </Btn>
+              {indivSplitOpen&&(
+                <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:8}}>
+                  <p style={{margin:"0 0 4px",fontSize:11,color:"#999"}}>항목별로 뺄 수량을 각각 지정해요.</p>
+                  {[...sel].map(id=>{
+                    const it=items.find(x=>x.id===id);
+                    if(!it)return null;
+                    const max=it.quantity??1;
+                    const val=indivSplitQtys[id]??1;
+                    return(
+                      <div key={id} style={{display:"flex",alignItems:"center",gap:6,padding:"6px 8px",borderRadius:8,background:"#f8f5f0",border:"1px solid #e0d8cc"}}>
+                        {/* 썸네일 */}
+                        <div style={{width:36,height:36,borderRadius:6,overflow:"hidden",flexShrink:0,background:"#eee",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {it.image
+                            ?<img src={it.image} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>
+                            :<span style={{fontSize:14,opacity:.5}}>🖼️</span>}
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:11,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{it.name}{it.colorCat?` - ${it.colorCat}`:""}</div>
+                          <div style={{fontSize:10,color:"#888"}}>보유 {max}개</div>
+                        </div>
+                        <Btn onClick={()=>setIndivSplitQtys(p=>({...p,[id]:Math.max(1,Number(p[id]??1)-1)}))} style={{width:24,height:24,borderRadius:5,border:"1.5px solid #ccc",background:"#f5f5f5",fontSize:12,fontWeight:700,flexShrink:0}}>−</Btn>
+                        <input type="number" min="1" max={max} value={val}
+                          onChange={e=>setIndivSplitQtys(p=>({...p,[id]:Math.max(1,Math.min(max,parseInt(e.target.value)||1))}))}
+                          style={{width:36,textAlign:"center",border:"1.5px solid #ccc",borderRadius:5,padding:"3px 2px",fontSize:12,fontWeight:700,fontFamily:"inherit"}}/>
+                        <Btn onClick={()=>setIndivSplitQtys(p=>({...p,[id]:Math.min(max,Number(p[id]??1)+1)}))} style={{width:24,height:24,borderRadius:5,border:"1.5px solid #ccc",background:"#f5f5f5",fontSize:12,fontWeight:700,flexShrink:0}}>+</Btn>
+                        <span style={{fontSize:10,color:"#aaa",flexShrink:0}}>/{max}</span>
+                      </div>
+                    );
+                  })}
+                  <Btn onClick={doIndivSplit} style={{width:"100%",padding:10,borderRadius:8,border:"none",background:"#c07030",color:"#fff",fontSize:13,fontWeight:700,marginTop:4}}>
+                    ✂️ 개별 수량으로 이동
+                  </Btn>
+                </div>
+              )}
             </div>
             <Btn onClick={()=>setBulkMove(false)} style={{width:"100%",padding:9,borderRadius:8,border:"2px solid #cccccc",background:"transparent",color:"#666666",fontSize:14,fontWeight:900}}>취소</Btn>
           </Modal>
