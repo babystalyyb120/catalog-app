@@ -1344,7 +1344,7 @@ export default function CatalogApp(){
         const moveQty=Math.max(1,Math.min(origQty,parseInt(qty)||1));
         const remaining=origQty-moveQty;
         // 복사본 생성 → bulkCat으로
-        const copy={...orig,id:nextId.current++,quantity:moveQty,category:bulkCat,date:new Date().toISOString().split("T")[0],splitFrom:orig.id};
+        const copy={...orig,id:nextId.current++,name:`${orig.name} [복사]`,quantity:moveQty,category:bulkCat,date:new Date().toISOString().split("T")[0],splitFrom:orig.id};
         if(remaining<=0){
           next[idx]={...orig,quantity:0,category:"0",originalCategory:orig.originalCategory||orig.category};
         } else {
