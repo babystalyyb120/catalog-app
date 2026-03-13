@@ -465,7 +465,7 @@ const ImageCard=memo(function ImageCard({item,hideAcquired,hideQuantity,hidePric
       {/* 이미지 영역: paddingTop:100% 유지 */}
       <div style={{position:"relative",paddingTop:"100%",overflow:"hidden",background:"var(--t-card-bg,#fff)"}}>
         {item.image
-          ?<img src={item.image} alt="" draggable={false} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/>
+          ?<><img src={item.image} alt="" draggable={false} onError={e=>{e.target.style.display="none";if(e.target.nextSibling)e.target.nextSibling.style.display="flex";}} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:pos,background:"#fff"}}/><div style={{display:"none",position:"absolute",inset:0,alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div></>
           :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,color:"var(--t-card-icon,#c0b8a8)",background:"var(--t-card-empty,#f8f8f8)"}}>🖼️</div>}
         {selectMode&&(
           <div style={{position:"absolute",top:5,left:5,width:26,height:26,borderRadius:6,border:`3px solid ${selected?"#4a7ec9":"rgba(80,80,80,.7)"}`,background:selected?"#4a7ec9":"rgba(255,255,255,.95)",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none",zIndex:10,boxShadow:"0 2px 6px rgba(0,0,0,.4)"}}>
@@ -519,7 +519,7 @@ const ListRow=memo(function ListRow({item,hideAcquired,hideQuantity,hidePrice,co
         </div>
       )}
       <div style={{width:44,height:44,borderRadius:7,overflow:"hidden",flexShrink:0,background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid #ede4d0"}}>
-        {item.image?<img src={item.image} alt="" draggable={false} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:item.imagePosition||"50% 50%"}}/>:<span style={{fontSize:18,opacity:.5}}>🖼️</span>}
+        {item.image?<img src={item.image} alt="" draggable={false} onError={e=>{e.target.style.display="none";if(e.target.nextSibling)e.target.nextSibling.style.display="inline";}} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:item.imagePosition||"50% 50%"}}/>:null}<span style={{fontSize:18,opacity:.5,display:item.image?"none":"inline"}}>🖼️</span>
       </div>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontWeight:700,fontSize:nameFontSize||11,color:"var(--t-item-name,#222222)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
@@ -817,6 +817,7 @@ function VirtualGrid({items,cols,hideAcquired,hideQuantity,hidePrice,colorCats,s
 // ══════════════════════════════════════════════════════════════
 export default function CatalogApp(){
   const [cdnConfig,setCdnConfig_]=useState(()=>getCdnConfig()); // Cloudinary 설정
+  const cdnConfigRef=useRef(getCdnConfig());
   const [items,setItems]=useState(DEF_ITEMS);
   const [categories,setCategories]=useState(DEF_CATS);
   const [colorCats,setColorCats]=useState(DEF_CC);
@@ -846,6 +847,8 @@ export default function CatalogApp(){
   const [sel,setSel]=useState(new Set());
   const [bulkMove,setBulkMove]=useState(false);
   const [bulkQtyModal,setBulkQtyModal]=useState(false);
+  const [bulkImgModal,setBulkImgModal]=useState(false);
+  const [bulkImgList,setBulkImgList]=useState([]); // [{file,name,matched,status}]
   const [bulkQtyInput,setBulkQtyInput]=useState(1);
   const [bulkCat,setBulkCat]=useState("");
   const [bulkSplitQty,setBulkSplitQty]=useState(1);
@@ -872,7 +875,7 @@ export default function CatalogApp(){
 
   const nextId=useRef(100),toastT=useRef(null),stRef=useRef(null),hashRef=useRef(""),readyRef=useRef(false),saveT=useRef(null),saving=useRef(false),lastSY=useRef(0),hdrRef=useRef(null),newCatRef=useRef(null),newCNRef=useRef(null),captureRef=useRef(null);
 
-  useEffect(()=>{stRef.current={items,categories,colorCats,settings:{hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,nameEllipsis,nameFontSize,themeName,customTheme,watermark,wmOpacity,wmSize,wmGap,wmMode}};},[items,categories,colorCats,hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,themeName,customTheme,nameFontSize,watermark,wmOpacity,wmSize,wmGap,wmMode]);
+  useEffect(()=>{stRef.current={items,categories,colorCats,cdnConfig,settings:{hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,nameEllipsis,nameFontSize,themeName,customTheme,watermark,wmOpacity,wmSize,wmGap,wmMode}};},[items,categories,colorCats,hideAcquired,hideQuantity,hidePrice,viewMode,gridCols,sortBy,themeName,customTheme,nameFontSize,watermark,wmOpacity,wmSize,wmGap,wmMode]);
   useEffect(()=>{
     const fn=()=>{const c=window.scrollY;setHeaderVis(c<10||c<lastSY.current);lastSY.current=c;};
     window.addEventListener("scroll",fn,{passive:true});return()=>window.removeEventListener("scroll",fn);
@@ -1217,6 +1220,64 @@ export default function CatalogApp(){
     showToast("🔄 수량이 복원됐어요");
   },[sel,clearSel]);
   const doBulkDel=useCallback(()=>{if(!sel.size)return;const ids=new Set(sel);setConfirm({msg:`${ids.size}개 항목을 삭제할까요?`,ok:()=>{setItems(p=>p.filter(it=>!ids.has(it.id)));clearSel();setConfirm(null);}});},[sel,clearSel]);
+
+  // 일괄 이미지 매칭
+  const onBulkImgFiles=useCallback((files)=>{
+    // 공백·하이픈 유연 정규화 (가로등-블랙 = 가로등 - 블랙 = 가로등블랙 모두 동일)
+    const normalize=s=>s.trim().replace(/\s*[-–]\s*/g,"_SEP_").replace(/\s+/g," ").toLowerCase().normalize("NFC");
+    const currentItems=stRef.current?.items||items;
+    const list=Array.from(files).map(file=>{
+      const raw=file.name.replace(/\.(png|jpg|jpeg|webp)$/i,"");
+      const rawN=normalize(raw);
+      // 1순위: 이름+색상 완전 매칭 (가로등 - 블랙, 가로등-블랙, 가로등 블랙 모두 OK)
+      let matched=currentItems.find(it=>{
+        if(!it.colorCat)return false;
+        const full1=normalize(`${it.name} - ${it.colorCat}`); // 이름 - 색상
+        const full2=normalize(`${it.name} ${it.colorCat}`);   // 이름 색상
+        return rawN===full1||rawN===full2;
+      });
+      // 2순위: 이름만 매칭 (색상 없는 파일명)
+      if(!matched) matched=currentItems.find(it=>normalize(it.name)===rawN);
+      return {file,raw,matched:matched||null,status:"ready"};
+    });
+    setBulkImgList(list);
+    setBulkImgModal(true);
+  },[items]);
+
+  // 일괄 업로드 실행
+  const doBulkImgUpload=useCallback(async()=>{
+    const cfg=cdnConfigRef.current;
+    if(!cfg){showToast("Cloudinary 설정이 필요합니다");return;}
+    // 현재 list 스냅샷
+    const uploadList=bulkImgList.filter(it=>it.matched&&it.status==="ready");
+    if(!uploadList.length)return;
+    setBulkImgList(p=>p.map(it=>it.matched&&it.status==="ready"?{...it,status:"uploading"}:it));
+    const results=await Promise.all(
+      uploadList.map(async(it)=>{
+        try{
+          const url=await compressAndUpload(it.file,cfg);
+          return{id:it.matched.id,url,status:"done"};
+        }catch(e){
+          console.error("업로드 실패",e);
+          showToast("❌ 업로드 실패: "+e.message);
+          return{id:it.matched.id,url:null,status:"error"};
+        }
+      })
+    );
+    const resultMap=new Map(results.map(r=>[r.id,r]));
+    setBulkImgList(p=>p.map(it=>{
+      if(!it.matched)return it;
+      const r=resultMap.get(it.matched.id);
+      if(!r)return it;
+      return{...it,status:r.status,url:r.url};
+    }));
+    const doneResults=results.filter(r=>r.status==="done");
+    if(doneResults.length>0){
+      const updates=new Map(doneResults.map(r=>[r.id,r.url]));
+      setItems(p=>p.map(it=>updates.has(it.id)?{...it,image:updates.get(it.id)}:it));
+      showToast(`✓ ${doneResults.length}개 이미지 업로드 완료`);
+    }
+  },[bulkImgList,cdnConfig]);
   const doBulkQtySet=useCallback(()=>{
     const ids=new Set(sel);
     const v=Math.max(0,parseInt(bulkQtyInput)||0);
@@ -1325,7 +1386,7 @@ export default function CatalogApp(){
     <CloudinarySetup onSave={cfg=>{setCdnConfig(cfg);setCdnConfig_(cfg);}}/>
   );
 
-  function setCdnConfig(cfg){setCdnConfig_(cfg);setCdnConfig_local(cfg);}
+  function setCdnConfig(cfg){setCdnConfig_(cfg);setCdnConfig_local(cfg);cdnConfigRef.current=cfg;}
   function setCdnConfig_local(cfg){try{localStorage.setItem(CK,JSON.stringify(cfg));}catch{}}
 
   // 현재 테마 계산
@@ -1402,6 +1463,10 @@ export default function CatalogApp(){
           {selectMode&&(
             <Btn onClick={()=>{setBulkQtyInput(1);setBulkQtyModal(true);}} style={{...HB,background:theme.btnBg,color:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"5px 10px",fontSize:13,flexShrink:0,height:"34px",boxSizing:"border-box",display:"flex",alignItems:"center"}}>🔢수량</Btn>
           )}
+          <label style={{...HB,background:theme.btnBg,color:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"1px 10px",fontSize:18,flexShrink:0,lineHeight:"24px",height:"34px",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",borderRadius:7}} title="이미지 일괄 업로드">
+            📷
+            <input type="file" accept="image/png,image/jpeg,image/webp" multiple style={{display:"none"}} onChange={e=>{if(e.target.files?.length)onBulkImgFiles(e.target.files);e.target.value="";}}/>
+          </label>
           <Btn onClick={()=>setSettings(true)} style={{...HB,background:theme.btnBg,color:theme.btnText,border:`1.5px solid ${theme.btnBorder}`,padding:"1px 10px",fontSize:18,flexShrink:0,lineHeight:"24px",height:"34px",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center"}}>⚙️</Btn>
         </div>
       </header>
@@ -1554,7 +1619,7 @@ export default function CatalogApp(){
         <Overlay onClick={()=>setViewItem(null)}>
           <Modal onClick={e=>e.stopPropagation()} style={{maxWidth:400,padding:0,overflow:"hidden"}}>
             <div style={{position:"relative",paddingTop:"100%",background:"#fff"}}>
-              {viewItem.image?<img src={viewItem.image} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",background:"#fff"}}/>
+              {viewItem.image?<img src={viewItem.image} alt="" onError={e=>{e.target.style.display="none";if(e.target.nextSibling)e.target.nextSibling.style.display="flex";}} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",background:"#fff"}}/>
                 :<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:50,background:"#f8f5f0"}}>🖼️</div>}
             </div>
             <div style={{padding:"14px 18px"}}>
@@ -1582,6 +1647,47 @@ export default function CatalogApp(){
       )}
 
       {modal&&<AddModal categories={categories} colorCats={colorCats} editItem={editItem} onSave={handleSave} onClose={()=>setModal(false)} cdnConfig={cdnConfig}/>}
+
+      {/* 일괄 이미지 업로드 모달 */}
+      {bulkImgModal&&(
+        <Overlay onClick={()=>setBulkImgModal(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,padding:20,width:"min(92vw,480px)",maxHeight:"80vh",display:"flex",flexDirection:"column",gap:12}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <h3 style={{margin:0,fontSize:16,fontWeight:700}}>📷 이미지 일괄 업로드</h3>
+              <Btn onClick={()=>setBulkImgModal(false)} style={{padding:"4px 10px",borderRadius:7,border:"1.5px solid #ccc",background:"#444",color:"#fff",fontSize:13,fontWeight:700}}>✕</Btn>
+            </div>
+            <div style={{fontSize:12,color:"#888"}}>파일명(확장자 제외)과 항목 이름이 일치하면 자동 매칭됩니다</div>
+            <div style={{overflowY:"auto",flex:1,display:"flex",flexDirection:"column",gap:6}}>
+              {bulkImgList.map((it,i)=>{
+                const statusIcon=it.status==="done"?"✅":it.status==="error"?"❌":it.status==="uploading"?"⏳":null;
+                return(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:10,background:it.matched?"#f0faf0":"#fff5f5",border:`1.5px solid ${it.matched?"#b2d8b2":"#f5b8b8"}`}}>
+                    <img src={URL.createObjectURL(it.file)} alt="" style={{width:40,height:40,objectFit:"cover",borderRadius:6,flexShrink:0}}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:13,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{it.raw}</div>
+                      <div style={{fontSize:10,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>파일명: {it.file.name}</div>
+                      {it.matched
+                        ? <div style={{fontSize:11,color:"#4a8a4a"}}>→ {it.matched.name}{it.matched.colorCat?` - ${it.matched.colorCat}`:""}</div>
+                        : <div style={{fontSize:11,color:"#c04040",fontWeight:700}}>✕ 일치하는 항목 없음</div>
+                      }
+                    </div>
+                    {statusIcon&&<span style={{fontSize:16,flexShrink:0}}>{statusIcon}</span>}
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{fontSize:12,color:"#666",textAlign:"center"}}>
+              총 {bulkImgList.length}개 중 매칭 <b style={{color:"#4a8a4a"}}>{bulkImgList.filter(i=>i.matched).length}개</b>
+              {bulkImgList.filter(i=>!i.matched).length>0&&<span style={{color:"#c04040"}}> / 미매칭 {bulkImgList.filter(i=>!i.matched).length}개</span>}
+            </div>
+            <Btn
+              onClick={doBulkImgUpload}
+              style={{padding:"11px",borderRadius:10,border:"none",background:bulkImgList.some(i=>i.matched&&i.status==="ready")?"#4a7ec9":"#ccc",color:"#fff",fontSize:14,fontWeight:700,cursor:bulkImgList.some(i=>i.matched&&i.status==="ready")?"pointer":"default"}}>
+              {bulkImgList.some(i=>i.status==="uploading")?"⏳ 업로드 중...":`☁️ 매칭된 ${bulkImgList.filter(i=>i.matched).length}개 업로드`}
+            </Btn>
+          </div>
+        </Overlay>
+      )}
 
       {settings&&(
         <Overlay onClick={()=>setSettings(false)}>
